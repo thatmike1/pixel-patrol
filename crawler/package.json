@@ -1,0 +1,28 @@
+{
+  "name": "pixel-patrol-crawler",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Pixel Patrol crawler — Cloud Run Job that scans a site and writes a deterministic tracker/cookie fingerprint to Firestore.",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --import tsx src/*.test.ts",
+    "start": "node dist/job.js",
+    "dev": "tsx src/job.ts"
+  },
+  "dependencies": {
+    "@google-cloud/firestore": "^7.11.0",
+    "@google-cloud/pubsub": "^4.9.0",
+    "pino": "^9.5.0",
+    "playwright": "1.48.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,0 +1,3004 @@
+{
+  "trackers": [
+    {
+      "domain": "google-analytics.com",
+      "vendor": "Google Analytics",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "www.google-analytics.com",
+      "vendor": "Google Analytics",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "ssl.google-analytics.com",
+      "vendor": "Google Analytics",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "analytics.google.com",
+      "vendor": "Google Analytics",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "googletagmanager.com",
+      "vendor": "Google Tag Manager",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "www.googletagmanager.com",
+      "vendor": "Google Tag Manager",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "tagmanager.google.com",
+      "vendor": "Google Tag Manager",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "googleadservices.com",
+      "vendor": "Google Ads",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "www.googleadservices.com",
+      "vendor": "Google Ads",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "pagead2.googlesyndication.com",
+      "vendor": "Google AdSense",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "googlesyndication.com",
+      "vendor": "Google AdSense",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "doubleclick.net",
+      "vendor": "Google DoubleClick",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "ad.doubleclick.net",
+      "vendor": "Google DoubleClick",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "stats.g.doubleclick.net",
+      "vendor": "Google DoubleClick",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "cm.g.doubleclick.net",
+      "vendor": "Google DoubleClick",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "securepubads.g.doubleclick.net",
+      "vendor": "Google Publisher Tags",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "www.google.com/pagead",
+      "vendor": "Google Ads",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "google.com/pagead",
+      "vendor": "Google Ads",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "www.gstatic.com",
+      "vendor": "Google Static",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "apis.google.com",
+      "vendor": "Google APIs",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "www.googleapis.com",
+      "vendor": "Google APIs",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "youtube.com",
+      "vendor": "YouTube",
+      "category": "marketing",
+      "type": "iframe"
+    },
+    {
+      "domain": "www.youtube.com",
+      "vendor": "YouTube",
+      "category": "marketing",
+      "type": "iframe"
+    },
+    {
+      "domain": "youtube-nocookie.com",
+      "vendor": "YouTube",
+      "category": "marketing",
+      "type": "iframe"
+    },
+    {
+      "domain": "www.youtube-nocookie.com",
+      "vendor": "YouTube",
+      "category": "marketing",
+      "type": "iframe"
+    },
+    {
+      "domain": "i.ytimg.com",
+      "vendor": "YouTube",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "s.ytimg.com",
+      "vendor": "YouTube",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "ytimg.com",
+      "vendor": "YouTube",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "google.com/recaptcha",
+      "vendor": "Google reCAPTCHA",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "www.google.com/recaptcha",
+      "vendor": "Google reCAPTCHA",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "recaptcha.google.com",
+      "vendor": "Google reCAPTCHA",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "adservice.google.com",
+      "vendor": "Google Ads",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "adservice.google.cz",
+      "vendor": "Google Ads CZ",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "www.google.cz",
+      "vendor": "Google CZ",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "translate.google.com",
+      "vendor": "Google Translate",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "maps.google.com",
+      "vendor": "Google Maps",
+      "category": "functional",
+      "type": "iframe"
+    },
+    {
+      "domain": "maps.googleapis.com",
+      "vendor": "Google Maps",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "optimize.google.com",
+      "vendor": "Google Optimize",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "fundingchoicesmessages.google.com",
+      "vendor": "Google Funding Choices",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "td.doubleclick.net",
+      "vendor": "Google DoubleClick",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "connect.facebook.net",
+      "vendor": "Facebook SDK",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "www.facebook.com",
+      "vendor": "Facebook",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "facebook.com",
+      "vendor": "Facebook",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "pixel.facebook.com",
+      "vendor": "Facebook Pixel",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "www.facebook.com/tr",
+      "vendor": "Facebook Pixel",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "staticxx.facebook.com",
+      "vendor": "Facebook",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "graph.facebook.com",
+      "vendor": "Facebook Graph API",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "fbcdn.net",
+      "vendor": "Facebook CDN",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "static.xx.fbcdn.net",
+      "vendor": "Facebook CDN",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "scontent.xx.fbcdn.net",
+      "vendor": "Facebook CDN",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "instagram.com",
+      "vendor": "Instagram",
+      "category": "marketing",
+      "type": "iframe"
+    },
+    {
+      "domain": "www.instagram.com",
+      "vendor": "Instagram",
+      "category": "marketing",
+      "type": "iframe"
+    },
+    {
+      "domain": "platform.instagram.com",
+      "vendor": "Instagram",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "scontent.cdninstagram.com",
+      "vendor": "Instagram CDN",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "business.facebook.com",
+      "vendor": "Facebook Business",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "clarity.ms",
+      "vendor": "Microsoft Clarity",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "www.clarity.ms",
+      "vendor": "Microsoft Clarity",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "bing.com",
+      "vendor": "Microsoft Bing",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "bat.bing.com",
+      "vendor": "Microsoft Bing Ads UET",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "c.bing.com",
+      "vendor": "Microsoft Bing",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "www.bing.com",
+      "vendor": "Microsoft Bing",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "linkedin.com",
+      "vendor": "LinkedIn",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "www.linkedin.com",
+      "vendor": "LinkedIn",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "ads.linkedin.com",
+      "vendor": "LinkedIn Ads",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "snap.licdn.com",
+      "vendor": "LinkedIn Insight Tag",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "platform.linkedin.com",
+      "vendor": "LinkedIn",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "px.ads.linkedin.com",
+      "vendor": "LinkedIn Ads",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "dc.ads.linkedin.com",
+      "vendor": "LinkedIn Ads",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "c.microsoft.com",
+      "vendor": "Microsoft",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "c.msn.com",
+      "vendor": "Microsoft MSN",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "h.seznam.cz",
+      "vendor": "Seznam.cz",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "c.imedia.cz",
+      "vendor": "iMedia (Seznam)",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "ssp.seznam.cz",
+      "vendor": "Seznam SSP",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "im.seznam.cz",
+      "vendor": "Seznam IM",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "c.seznam.cz",
+      "vendor": "Seznam.cz",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "servis.zbozi.cz",
+      "vendor": "Zboží.cz",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "www.zbozi.cz",
+      "vendor": "Zboží.cz",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "i.heureka.cz",
+      "vendor": "Heureka",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "tracking.heureka.cz",
+      "vendor": "Heureka Tracking",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "im.heureka.cz",
+      "vendor": "Heureka",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "www.heureka.cz",
+      "vendor": "Heureka",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "smartsupp.com",
+      "vendor": "Smartsupp",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.smartsupp.com",
+      "vendor": "Smartsupp CDN",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "rec.smartsupp.com",
+      "vendor": "Smartsupp Recording",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "widget-v4.smartsupp.com",
+      "vendor": "Smartsupp Widget",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "smartlook.com",
+      "vendor": "Smartlook",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "rec.smartlook.com",
+      "vendor": "Smartlook Recording",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "web-sdk.smartlook.com",
+      "vendor": "Smartlook SDK",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "manager.smartlook.com",
+      "vendor": "Smartlook",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "sklik.cz",
+      "vendor": "Sklik (Seznam)",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "c.sklik.cz",
+      "vendor": "Sklik (Seznam)",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "hit.gemius.pl",
+      "vendor": "Gemius",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "gapl.hit.gemius.pl",
+      "vendor": "Gemius PL",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "gacz.hit.gemius.pl",
+      "vendor": "Gemius CZ",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "ads.a1.cz",
+      "vendor": "A1.cz",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "s.imedia.cz",
+      "vendor": "iMedia",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "d.imedia.cz",
+      "vendor": "iMedia Display",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "sdds.seznam.cz",
+      "vendor": "Seznam DDS",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "login.szn.cz",
+      "vendor": "Seznam Login",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "static.heureka.cz",
+      "vendor": "Heureka Static",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "overeno.heureka.cz",
+      "vendor": "Heureka Ověřeno",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "heureka.group",
+      "vendor": "Heureka Group",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "rtb.seznam.cz",
+      "vendor": "Seznam RTB",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "dsp.seznam.cz",
+      "vendor": "Seznam DSP",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "img.seznam.cz",
+      "vendor": "Seznam Images",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "cdn.shoptet.cz",
+      "vendor": "Shoptet CDN",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "app.smartemailing.cz",
+      "vendor": "SmartEmailing",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "track.smartemailing.cz",
+      "vendor": "SmartEmailing",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "ecomail.cz",
+      "vendor": "Ecomail",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "app.ecomail.cz",
+      "vendor": "Ecomail",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "api.ecomail.app",
+      "vendor": "Ecomail",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cc.cdn.civiccomputing.com",
+      "vendor": "Civic Cookie Control",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "script.hotjar.com",
+      "vendor": "Hotjar",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "static.hotjar.com",
+      "vendor": "Hotjar",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "vars.hotjar.com",
+      "vendor": "Hotjar",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "in.hotjar.com",
+      "vendor": "Hotjar",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "vc.hotjar.io",
+      "vendor": "Hotjar",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "surveys.hotjar.com",
+      "vendor": "Hotjar Surveys",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "mouseflow.com",
+      "vendor": "Mouseflow",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.mouseflow.com",
+      "vendor": "Mouseflow CDN",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "o2.mouseflow.com",
+      "vendor": "Mouseflow",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "tools.mouseflow.com",
+      "vendor": "Mouseflow Tools",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "crazyegg.com",
+      "vendor": "Crazy Egg",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "script.crazyegg.com",
+      "vendor": "Crazy Egg",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.luckyorange.com",
+      "vendor": "Lucky Orange",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "w1.luckyorange.com",
+      "vendor": "Lucky Orange",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "realtime.luckyorange.com",
+      "vendor": "Lucky Orange",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "mixpanel.com",
+      "vendor": "Mixpanel",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.mxpnl.com",
+      "vendor": "Mixpanel CDN",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "api.mixpanel.com",
+      "vendor": "Mixpanel API",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.segment.com",
+      "vendor": "Segment",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "api.segment.io",
+      "vendor": "Segment API",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.segment.io",
+      "vendor": "Segment CDN",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "amplitude.com",
+      "vendor": "Amplitude",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.amplitude.com",
+      "vendor": "Amplitude CDN",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "api.amplitude.com",
+      "vendor": "Amplitude API",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "api2.amplitude.com",
+      "vendor": "Amplitude API",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "plausible.io",
+      "vendor": "Plausible",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.matomo.cloud",
+      "vendor": "Matomo Cloud",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "matomo.php",
+      "vendor": "Matomo",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "js.hs-scripts.com",
+      "vendor": "HubSpot",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "js.hs-analytics.net",
+      "vendor": "HubSpot Analytics",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "track.hubspot.com",
+      "vendor": "HubSpot Tracking",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "forms.hubspot.com",
+      "vendor": "HubSpot Forms",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "js.hsforms.net",
+      "vendor": "HubSpot Forms",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "api.hubspot.com",
+      "vendor": "HubSpot API",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "js.usemessages.com",
+      "vendor": "HubSpot Messages",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "app.hubspot.com",
+      "vendor": "HubSpot",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "criteo.com",
+      "vendor": "Criteo",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "static.criteo.net",
+      "vendor": "Criteo",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "dis.criteo.com",
+      "vendor": "Criteo Display",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "sslwidget.criteo.com",
+      "vendor": "Criteo Widget",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "gum.criteo.com",
+      "vendor": "Criteo",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "bidder.criteo.com",
+      "vendor": "Criteo Bidder",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "adform.net",
+      "vendor": "Adform",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "track.adform.net",
+      "vendor": "Adform Tracking",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "server.adform.net",
+      "vendor": "Adform Server",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "a1.adform.net",
+      "vendor": "Adform",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "pubmatic.com",
+      "vendor": "PubMatic",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "ads.pubmatic.com",
+      "vendor": "PubMatic Ads",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "image2.pubmatic.com",
+      "vendor": "PubMatic",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "t.pubmatic.com",
+      "vendor": "PubMatic",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "hbopenbid.pubmatic.com",
+      "vendor": "PubMatic Header Bidding",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "rubiconproject.com",
+      "vendor": "Rubicon Project/Magnite",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "fastlane.rubiconproject.com",
+      "vendor": "Rubicon Fastlane",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "pixel.rubiconproject.com",
+      "vendor": "Rubicon Pixel",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "optimized-by.rubiconproject.com",
+      "vendor": "Rubicon Project",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "openx.net",
+      "vendor": "OpenX",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "u.openx.net",
+      "vendor": "OpenX",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "rtb.openx.net",
+      "vendor": "OpenX RTB",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "casalemedia.com",
+      "vendor": "Casale Media/Index Exchange",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "as-sec.casalemedia.com",
+      "vendor": "Casale Media",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "dsum-sec.casalemedia.com",
+      "vendor": "Casale Media",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "appnexus.com",
+      "vendor": "AppNexus/Xandr",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "ib.adnxs.com",
+      "vendor": "AppNexus/Xandr",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "secure.adnxs.com",
+      "vendor": "AppNexus/Xandr",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "acdn.adnxs.com",
+      "vendor": "AppNexus/Xandr CDN",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "prebid.adnxs.com",
+      "vendor": "AppNexus Prebid",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "taboola.com",
+      "vendor": "Taboola",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.taboola.com",
+      "vendor": "Taboola CDN",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "trc.taboola.com",
+      "vendor": "Taboola TRC",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "nr.taboola.com",
+      "vendor": "Taboola",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "outbrain.com",
+      "vendor": "Outbrain",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "widgets.outbrain.com",
+      "vendor": "Outbrain Widgets",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "amplify.outbrain.com",
+      "vendor": "Outbrain Amplify",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "log.outbrain.com",
+      "vendor": "Outbrain",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "tr.outbrain.com",
+      "vendor": "Outbrain",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "thetradedesk.com",
+      "vendor": "The Trade Desk",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "match.adsrvr.org",
+      "vendor": "The Trade Desk",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "insight.adsrvr.org",
+      "vendor": "The Trade Desk",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "js.adsrvr.org",
+      "vendor": "The Trade Desk",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "rtbhouse.com",
+      "vendor": "RTB House",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "creativecdn.com",
+      "vendor": "RTB House CDN",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "bidswitch.net",
+      "vendor": "Bidswitch",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "x.bidswitch.net",
+      "vendor": "Bidswitch",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "liveramp.com",
+      "vendor": "LiveRamp",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "idsync.rlcdn.com",
+      "vendor": "LiveRamp",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "pippio.com",
+      "vendor": "LiveRamp",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "mediamath.com",
+      "vendor": "MediaMath",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "pixel.mathtag.com",
+      "vendor": "MediaMath",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "sync.mathtag.com",
+      "vendor": "MediaMath",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "quantserve.com",
+      "vendor": "Quantcast",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "pixel.quantserve.com",
+      "vendor": "Quantcast",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "secure.quantserve.com",
+      "vendor": "Quantcast",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "s.adroll.com",
+      "vendor": "AdRoll",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "d.adroll.com",
+      "vendor": "AdRoll",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "platform.twitter.com",
+      "vendor": "Twitter/X",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "syndication.twitter.com",
+      "vendor": "Twitter/X Syndication",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "analytics.twitter.com",
+      "vendor": "Twitter/X Analytics",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "t.co",
+      "vendor": "Twitter/X",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "static.ads-twitter.com",
+      "vendor": "Twitter/X Ads",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "ads-api.twitter.com",
+      "vendor": "Twitter/X Ads API",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "pinterest.com",
+      "vendor": "Pinterest",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "ct.pinterest.com",
+      "vendor": "Pinterest Tag",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "s.pinimg.com",
+      "vendor": "Pinterest",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "widgets.pinterest.com",
+      "vendor": "Pinterest Widgets",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "log.pinterest.com",
+      "vendor": "Pinterest",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "addthis.com",
+      "vendor": "AddThis",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "s7.addthis.com",
+      "vendor": "AddThis",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "m.addthis.com",
+      "vendor": "AddThis",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "m.addthisedge.com",
+      "vendor": "AddThis Edge",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "sharethis.com",
+      "vendor": "ShareThis",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "platform-api.sharethis.com",
+      "vendor": "ShareThis API",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "buttons-config.sharethis.com",
+      "vendor": "ShareThis",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "count-server.sharethis.com",
+      "vendor": "ShareThis",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "cdn.livechatinc.com",
+      "vendor": "LiveChat",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "api.livechatinc.com",
+      "vendor": "LiveChat API",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.livechat-static.com",
+      "vendor": "LiveChat Static",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "widget.intercom.io",
+      "vendor": "Intercom",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "api-iam.intercom.io",
+      "vendor": "Intercom API",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "js.intercomcdn.com",
+      "vendor": "Intercom CDN",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "app.intercom.io",
+      "vendor": "Intercom",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "js.crisp.chat",
+      "vendor": "Crisp Chat",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "client.crisp.chat",
+      "vendor": "Crisp Chat",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "embed.tawk.to",
+      "vendor": "Tawk.to",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "va.tawk.to",
+      "vendor": "Tawk.to",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.jsdelivr.net",
+      "vendor": "jsDelivr CDN",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdnjs.cloudflare.com",
+      "vendor": "Cloudflare CDN",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.onesignal.com",
+      "vendor": "OneSignal",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "onesignal.com",
+      "vendor": "OneSignal",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "fonts.googleapis.com",
+      "vendor": "Google Fonts",
+      "category": "functional",
+      "type": "font"
+    },
+    {
+      "domain": "fonts.gstatic.com",
+      "vendor": "Google Fonts",
+      "category": "functional",
+      "type": "font"
+    },
+    {
+      "domain": "use.typekit.net",
+      "vendor": "Adobe Typekit",
+      "category": "functional",
+      "type": "font"
+    },
+    {
+      "domain": "p.typekit.net",
+      "vendor": "Adobe Typekit",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "use.fontawesome.com",
+      "vendor": "Font Awesome",
+      "category": "functional",
+      "type": "font"
+    },
+    {
+      "domain": "kit.fontawesome.com",
+      "vendor": "Font Awesome Kit",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "pro.fontawesome.com",
+      "vendor": "Font Awesome Pro",
+      "category": "functional",
+      "type": "font"
+    },
+    {
+      "domain": "fast.fonts.net",
+      "vendor": "Monotype Fonts",
+      "category": "functional",
+      "type": "font"
+    },
+    {
+      "domain": "cloud.typography.com",
+      "vendor": "Hoefler & Co",
+      "category": "functional",
+      "type": "font"
+    },
+    {
+      "domain": "hello.myfonts.net",
+      "vendor": "MyFonts",
+      "category": "functional",
+      "type": "font"
+    },
+    {
+      "domain": "fls.doubleclick.net",
+      "vendor": "DoubleClick Floodlight",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "www.google-analytics.com/analytics.js",
+      "vendor": "Google Analytics",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "www.googletagmanager.com/gtag/js",
+      "vendor": "Google Global Site Tag",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "snap.licdn.com/li.lms-analytics",
+      "vendor": "LinkedIn Analytics",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "sc-static.net",
+      "vendor": "Snapchat",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "tr.snapchat.com",
+      "vendor": "Snapchat",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "analytics.tiktok.com",
+      "vendor": "TikTok Analytics",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "an.tiktok.com",
+      "vendor": "TikTok Ads",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "mcs.tiktok.com",
+      "vendor": "TikTok",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "events.reddit.com",
+      "vendor": "Reddit Pixel",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "www.redditstatic.com",
+      "vendor": "Reddit Static",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "alb.reddit.com",
+      "vendor": "Reddit",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "t.reddit.com",
+      "vendor": "Reddit",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "www.redditads.com",
+      "vendor": "Reddit Ads",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "zendesk.com",
+      "vendor": "Zendesk",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "static.zdassets.com",
+      "vendor": "Zendesk Assets",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "ekr.zdassets.com",
+      "vendor": "Zendesk",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "v2.zopim.com",
+      "vendor": "Zendesk Chat (Zopim)",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.cookielaw.org",
+      "vendor": "OneTrust",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "optanon.blob.core.windows.net",
+      "vendor": "OneTrust",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "geolocation.onetrust.com",
+      "vendor": "OneTrust Geo",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.cookiebot.com",
+      "vendor": "Cookiebot",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "consent.cookiebot.com",
+      "vendor": "Cookiebot",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "consentcdn.cookiebot.com",
+      "vendor": "Cookiebot CDN",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "consent.cookiefirst.com",
+      "vendor": "CookieFirst",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.iubenda.com",
+      "vendor": "iubenda",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cs.iubenda.com",
+      "vendor": "iubenda",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "consent.trustarc.com",
+      "vendor": "TrustArc",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "choices.trustarc.com",
+      "vendor": "TrustArc",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.privacy-mgmt.com",
+      "vendor": "Sourcepoint CMP",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cmp.quantcast.com",
+      "vendor": "Quantcast CMP",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "policy.app.cookieinformation.com",
+      "vendor": "Cookie Information",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.cookieinformation.com",
+      "vendor": "Cookie Information CDN",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "fullstory.com",
+      "vendor": "FullStory",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "rs.fullstory.com",
+      "vendor": "FullStory",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "edge.fullstory.com",
+      "vendor": "FullStory Edge",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "app.posthog.com",
+      "vendor": "PostHog",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "us.i.posthog.com",
+      "vendor": "PostHog US",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "eu.i.posthog.com",
+      "vendor": "PostHog EU",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "heapanalytics.com",
+      "vendor": "Heap Analytics",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.heapanalytics.com",
+      "vendor": "Heap Analytics CDN",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "newrelic.com",
+      "vendor": "New Relic",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "js-agent.newrelic.com",
+      "vendor": "New Relic Agent",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "bam.nr-data.net",
+      "vendor": "New Relic Data",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "bam-cell.nr-data.net",
+      "vendor": "New Relic Data",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "d.turn.com",
+      "vendor": "Amobee (Turn)",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "ad.turn.com",
+      "vendor": "Amobee (Turn)",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "simage2.pubmatic.com",
+      "vendor": "PubMatic Sync",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "cm.everesttech.net",
+      "vendor": "Adobe Advertising Cloud",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "dpm.demdex.net",
+      "vendor": "Adobe Audience Manager",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "fast.a]]msight.eu",
+      "vendor": "Adobe Analytics",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "assets.adobedtm.com",
+      "vendor": "Adobe DTM/Launch",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.tt.omtrdc.net",
+      "vendor": "Adobe Target",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "mboxedge.tt.omtrdc.net",
+      "vendor": "Adobe Target Edge",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "smetrics.*.com",
+      "vendor": "Adobe Analytics (first-party)",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "vwo.com",
+      "vendor": "VWO",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "dev.visualwebsiteoptimizer.com",
+      "vendor": "VWO",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.optimizely.com",
+      "vendor": "Optimizely",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "logx.optimizely.com",
+      "vendor": "Optimizely Logging",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "a]].optimizely.com",
+      "vendor": "Optimizely API",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn-3.convertexperiments.com",
+      "vendor": "Convert",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "data.convert.com",
+      "vendor": "Convert Data",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "bat.r.msn.com",
+      "vendor": "Microsoft Advertising",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "pixel.everesttech.net",
+      "vendor": "Adobe Advertising Cloud",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "strossle.com",
+      "vendor": "Strossle",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "widgets.strossle.com",
+      "vendor": "Strossle Widgets",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "assets.strossle.com",
+      "vendor": "Strossle Assets",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.getbeamer.com",
+      "vendor": "Beamer",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "app.getbeamer.com",
+      "vendor": "Beamer",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.freshmarketer.com",
+      "vendor": "Freshmarketer",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "wchat.freshchat.com",
+      "vendor": "Freshchat",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "fw-cdn.com",
+      "vendor": "Freshworks CDN",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "assetscdn-wchat.freshchat.com",
+      "vendor": "Freshchat Assets",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "beacon.helpscout.net",
+      "vendor": "Help Scout Beacon",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "chatwidget.helpscout.net",
+      "vendor": "Help Scout Chat",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "driftt.com",
+      "vendor": "Drift",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "js.driftt.com",
+      "vendor": "Drift JS",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "event.drift.com",
+      "vendor": "Drift Events",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "snackbar-static.drift.com",
+      "vendor": "Drift Static",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.pendo.io",
+      "vendor": "Pendo",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "app.pendo.io",
+      "vendor": "Pendo",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.walkme.com",
+      "vendor": "WalkMe",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.usefathom.com",
+      "vendor": "Fathom Analytics",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "leadfeeder.com",
+      "vendor": "Leadfeeder",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "t.leadfeeder.com",
+      "vendor": "Leadfeeder Tracking",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "app.leadfeeder.com",
+      "vendor": "Leadfeeder",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "sentry.io",
+      "vendor": "Sentry",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "browser.sentry-cdn.com",
+      "vendor": "Sentry CDN",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "js.sentry-cdn.com",
+      "vendor": "Sentry JS",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.datadog-agent.com",
+      "vendor": "Datadog",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "browser-intake-datadoghq.com",
+      "vendor": "Datadog Browser",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "browser-intake-datadoghq.eu",
+      "vendor": "Datadog Browser EU",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "rum.browser-intake-datadoghq.com",
+      "vendor": "Datadog RUM",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "js.stripe.com",
+      "vendor": "Stripe",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "m.stripe.com",
+      "vendor": "Stripe Mobile",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "m.stripe.network",
+      "vendor": "Stripe Network",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "r.stripe.com",
+      "vendor": "Stripe",
+      "category": "functional",
+      "type": "pixel"
+    },
+    {
+      "domain": "www.paypal.com",
+      "vendor": "PayPal",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "www.paypalobjects.com",
+      "vendor": "PayPal",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "t.paypal.com",
+      "vendor": "PayPal Tracking",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "js.braintreegateway.com",
+      "vendor": "Braintree",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "gate.gopay.cz",
+      "vendor": "GoPay",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "payments.comgate.cz",
+      "vendor": "Comgate",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.shopify.com",
+      "vendor": "Shopify CDN",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "monorail-edge.shopifysvc.com",
+      "vendor": "Shopify Analytics",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "cdn.shopifycloud.com",
+      "vendor": "Shopify Cloud",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "v.shopify.com",
+      "vendor": "Shopify Video",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "tracking.klarna.com",
+      "vendor": "Klarna",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "js.klarna.com",
+      "vendor": "Klarna JS",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "x.klarnacdn.net",
+      "vendor": "Klarna CDN",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.shoptet.cz/js",
+      "vendor": "Shoptet JS",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.recombee.com",
+      "vendor": "Recombee",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "client.recombee.com",
+      "vendor": "Recombee Client",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "api.exponea.com",
+      "vendor": "Bloomreach/Exponea",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.exponea.com",
+      "vendor": "Bloomreach/Exponea CDN",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "js.exponea.com",
+      "vendor": "Bloomreach/Exponea JS",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.emarsys.com",
+      "vendor": "Emarsys",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "recommender.scarabresearch.com",
+      "vendor": "Emarsys Recommender",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.retailrocket.net",
+      "vendor": "Retail Rocket",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "retailrocket.net",
+      "vendor": "Retail Rocket",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.mailchimp.com",
+      "vendor": "Mailchimp",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "chimpstatic.com",
+      "vendor": "Mailchimp Static",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "list-manage.com",
+      "vendor": "Mailchimp List",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "app.mailerlite.com",
+      "vendor": "MailerLite",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "static.mailerlite.com",
+      "vendor": "MailerLite Static",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "assets.mailerlite.com",
+      "vendor": "MailerLite Assets",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "in.getdrip.com",
+      "vendor": "Drip",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "tag.getdrip.com",
+      "vendor": "Drip Tag",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "js.convertflow.co",
+      "vendor": "ConvertFlow",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "a.optmnstr.com",
+      "vendor": "OptinMonster",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "api.opmnstr.com",
+      "vendor": "OptinMonster API",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "pi.pardot.com",
+      "vendor": "Pardot (Salesforce)",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "cdn.pardot.com",
+      "vendor": "Pardot CDN",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "go.pardot.com",
+      "vendor": "Pardot",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "munchkin.marketo.net",
+      "vendor": "Marketo Munchkin",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "app-sjp.marketo.com",
+      "vendor": "Marketo",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.branch.io",
+      "vendor": "Branch.io",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "app.link",
+      "vendor": "Branch.io Deep Link",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "load.sumo.com",
+      "vendor": "Sumo",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "sumo.com",
+      "vendor": "Sumo",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "s3.amazonaws.com/scripts.freshmarketer.com",
+      "vendor": "Freshmarketer",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "eus.rubiconproject.com",
+      "vendor": "Rubicon/Magnite EU",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "eb2.3lift.com",
+      "vendor": "TripleLift",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "tlx.3lift.com",
+      "vendor": "TripleLift Exchange",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "ib.3lift.com",
+      "vendor": "TripleLift",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "ad.360yield.com",
+      "vendor": "Improve Digital",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "hb.360yield.com",
+      "vendor": "Improve Digital HB",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "ads.yahoo.com",
+      "vendor": "Yahoo Ads",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "sp.analytics.yahoo.com",
+      "vendor": "Yahoo Analytics",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "s.yimg.com",
+      "vendor": "Yahoo Image",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "us-u.openx.net",
+      "vendor": "OpenX US",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "rtb-us-east.openx.net",
+      "vendor": "OpenX RTB US",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "ssp.contextweb.com",
+      "vendor": "PulsePoint",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "bh.contextweb.com",
+      "vendor": "PulsePoint",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "contextweb.com",
+      "vendor": "PulsePoint",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "ads.yieldmo.com",
+      "vendor": "Yieldmo",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "match.sharethrough.com",
+      "vendor": "Sharethrough",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "bttrack.com",
+      "vendor": "Sharethrough",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.sharethrough.com",
+      "vendor": "Sharethrough CDN",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "hb.emxdgt.com",
+      "vendor": "EMX Digital",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cs.emxdgt.com",
+      "vendor": "EMX Digital",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "sync.smartadserver.com",
+      "vendor": "Smart AdServer/Equativ",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "www6.smartadserver.com",
+      "vendor": "Smart AdServer/Equativ",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "ced.sascdn.com",
+      "vendor": "Smart AdServer CDN",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "jadserve.postrelease.com",
+      "vendor": "Nativo",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "s.ntv.io",
+      "vendor": "Nativo",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.nativo.io",
+      "vendor": "Nativo CDN",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "pixel.wp.com",
+      "vendor": "WordPress.com",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "stats.wp.com",
+      "vendor": "WordPress.com Stats",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "r-login.wordpress.com",
+      "vendor": "WordPress.com",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "s0.wp.com",
+      "vendor": "WordPress.com CDN",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "s1.wp.com",
+      "vendor": "WordPress.com CDN",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "secure.gravatar.com",
+      "vendor": "Gravatar",
+      "category": "functional",
+      "type": "pixel"
+    },
+    {
+      "domain": "cdn.viglink.com",
+      "vendor": "VigLink/Sovrn",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cd.connatix.com",
+      "vendor": "Connatix",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cds.connatix.com",
+      "vendor": "Connatix",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "amp.connatix.com",
+      "vendor": "Connatix AMP",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "c.amazon-adsystem.com",
+      "vendor": "Amazon Advertising",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "s.amazon-adsystem.com",
+      "vendor": "Amazon Advertising",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "aax.amazon-adsystem.com",
+      "vendor": "Amazon A9",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "z-na.amazon-adsystem.com",
+      "vendor": "Amazon Ads NA",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "images-na.ssl-images-amazon.com",
+      "vendor": "Amazon Images",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "fls-eu.amazon.cz",
+      "vendor": "Amazon CZ",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "cdn.perimeterx.net",
+      "vendor": "PerimeterX/HUMAN",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "client.perimeterx.net",
+      "vendor": "PerimeterX/HUMAN",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "challenges.cloudflare.com",
+      "vendor": "Cloudflare Turnstile",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "static.cloudflareinsights.com",
+      "vendor": "Cloudflare Web Analytics",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cloudflareinsights.com",
+      "vendor": "Cloudflare Web Analytics",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.tiny.cloud",
+      "vendor": "TinyMCE",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "js.pusher.com",
+      "vendor": "Pusher",
+      "category": "functional",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.logrocket.io",
+      "vendor": "LogRocket",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.lr-ingest.io",
+      "vendor": "LogRocket Ingest",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.mxapis.com",
+      "vendor": "Mailchimp API",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.convertkit.com",
+      "vendor": "ConvertKit",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "f.convertkit.com",
+      "vendor": "ConvertKit Forms",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "app.convertkit.com",
+      "vendor": "ConvertKit",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "sb.scorecardresearch.com",
+      "vendor": "Scorecard Research",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "b.scorecardresearch.com",
+      "vendor": "Scorecard Research",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "cdn.mookie1.com",
+      "vendor": "Media Innovation Group",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "t.mookie1.com",
+      "vendor": "Media Innovation Group",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "cdn.yottaa.com",
+      "vendor": "Yottaa",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.mouseflow.com/projects",
+      "vendor": "Mouseflow Projects",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "ct.pinterest.com/v3",
+      "vendor": "Pinterest Tag v3",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.onesignal.com/sdks",
+      "vendor": "OneSignal SDK",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.pushcrew.com",
+      "vendor": "PushCrew/VWO Engage",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.webpushr.com",
+      "vendor": "Webpushr",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.cleverpush.com",
+      "vendor": "CleverPush",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.ywxi.net",
+      "vendor": "Yahoo Ad Tech",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "s.yimg.com/wi",
+      "vendor": "Yahoo Widget",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "ups.analytics.yahoo.com",
+      "vendor": "Yahoo UPS",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "guce.advertising.com",
+      "vendor": "Verizon/Oath",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "pixel.advertising.com",
+      "vendor": "Verizon/Oath Pixel",
+      "category": "marketing",
+      "type": "pixel"
+    },
+    {
+      "domain": "cdn.nosto.com",
+      "vendor": "Nosto",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "connect.nosto.com",
+      "vendor": "Nosto Connect",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.clerk.io",
+      "vendor": "Clerk.io",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "api.clerk.io",
+      "vendor": "Clerk.io API",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "widget.trustpilot.com",
+      "vendor": "Trustpilot Widget",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "invitejs.trustpilot.com",
+      "vendor": "Trustpilot Invite",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "staticw2.yotpo.com",
+      "vendor": "Yotpo",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "api.yotpo.com",
+      "vendor": "Yotpo API",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.judge.me",
+      "vendor": "Judge.me",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "loox.io",
+      "vendor": "Loox Reviews",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.loox.io",
+      "vendor": "Loox CDN",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.stamped.io",
+      "vendor": "Stamped.io",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn3.wistia.com",
+      "vendor": "Wistia",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "fast.wistia.com",
+      "vendor": "Wistia Fast",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "fast.wistia.net",
+      "vendor": "Wistia Net",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "play.vidyard.com",
+      "vendor": "Vidyard",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.vidyard.com",
+      "vendor": "Vidyard CDN",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "player.vimeo.com",
+      "vendor": "Vimeo Player",
+      "category": "marketing",
+      "type": "iframe"
+    },
+    {
+      "domain": "f.vimeocdn.com",
+      "vendor": "Vimeo CDN",
+      "category": "marketing",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.tealiumiq.com",
+      "vendor": "Tealium iQ",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "tags.tiqcdn.com",
+      "vendor": "Tealium CDN",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "collect.tealiumiq.com",
+      "vendor": "Tealium Collect",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "cdn.ab-tasty.com",
+      "vendor": "AB Tasty",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "try.abtasty.com",
+      "vendor": "AB Tasty API",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "static.kameleoon.com",
+      "vendor": "Kameleoon",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "api.kameleoon.com",
+      "vendor": "Kameleoon API",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "i.kissmetrics.com",
+      "vendor": "Kissmetrics",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "doug1izaerwt3.cloudfront.net",
+      "vendor": "Kissmetrics CDN",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.inspectlet.com",
+      "vendor": "Inspectlet",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "ejs.inspectlet.com",
+      "vendor": "Inspectlet Event",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "static.chartbeat.com",
+      "vendor": "Chartbeat",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "pnpcg.chartbeat.net",
+      "vendor": "Chartbeat Ping",
+      "category": "analytics",
+      "type": "pixel"
+    },
+    {
+      "domain": "siteimproveanalytics.com",
+      "vendor": "Siteimprove",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "js-cdn.dynatrace.com",
+      "vendor": "Dynatrace",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.logrocket.com",
+      "vendor": "LogRocket CDN",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "r.lr-ingest.io",
+      "vendor": "LogRocket Ingest",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "widget.survicate.com",
+      "vendor": "Survicate Widget",
+      "category": "analytics",
+      "type": "script"
+    },
+    {
+      "domain": "cdn.sift.com",
+      "vendor": "Sift Science",
+      "category": "functional",
+      "type": "script"
+    }
+  ]
+}
