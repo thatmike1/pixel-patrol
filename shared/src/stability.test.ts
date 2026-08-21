@@ -10,7 +10,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { cookieKey } from "./diff.js";
+import { cookieKey, diffFingerprints, isIncompatible } from "./diff.js";
 import type { Fingerprint, FingerprintCookie, FingerprintHost } from "./fingerprint.js";
 import {
   alertKeys,
@@ -515,4 +515,44 @@ test("alertKeys names cookies by the same key the pending set uses", () => {
   const diff = asDiff(analyseStability(current, baseline, [], "baseline"));
 
   assert.deepEqual(alertKeys(diff).cookies, [cookieKey({ name: "_fbp", domain: ".example.test" })]);
+});
+
+test("every alert is also a plain set difference, and never the other way round", () => {
+  // the stability layer may only ever REMOVE entries from the raw diff. if it
+  // could add one, the product would be alerting on something that is not
+  // actually a difference between the two fingerprints.
+  const constant = [plain("gtm.test"), plain("seznam.cz")];
+  const baseline = fingerprint("base", [...constant, plain("olddesk.test")], [
+    cookie("_ga", ".ex.test"),
+  ]);
+  const window = [
+    fingerprint("w2", [...constant, plain("alza.cz")], [], { scannedAt: at(2) }),
+    fingerprint("w1", [...constant], [], { scannedAt: at(1) }),
+  ];
+  const current = fingerprint(
+    "now",
+    [...constant, plain("alza.cz"), plain("facebook.net")],
+    [cookie("_fbp", ".ex.test")],
+    { scannedAt: at(9) },
+  );
+
+  const raw = diffFingerprints(current, baseline, "baseline");
+  assert.ok(!isIncompatible(raw));
+  const stable = asDiff(analyseStability(current, baseline, window, "baseline"));
+
+  const rawAdded = new Set(raw.hostsAdded.map((e) => e.registrableDomain));
+  const rawRemoved = new Set(raw.hostsRemoved.map((e) => e.registrableDomain));
+  for (const entry of stable.alerts.hostsAdded) {
+    assert.ok(rawAdded.has(entry.registrableDomain), `${entry.registrableDomain} is not an addition`);
+  }
+  for (const entry of stable.alerts.hostsRemoved) {
+    assert.ok(rawRemoved.has(entry.registrableDomain), `${entry.registrableDomain} is not a removal`);
+  }
+  // and the layer really is doing work: the raw diff has more than the alerts do
+  assert.equal(rawAdded.size, 2);
+  assert.deepEqual(added(stable), ["facebook.net"]);
+  assert.deepEqual(
+    stable.alerts.cookiesAdded.map((e) => e.name),
+    ["_fbp"],
+  );
 });
