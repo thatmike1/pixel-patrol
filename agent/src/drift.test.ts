@@ -16,6 +16,7 @@ import type { Fingerprint, FingerprintCookie, FingerprintHost } from "@pixel-pat
 
 import { analyseDrift, verdictOf } from "./drift.js";
 import type { DriftOptions } from "./drift.js";
+import { pendingFields } from "./firestore.js";
 import type { PendingUpdate, Store } from "./firestore.js";
 import { loadComparison, NotFoundError, toSweepContext } from "./sweep-context.js";
 import { approveBaseline } from "./tools/approve-baseline.js";
@@ -517,4 +518,17 @@ test("a cross-generation baseline is refused rather than compared", async () => 
 
   assert.equal(verdictOf(analysis), null);
   assert.equal(analysis.result.comparedTo, "incompatible");
+});
+
+test("parking a domain-only finding writes no empty cookie array", () => {
+  // FieldValue.arrayUnion() throws when handed nothing, and a drift with domains
+  // and no cookies is the ordinary case
+  assert.deepEqual(
+    Object.keys(pendingFields({ domains: ["facebook.net"], cookies: [], sweepId: "now" })),
+    ["pendingDomains", "pendingSweepId"],
+  );
+  assert.deepEqual(
+    Object.keys(pendingFields({ domains: [], cookies: [".ex.test _fbp"], sweepId: "now" })),
+    ["pendingCookies", "pendingSweepId"],
+  );
 });

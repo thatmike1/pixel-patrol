@@ -48,6 +48,29 @@ export interface Store {
 }
 
 /**
+ * the document patch that parks a sweep's findings.
+ *
+ * an empty side is omitted rather than written: `FieldValue.arrayUnion()`
+ * refuses to be called with nothing to add, and a drift in domains only — the
+ * common case — would otherwise throw here, after the decision had already been
+ * written.
+ *
+ * @param update the keys to park and the sweep that found them
+ * @returns the merge patch for the site document
+ */
+export function pendingFields(update: PendingUpdate): Record<string, unknown> {
+  return {
+    ...(update.domains.length > 0
+      ? { pendingDomains: FieldValue.arrayUnion(...update.domains) }
+      : {}),
+    ...(update.cookies.length > 0
+      ? { pendingCookies: FieldValue.arrayUnion(...update.cookies) }
+      : {}),
+    pendingSweepId: update.sweepId,
+  };
+}
+
+/**
  * builds the Firestore accessors for a project.
  *
  * @param projectId the GCP project holding the default Firestore database
@@ -105,14 +128,7 @@ export function createStore(projectId: string): Store {
      * added to what is already parked, never replace it.
      */
     async setPending(siteId: string, update: PendingUpdate): Promise<void> {
-      await sites.doc(siteId).set(
-        {
-          pendingDomains: FieldValue.arrayUnion(...update.domains),
-          pendingCookies: FieldValue.arrayUnion(...update.cookies),
-          pendingSweepId: update.sweepId,
-        },
-        { merge: true },
-      );
+      await sites.doc(siteId).set(pendingFields(update), { merge: true });
     },
 
     async getFingerprint(siteId: string, sweepId: string): Promise<Fingerprint | null> {
