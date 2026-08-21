@@ -52,8 +52,28 @@ export interface FingerprintCookie {
   durationSeconds: number | null;
 }
 
+/**
+ * the generation of the hash definition this fingerprint was built under.
+ *
+ *   1 — hash over full hostnames. rotating CDN shards made it unstable, so an
+ *       unchanged site produced a new hash on most sweeps. never shipped to a
+ *       deployed image; only local smoke runs exist.
+ *   2 — hash over unique registrable domains (current).
+ *
+ * hashes from different generations are NOT comparable. this field is metadata
+ * for the differ to refuse a cross-generation compare, and is deliberately
+ * excluded from the hash input: bumping the definition must not silently look
+ * like the site changed.
+ */
+export type FingerprintSchemaVersion = 2;
+
+/** the generation `buildFingerprint` currently produces */
+export const FINGERPRINT_SCHEMA_VERSION: FingerprintSchemaVersion = 2;
+
 /** one sweep's snapshot of a site, stored at sites/{siteId}/fingerprints/{sweepId} */
 export interface Fingerprint {
+  /** see {@link FingerprintSchemaVersion} — read this before comparing hashes */
+  schemaVersion: FingerprintSchemaVersion;
   siteId: string;
   sweepId: string;
   siteUrl: string;
@@ -199,6 +219,7 @@ export function buildFingerprint(
     );
 
   return {
+    schemaVersion: FINGERPRINT_SCHEMA_VERSION,
     siteId: meta.siteId,
     sweepId: meta.sweepId,
     siteUrl: meta.siteUrl,

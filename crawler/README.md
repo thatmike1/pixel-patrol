@@ -23,6 +23,7 @@ Stored at `sites/{siteId}/fingerprints/{sweepId}`:
 
 | field | notes |
 | --- | --- |
+| `schemaVersion` | hash generation, currently `2`. Hashes from different generations are not comparable; the differ reads this to refuse a cross-generation compare. Not part of the hash input |
 | `siteId`, `sweepId`, `siteUrl`, `scannedAt` | sweep identity |
 | `pagesScanned` | pages actually visited, which can be fewer than requested |
 | `hosts[]` | third-party hosts, deduped and sorted: `host`, `registrableDomain`, `vendor`, `category`, `type` |

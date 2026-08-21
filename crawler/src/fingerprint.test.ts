@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { buildFingerprint } from "./fingerprint.js";
+import { buildFingerprint, fingerprintHash } from "./fingerprint.js";
 import type {
   ClassifiedCookie,
   ClassifiedTracker,
@@ -246,6 +246,19 @@ test("a genuinely new organization still moves the hash", () => {
   );
 
   assert.notEqual(after.hash, before.hash);
+});
+
+test("fingerprint carries schemaVersion 2 and keeps it out of the hash", () => {
+  const fp = buildFingerprint(
+    scanResult([cookie("_ga", "example.com")], [tracker("d15-a.sdn.cz")]),
+    META,
+  );
+
+  assert.equal(fp.schemaVersion, 2);
+
+  // the hash is computed from hosts and cookies alone, so it must not move
+  // when the generation marker is present
+  assert.equal(fingerprintHash({ hosts: fp.hosts, cookies: fp.cookies }), fp.hash);
 });
 
 test("hosts are deduped by host name", () => {
