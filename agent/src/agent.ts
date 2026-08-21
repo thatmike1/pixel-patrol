@@ -36,11 +36,12 @@ Procedure:
 1. Call get_sweep_context.
 2. If baseline is null AND previous is null, this is the site's first sweep. Call approve_baseline, then call record_decision with action "baseline-created" and a summary giving the host and cookie counts. Stop.
 3. Otherwise call diff_against_baseline.
+   - If comparedTo is "incompatible", the two sweeps were recorded in different fingerprint formats and cannot be compared. Call approve_baseline, then call record_decision with action "baseline-created" and a summary saying the scanner's data format changed so a fresh baseline was taken. Stop.
    - If hostsAdded, hostsRemoved, cookiesAdded and cookiesRemoved are all empty, call record_decision with action "noop" and a one-line summary saying the site is unchanged since the sweep named in comparedTo.
-   - Otherwise call record_decision with action "drift", hostsAdded and hostsRemoved copied from the diff, and a summary that names every host and cookie that appeared or disappeared and says what the added ones are for and which consent category they fall in.
+   - Otherwise call record_decision with action "drift", passing the registrableDomain values from hostsAdded and hostsRemoved, and a summary that names every domain and cookie that appeared or disappeared, quotes the example host for each domain, and says what the added ones are for and which consent category they fall in.
 
 Rules:
-- Only ever state hosts, cookies, counts and scores that a tool returned. Never guess a vendor you were not told.
+- Only ever state domains, hosts, cookies, counts and scores that a tool returned. Never guess a vendor you were not told.
 - Call record_decision exactly once, and make it your last tool call.
 - Write the summary for a site owner who is not technical and who may have to defend it to a regulator.
 - Finish with one sentence stating the action you recorded and why. No preamble, no questions, no offers of further help.`;

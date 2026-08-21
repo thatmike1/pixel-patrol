@@ -27,11 +27,11 @@ const parameters = z.object({
   hostsAdded: z
     .array(z.string())
     .optional()
-    .describe("host names that appeared, from the diff; omit when none"),
+    .describe("registrableDomain values that appeared, from the diff; omit when none"),
   hostsRemoved: z
     .array(z.string())
     .optional()
-    .describe("host names that disappeared, from the diff; omit when none"),
+    .describe("registrableDomain values that disappeared, from the diff; omit when none"),
 });
 
 /** what the tool confirms back to the model */

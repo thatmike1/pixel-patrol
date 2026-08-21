@@ -33,7 +33,7 @@ One `LlmAgent` on `gemini-3.5-flash`, four `FunctionTool`s, one decision per swe
 | tool | what it does |
 | --- | --- |
 | `get_sweep_context` | site, this sweep's fingerprint summary, the approved baseline and the previous sweep |
-| `diff_against_baseline` | the deterministic set difference: hosts and cookies added and removed |
+| `diff_against_baseline` | the deterministic set difference: tracking domains and cookies added and removed |
 | `approve_baseline` | points the site at this sweep, for a site's first sweep only |
 | `record_decision` | writes the verdict — `noop`, `drift` or `baseline-created` |
 
@@ -43,6 +43,24 @@ difference *means* — first sweep, harmless churn, or a tracker that appeared w
 anyone deciding to add it — and how to say so to the person who has to answer for it. An
 LLM asked to eyeball two host lists will occasionally miss one, and a missed marketing
 pixel is the exact failure this product exists to prevent.
+
+### What counts as a change
+
+Hosts are compared by **registrable domain** (eTLD+1), not by hostname. Sharded CDN hosts
+rotate between sweeps — `d15-a.sdn.cz` one day, `d21-a.sdn.cz` the next — and comparing
+hostnames would report drift on every sweep of every site using one, which trains the
+owner to ignore the alerts. The rotation is noise; a new registrable domain is the signal.
+Each delta carries the `registrableDomain` and one example full `host`, and the recorded
+decision stores the domains, so downstream ticket de-duplication sees a stable string.
+
+Cookies keep `(name, domain)` identity — cookie domains do not rotate that way.
+
+Fingerprints carry a `schemaVersion`. If the two sides differ, or either is missing one
+(generation 1, written before the crawler stamped it and before `registrableDomain`
+existed), the diff returns `{comparedTo: "incompatible", reason}` rather than a result:
+comparing across generations would report the site's entire tracker set as removed and
+re-added. The agent's recovery is to approve the current sweep as a fresh baseline and
+record `baseline-created`.
 
 ## Endpoints
 

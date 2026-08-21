@@ -30,6 +30,17 @@ export type TrackerType = "script" | "pixel" | "iframe" | "font";
 /** a third-party host observed loading resources on the site */
 export interface FingerprintHost {
   host: string;
+  /**
+   * the registrable domain (eTLD+1) of `host`, e.g. `sdn.cz` for
+   * `d15-a.sdn.cz`. this is the unit drift is measured in: sharded CDN
+   * hostnames rotate between sweeps and would otherwise read as drift every
+   * single time.
+   *
+   * required from schema generation 2 onward; optional here because this
+   * service still reads generation 1 documents written before the crawler
+   * emitted it.
+   */
+  registrableDomain?: string;
   vendor: string | null;
   category: TrackerCategory;
   type: TrackerType;
@@ -47,6 +58,15 @@ export interface FingerprintCookie {
 
 /** one sweep's snapshot of a site, stored at sites/{siteId}/fingerprints/{sweepId} */
 export interface Fingerprint {
+  /**
+   * the fingerprint schema generation. absent means generation 1 — documents
+   * written before the crawler started stamping it, which also lack
+   * `registrableDomain` on their hosts.
+   *
+   * two fingerprints from different generations are not comparable, so the diff
+   * refuses rather than producing a plausible-looking wrong answer.
+   */
+  schemaVersion?: number;
   siteId: string;
   sweepId: string;
   siteUrl: string;
@@ -94,6 +114,12 @@ export interface Decision {
   sweepId: string;
   action: DecisionAction;
   summary: string;
+  /**
+   * registrable domains, not hostnames — the unit the diff works in. a sharded
+   * CDN that adds a tracker under a rotating subdomain must record the same
+   * string on every sweep, or downstream ticket de-duplication sees a new
+   * finding each time.
+   */
   hostsAdded?: string[];
   hostsRemoved?: string[];
   error?: string;

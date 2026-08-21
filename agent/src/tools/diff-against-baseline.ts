@@ -10,7 +10,7 @@ import { FunctionTool } from "@google/adk";
 import { z } from "zod";
 
 import { diffFingerprints } from "../diff.js";
-import type { FingerprintDiff } from "../diff.js";
+import type { DiffResult } from "../diff.js";
 import type { Store } from "../firestore.js";
 import { loadComparison } from "../sweep-context.js";
 
@@ -31,11 +31,15 @@ export function createDiffAgainstBaselineTool(store: Store): FunctionTool<typeof
     name: "diff_against_baseline",
     description:
       "Compares this sweep's fingerprint against the site's approved baseline, or against the " +
-      "previous sweep when no baseline is approved. Returns the exact hosts and cookies that " +
-      "appeared and disappeared. comparedTo is 'none' when there is nothing to compare against, " +
-      "in which case all four lists are empty.",
+      "previous sweep when no baseline is approved. Returns the exact tracking domains and " +
+      "cookies that appeared and disappeared. Hosts are compared by registrable domain " +
+      "(eTLD+1), so a CDN that rotates its subdomains between sweeps does not read as drift; " +
+      "each entry gives the registrableDomain and one example full host. comparedTo is 'none' " +
+      "when there is nothing to compare against, in which case all four lists are empty, and " +
+      "'incompatible' when the two fingerprints come from different schema generations, in " +
+      "which case there are no lists at all and only a reason.",
     parameters,
-    async execute({ siteId, sweepId }): Promise<FingerprintDiff> {
+    async execute({ siteId, sweepId }): Promise<DiffResult> {
       const comparison = await loadComparison(store, siteId, sweepId);
       return diffFingerprints(comparison.current, comparison.against, comparison.comparedTo);
     },

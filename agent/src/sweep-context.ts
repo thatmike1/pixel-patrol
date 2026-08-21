@@ -14,6 +14,8 @@ import type { Fingerprint, Site } from "./types.js";
 /** the digest of a fingerprint handed to the model — counts, not full lists */
 export interface FingerprintSummary {
   sweepId: string;
+  /** schema generation; 1 for documents written before the crawler stamped it */
+  schemaVersion: number;
   hash: string;
   hostsCount: number;
   cookiesCount: number;
@@ -62,6 +64,8 @@ export class NotFoundError extends Error {
 export function summarize(fingerprint: Fingerprint): FingerprintSummary {
   return {
     sweepId: fingerprint.sweepId,
+    // an absent schemaVersion is generation 1, by definition
+    schemaVersion: fingerprint.schemaVersion ?? 1,
     hash: fingerprint.hash,
     hostsCount: fingerprint.hosts.length,
     cookiesCount: fingerprint.cookies.length,
