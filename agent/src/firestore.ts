@@ -12,23 +12,35 @@
  * `gcloud auth application-default login`, on Cloud Run the service account.
  */
 
-import { Firestore } from "@google-cloud/firestore";
+import { FieldValue, Firestore } from "@google-cloud/firestore";
 
 import type { Decision, Fingerprint, Site, SweepRecord } from "./types.js";
+
+/** the entries a sweep reported and parked for a human to accept or reject */
+export interface PendingUpdate {
+  domains: string[];
+  cookies: string[];
+  /** the sweep that produced them, so its own re-analysis is not suppressed */
+  sweepId: string;
+}
 
 /** the reads and writes the service performs, bound to one project */
 export interface Store {
   listSites(): Promise<Site[]>;
   getSite(siteId: string): Promise<Site | null>;
   upsertSite(site: Site): Promise<void>;
+  /** approves a baseline and clears the pending sets it settles */
   setApprovedBaseline(siteId: string, sweepId: string): Promise<void>;
+  /** parks the entries a sweep reported, so the next sweep does not repeat them */
+  setPending(siteId: string, update: PendingUpdate): Promise<void>;
   getFingerprint(siteId: string, sweepId: string): Promise<Fingerprint | null>;
-  /** the most recent fingerprint scanned strictly before `before` */
-  getPreviousFingerprint(
+  /** the most recent fingerprints scanned strictly before `before`, newest first */
+  listFingerprintsBefore(
     siteId: string,
     before: string,
+    limit: number,
     excludeSweepId: string,
-  ): Promise<Fingerprint | null>;
+  ): Promise<Fingerprint[]>;
   recordSweepDispatch(siteId: string, sweepId: string, record: SweepRecord): Promise<void>;
   writeDecision(decision: Decision): Promise<void>;
   getDecision(siteId: string, sweepId: string): Promise<Decision | null>;
@@ -67,8 +79,40 @@ export function createStore(projectId: string): Store {
       await sites.doc(siteId).set(fields, { merge: true });
     },
 
+    /**
+     * points the site at a baseline and empties the pending sets.
+     *
+     * approving a baseline IS the decision the pending entries were waiting
+     * for: whatever was in them is now part of the approved state, or was
+     * removed from it. leaving them behind would suppress a future alert on the
+     * same domain forever.
+     */
     async setApprovedBaseline(siteId: string, sweepId: string): Promise<void> {
-      await sites.doc(siteId).set({ approvedBaselineId: sweepId }, { merge: true });
+      await sites.doc(siteId).set(
+        {
+          approvedBaselineId: sweepId,
+          pendingDomains: FieldValue.delete(),
+          pendingCookies: FieldValue.delete(),
+          pendingSweepId: FieldValue.delete(),
+        },
+        { merge: true },
+      );
+    },
+
+    /**
+     * records what a sweep reported, so the next one reports it as pending
+     * rather than as a fresh finding. accumulative: a later sweep's findings are
+     * added to what is already parked, never replace it.
+     */
+    async setPending(siteId: string, update: PendingUpdate): Promise<void> {
+      await sites.doc(siteId).set(
+        {
+          pendingDomains: FieldValue.arrayUnion(...update.domains),
+          pendingCookies: FieldValue.arrayUnion(...update.cookies),
+          pendingSweepId: update.sweepId,
+        },
+        { merge: true },
+      );
     },
 
     async getFingerprint(siteId: string, sweepId: string): Promise<Fingerprint | null> {
@@ -77,7 +121,7 @@ export function createStore(projectId: string): Store {
     },
 
     /**
-     * the newest fingerprint scanned strictly before the one under analysis.
+     * the newest fingerprints scanned strictly before the one under analysis.
      *
      * "before", not merely "other than": a redelivered or late `sweep-done` for
      * an older sweep would otherwise be compared against a newer fingerprint and
@@ -85,25 +129,29 @@ export function createStore(projectId: string): Store {
      * that had been removed.
      *
      * ordered by `scannedAt` rather than document id, because a manually forced
-     * sweep can carry any id and would sort into the wrong place.
+     * sweep can carry any id and would sort into the wrong place. one query
+     * serves both the previous fingerprint and the stability window, so the
+     * analyst does not pay for two round trips to read overlapping documents.
      */
-    async getPreviousFingerprint(
+    async listFingerprintsBefore(
       siteId: string,
       before: string,
+      limit: number,
       excludeSweepId: string,
-    ): Promise<Fingerprint | null> {
+    ): Promise<Fingerprint[]> {
       const snapshot = await sites
         .doc(siteId)
         .collection("fingerprints")
         .where("scannedAt", "<", before)
         .orderBy("scannedAt", "desc")
-        .limit(2)
+        // one spare, so excluding the current sweep cannot shorten the window
+        .limit(limit + 1)
         .get();
 
-      for (const doc of snapshot.docs) {
-        if (doc.id !== excludeSweepId) return doc.data() as Fingerprint;
-      }
-      return null;
+      return snapshot.docs
+        .filter((doc) => doc.id !== excludeSweepId)
+        .slice(0, limit)
+        .map((doc) => doc.data() as Fingerprint);
     },
 
     async recordSweepDispatch(

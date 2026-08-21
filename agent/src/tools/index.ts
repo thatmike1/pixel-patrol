@@ -7,6 +7,7 @@
 
 import type { BaseTool } from "@google/adk";
 
+import type { DriftOptions } from "../drift.js";
 import type { Store } from "../firestore.js";
 import { createApproveBaselineTool } from "./approve-baseline.js";
 import { createDiffAgainstBaselineTool } from "./diff-against-baseline.js";
@@ -18,13 +19,14 @@ import { createRecordDecisionTool } from "./record-decision.js";
  *
  * @param store the Firestore accessors the tools read and write through
  * @param model the model id stamped onto recorded decisions
+ * @param options the stability window rules the two drift tools share
  * @returns the toolset, in declaration order
  */
-export function createTools(store: Store, model: string): BaseTool[] {
+export function createTools(store: Store, model: string, options: DriftOptions): BaseTool[] {
   return [
-    createGetSweepContextTool(store),
-    createDiffAgainstBaselineTool(store),
+    createGetSweepContextTool(store, options),
+    createDiffAgainstBaselineTool(store, options),
     createApproveBaselineTool(store),
-    createRecordDecisionTool(store, model),
+    createRecordDecisionTool(store, model, options),
   ];
 }

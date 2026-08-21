@@ -9,6 +9,7 @@
 import { FunctionTool } from "@google/adk";
 import { z } from "zod";
 
+import type { DriftOptions } from "../drift.js";
 import type { Store } from "../firestore.js";
 import { loadComparison, toSweepContext } from "../sweep-context.js";
 import type { SweepContext } from "../sweep-context.js";
@@ -23,18 +24,26 @@ const parameters = z.object({
  * builds the tool bound to a store.
  *
  * @param store the Firestore accessors
+ * @param options the stability window rules, so the reported windowSize matches
+ *   the one the diff will use
  * @returns the ADK tool
  */
-export function createGetSweepContextTool(store: Store): FunctionTool<typeof parameters> {
+export function createGetSweepContextTool(
+  store: Store,
+  options: DriftOptions,
+): FunctionTool<typeof parameters> {
   return new FunctionTool({
     name: "get_sweep_context",
     description:
       "Loads the site, this sweep's fingerprint summary, and the approved baseline and previous " +
       "fingerprint summaries if they exist. A null baseline and a null previous mean this is the " +
-      "site's first sweep.",
+      "site's first sweep. windowSize is how many earlier sweeps the drift classification can " +
+      "reason over, and pendingCount how many findings are already awaiting a human decision.",
     parameters,
     async execute({ siteId, sweepId }): Promise<SweepContext> {
-      return toSweepContext(await loadComparison(store, siteId, sweepId));
+      return toSweepContext(
+        await loadComparison(store, siteId, sweepId, options.stabilityWindow),
+      );
     },
   });
 }

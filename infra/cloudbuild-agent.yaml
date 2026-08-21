@@ -1,0 +1,15 @@
+# builds the agent image with the REPO ROOT as the Docker context.
+#
+# `gcloud builds submit agent` uploads only agent/, and the agent imports
+# @pixel-patrol/shared from outside that folder, so the context has to be the
+# root and the Dockerfile has to be named explicitly. that is what --config
+# buys over --tag.
+#
+#   gcloud builds submit . --config infra/cloudbuild-agent.yaml \
+#     --substitutions _IMAGE=<image>
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-f", "agent/Dockerfile", "-t", "${_IMAGE}", "."]
+images:
+  - "${_IMAGE}"
+timeout: 1800s

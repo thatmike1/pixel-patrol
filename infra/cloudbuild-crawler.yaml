@@ -1,0 +1,11 @@
+# builds the crawler image with the REPO ROOT as the Docker context — see
+# infra/cloudbuild-agent.yaml for why.
+#
+#   gcloud builds submit . --config infra/cloudbuild-crawler.yaml \
+#     --substitutions _IMAGE=<image>
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-f", "crawler/Dockerfile", "-t", "${_IMAGE}", "."]
+images:
+  - "${_IMAGE}"
+timeout: 1800s

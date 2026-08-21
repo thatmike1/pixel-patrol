@@ -12,9 +12,14 @@
  * every site using one. the rotation is noise; a new registrable domain is the
  * signal. cookies keep (name, domain) identity, since a cookie's domain does not
  * rotate that way.
+ *
+ * a set difference alone is still not enough on a commercial site: programmatic
+ * ad slots load a *different vendor* on every pageview, so the set moves without
+ * the site changing. that second layer lives in `stability.ts` and consumes what
+ * this file produces.
  */
 
-import type { Fingerprint, FingerprintCookie, FingerprintHost } from "./types.js";
+import type { Fingerprint, FingerprintCookie, FingerprintHost } from "./fingerprint.js";
 
 // ---------------------------------------------------------------------------
 // shape
@@ -40,7 +45,7 @@ export interface CookieDelta {
   category: string;
 }
 
-/** the comparison, as returned to the model when the two sides are comparable */
+/** the comparison, as returned when the two sides are comparable */
 export interface FingerprintDiff {
   comparedTo: DiffBasis;
   hostsAdded: HostDelta[];
@@ -48,10 +53,6 @@ export interface FingerprintDiff {
   cookiesAdded: CookieDelta[];
   cookiesRemoved: CookieDelta[];
   hashChanged: boolean;
-  // TODO(stability-score): rank each delta by how many of the last N sweeps the
-  // domain or cookie appeared in, so a tag that flickers in and out of an ad
-  // rotation reads differently from one that just showed up for the first time.
-  // additive: a new optional field per delta plus a `stability` block here.
 }
 
 /**
@@ -68,13 +69,16 @@ export interface IncompatibleDiff {
   reason: string;
 }
 
-/** what `diff_against_baseline` hands back */
+/** what a diff call hands back */
 export type DiffResult = FingerprintDiff | IncompatibleDiff;
 
 /** narrows a diff result to the refusal case */
-export function isIncompatible(result: DiffResult): result is IncompatibleDiff {
+export function isIncompatible(result: { comparedTo: string }): result is IncompatibleDiff {
   return result.comparedTo === "incompatible";
 }
+
+/** the reason string a cross-generation refusal carries */
+export const INCOMPATIBLE_REASON = "fingerprint schema generation differs";
 
 // ---------------------------------------------------------------------------
 // identity
@@ -83,18 +87,26 @@ export function isIncompatible(result: DiffResult): result is IncompatibleDiff {
 /**
  * the identity of a host in the diff: its registrable domain, falling back to
  * the hostname on a generation 1 document that never carried one.
+ *
+ * @param host the host entry
+ * @returns the key it is compared under
  */
-function hostKey(host: FingerprintHost): string {
+export function hostKey(host: FingerprintHost): string {
   return host.registrableDomain ?? host.host;
 }
 
-/** the identity of a cookie in the diff: name scoped to the domain that set it */
-function cookieKey(cookie: FingerprintCookie): string {
+/**
+ * the identity of a cookie in the diff: name scoped to the domain that set it.
+ *
+ * @param cookie the cookie entry
+ * @returns the key it is compared under
+ */
+export function cookieKey(cookie: Pick<FingerprintCookie, "name" | "domain">): string {
   return `${cookie.domain} ${cookie.name}`;
 }
 
 /** the fields of a cookie the model is shown for an added or removed entry */
-function toCookieDelta(cookie: FingerprintCookie): CookieDelta {
+export function toCookieDelta(cookie: FingerprintCookie): CookieDelta {
   return { name: cookie.name, domain: cookie.domain, category: cookie.category };
 }
 
@@ -106,8 +118,11 @@ function toCookieDelta(cookie: FingerprintCookie): CookieDelta {
  * usually attributed, and naming the attributed one tells the model far more
  * than an arbitrary shard would. the crawler sorts `hosts` by hostname, so
  * "first" is stable across sweeps.
+ *
+ * @param hosts the fingerprint's host list
+ * @returns one delta per registrable domain, keyed by it
  */
-function groupByRegistrableDomain(hosts: FingerprintHost[]): Map<string, HostDelta> {
+export function groupByRegistrableDomain(hosts: FingerprintHost[]): Map<string, HostDelta> {
   const groups = new Map<string, HostDelta>();
 
   for (const entry of hosts) {
@@ -133,6 +148,25 @@ function groupByRegistrableDomain(hosts: FingerprintHost[]): Map<string, HostDel
   }
 
   return groups;
+}
+
+/**
+ * whether two fingerprints were written under the same hash generation.
+ *
+ * an absent schemaVersion is generation 1, which is not comparable with
+ * anything — including another generation 1 document, whose hosts carry no
+ * registrable domain to compare on.
+ *
+ * @param current the sweep under analysis
+ * @param against the snapshot it would be measured by
+ * @returns true when a comparison is sound
+ */
+export function isComparable(current: Fingerprint, against: Fingerprint): boolean {
+  return (
+    current.schemaVersion !== undefined &&
+    against.schemaVersion !== undefined &&
+    current.schemaVersion === against.schemaVersion
+  );
 }
 
 /**
@@ -183,18 +217,8 @@ export function diffFingerprints(
     };
   }
 
-  // an absent schemaVersion is generation 1, which is not comparable with
-  // anything — including another generation 1 document, whose hosts carry no
-  // registrable domain to compare on
-  if (
-    current.schemaVersion === undefined ||
-    against.schemaVersion === undefined ||
-    current.schemaVersion !== against.schemaVersion
-  ) {
-    return {
-      comparedTo: "incompatible",
-      reason: "fingerprint schema generation differs",
-    };
+  if (!isComparable(current, against)) {
+    return { comparedTo: "incompatible", reason: INCOMPATIBLE_REASON };
   }
 
   const currentHosts = groupByRegistrableDomain(current.hosts);

@@ -12,6 +12,9 @@
 import { getFunctionCalls, InMemorySessionService, LlmAgent, Runner } from "@google/adk";
 import type { Event } from "@google/adk";
 
+import { DEFAULT_GONE_AFTER, DEFAULT_STABILITY_WINDOW } from "@pixel-patrol/shared";
+
+import type { DriftOptions } from "./drift.js";
 import { createStore } from "./firestore.js";
 import type { Store } from "./firestore.js";
 import { createTools } from "./tools/index.js";
@@ -37,10 +40,11 @@ Procedure:
 2. If baseline is null AND previous is null, this is the site's first sweep. Call approve_baseline, then call record_decision with action "baseline-created" and a summary giving the host and cookie counts. Stop.
 3. Otherwise call diff_against_baseline.
    - If comparedTo is "incompatible", the two sweeps were recorded in different fingerprint formats and cannot be compared. Call approve_baseline, then call record_decision with action "baseline-created" and a summary saying the scanner's data format changed so a fresh baseline was taken. Stop.
-   - If hostsAdded, hostsRemoved, cookiesAdded and cookiesRemoved are all empty, call record_decision with action "noop" and a one-line summary saying the site is unchanged since the sweep named in comparedTo.
-   - Otherwise call record_decision with action "drift", passing the registrableDomain values from hostsAdded and hostsRemoved, and a summary that names every domain and cookie that appeared or disappeared, quotes the example host for each domain, and says what the added ones are for and which consent category they fall in.
+   - If hostsAdded, hostsRemoved, cookiesAdded and cookiesRemoved inside "alerts" are all empty, call record_decision with action "noop", noiseCount set to the tool's noiseCount, and a one-line summary saying the site is unchanged since the sweep named in comparedTo. When noiseCount is above zero you may add one clause of the form "N rotating ad-tech domains ignored".
+   - Otherwise call record_decision with action "drift", passing the registrableDomain values from alerts.hostsAdded and alerts.hostsRemoved, noiseCount from the tool, and a summary that names every domain and cookie in "alerts", quotes the example host for each domain, and says what the added ones are for and which consent category they fall in.
 
 Rules:
+- Nothing under "noise" is drift, ever. "flapping" is ad-tech and A/B rotation the site does to itself, "missingOnce" is a single sweep that failed to see something, and "pending" was already reported and is waiting for a human decision. Never move an entry out of noise, never name one as a tracker that appeared, and never record "drift" when every list under "alerts" is empty.
 - Only ever state domains, hosts, cookies, counts and scores that a tool returned. Never guess a vendor you were not told.
 - Call record_decision exactly once, and make it your last tool call.
 - Write the summary for a site owner who is not technical and who may have to defend it to a regulator.
@@ -59,15 +63,20 @@ export interface AnalysisResult {
  *
  * @param store the Firestore accessors the tools read and write through
  * @param model the Gemini model id
+ * @param options the stability window rules the drift tools share
  * @returns the configured agent
  */
-export function buildAnalystAgent(store: Store, model: string): LlmAgent {
+export function buildAnalystAgent(
+  store: Store,
+  model: string,
+  options: DriftOptions,
+): LlmAgent {
   return new LlmAgent({
     name: "drift_analyst",
     model,
     description: "Decides whether a completed site sweep shows tracking drift, and records it.",
     instruction: ANALYST_INSTRUCTION,
-    tools: createTools(store, model),
+    tools: createTools(store, model, options),
   });
 }
 
@@ -80,12 +89,13 @@ export function buildAnalystAgent(store: Store, model: string): LlmAgent {
  *
  * @param store the Firestore accessors
  * @param model the Gemini model id
+ * @param options the stability window rules
  * @returns a runner ready to accept sweeps
  */
-export function createAnalystRunner(store: Store, model: string): Runner {
+export function createAnalystRunner(store: Store, model: string, options: DriftOptions): Runner {
   return new Runner({
     appName: APP_NAME,
-    agent: buildAnalystAgent(store, model),
+    agent: buildAnalystAgent(store, model, options),
     sessionService: new InMemorySessionService(),
   });
 }
@@ -149,4 +159,5 @@ function textOf(event: Event): string {
 export const rootAgent: LlmAgent = buildAnalystAgent(
   createStore(process.env.GOOGLE_CLOUD_PROJECT ?? ""),
   process.env.MODEL?.trim() || "gemini-3.5-flash",
+  { stabilityWindow: DEFAULT_STABILITY_WINDOW, goneAfter: DEFAULT_GONE_AFTER },
 );

@@ -2,14 +2,16 @@
  * what a sweep is measured against, and the shape the model sees.
  *
  * both `get_sweep_context` and `diff_against_baseline` need the same question
- * answered — which earlier snapshot is this sweep's reference point — and they
- * must answer it identically, or the model reads a context that says "no
- * baseline" and then a diff computed against one. so it is resolved here once.
+ * answered — which earlier snapshot is this sweep's reference point, and what
+ * did the sweeps in between look like — and they must answer it identically, or
+ * the model reads a context that says "no baseline" and then a diff computed
+ * against one. so it is resolved here once.
  */
 
-import type { DiffBasis } from "./diff.js";
+import type { DiffBasis, Fingerprint } from "@pixel-patrol/shared";
+
 import type { Store } from "./firestore.js";
-import type { Fingerprint, Site } from "./types.js";
+import type { Site } from "./types.js";
 
 /** the digest of a fingerprint handed to the model — counts, not full lists */
 export interface FingerprintSummary {
@@ -30,9 +32,13 @@ export interface SweepContext {
   fingerprint: FingerprintSummary;
   baseline: FingerprintSummary | null;
   previous: FingerprintSummary | null;
+  /** how many earlier sweeps the drift classification has to reason with */
+  windowSize: number;
+  /** entries already reported and waiting for someone to accept or reject them */
+  pendingCount: number;
 }
 
-/** the resolved comparison for one sweep, before it is summarized or diffed */
+/** the resolved comparison for one sweep, before it is summarized or classified */
 export interface Comparison {
   site: Site;
   current: Fingerprint;
@@ -41,6 +47,12 @@ export interface Comparison {
   /** the snapshot drift is actually measured against */
   against: Fingerprint | null;
   comparedTo: DiffBasis;
+  /**
+   * up to N fingerprints scanned before this one, newest first. this is the
+   * site's own recent history, and it is what separates a tracker that appeared
+   * from an ad slot that fills with a different vendor on every pageview.
+   */
+  window: Fingerprint[];
 }
 
 /** raised when a tool is asked about a sweep or site that does not exist */
@@ -76,8 +88,8 @@ export function summarize(fingerprint: Fingerprint): FingerprintSummary {
 }
 
 /**
- * loads the site, this sweep's fingerprint, and the two candidate reference
- * points, then decides which one drift is measured against.
+ * loads the site, this sweep's fingerprint, the two candidate reference points
+ * and the recent history, then decides which reference drift is measured against.
  *
  * the approved baseline wins when there is one, because it is the state a human
  * signed off on and every later sweep should be judged against it rather than
@@ -88,6 +100,7 @@ export function summarize(fingerprint: Fingerprint): FingerprintSummary {
  * @param store the Firestore accessors
  * @param siteId the site under analysis
  * @param sweepId the sweep under analysis
+ * @param windowSize how many earlier fingerprints to load as history
  * @returns the resolved comparison
  * @throws {NotFoundError} when the site or its fingerprint is missing
  */
@@ -95,6 +108,7 @@ export async function loadComparison(
   store: Store,
   siteId: string,
   sweepId: string,
+  windowSize: number,
 ): Promise<Comparison> {
   const site = await store.getSite(siteId);
   if (!site) {
@@ -109,15 +123,37 @@ export async function loadComparison(
   const baselineId = site.approvedBaselineId;
   const baseline =
     baselineId && baselineId !== sweepId ? await store.getFingerprint(siteId, baselineId) : null;
-  const previous = await store.getPreviousFingerprint(siteId, current.scannedAt, sweepId);
+  const window = await store.listFingerprintsBefore(
+    siteId,
+    current.scannedAt,
+    windowSize,
+    sweepId,
+  );
+  const previous = window[0] ?? null;
 
   if (baseline) {
-    return { site, current, baseline, previous, against: baseline, comparedTo: "baseline" };
+    return { site, current, baseline, previous, against: baseline, comparedTo: "baseline", window };
   }
   if (previous) {
-    return { site, current, baseline: null, previous, against: previous, comparedTo: "previous" };
+    return {
+      site,
+      current,
+      baseline: null,
+      previous,
+      against: previous,
+      comparedTo: "previous",
+      window,
+    };
   }
-  return { site, current, baseline: null, previous: null, against: null, comparedTo: "none" };
+  return {
+    site,
+    current,
+    baseline: null,
+    previous: null,
+    against: null,
+    comparedTo: "none",
+    window,
+  };
 }
 
 /**
@@ -127,7 +163,8 @@ export async function loadComparison(
  * @returns the context the model reads
  */
 export function toSweepContext(comparison: Comparison): SweepContext {
-  const { site, current, baseline, previous } = comparison;
+  const { site, current, baseline, previous, window } = comparison;
+  const pending = (site.pendingDomains?.length ?? 0) + (site.pendingCookies?.length ?? 0);
   return {
     site: {
       siteId: site.siteId,
@@ -138,5 +175,7 @@ export function toSweepContext(comparison: Comparison): SweepContext {
     fingerprint: summarize(current),
     baseline: baseline ? summarize(baseline) : null,
     previous: previous ? summarize(previous) : null,
+    windowSize: window.length,
+    pendingCount: pending,
   };
 }

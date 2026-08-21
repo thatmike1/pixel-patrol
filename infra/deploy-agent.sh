@@ -38,8 +38,14 @@ if [[ -z "${ADMIN_KEY:-}" || "$ADMIN_KEY" == "null" ]]; then
   GENERATED_KEY=true
 fi
 
+# the context is the repo root, not agent/: the service imports
+# @pixel-patrol/shared, and `gcloud builds submit agent` would upload only
+# agent/ and fail on the missing package inside Docker
 echo "== build ${IMAGE}"
-gcloud builds submit "${ROOT}/agent" --tag "$IMAGE" --project "$PROJECT_ID" --quiet
+gcloud builds submit "$ROOT" \
+  --config "${ROOT}/infra/cloudbuild-agent.yaml" \
+  --substitutions "_IMAGE=${IMAGE}" \
+  --project "$PROJECT_ID" --quiet
 
 # an existing SELF_URL is carried into the first deploy so the trigger routes are
 # live immediately on a redeploy rather than 503-ing until the update below

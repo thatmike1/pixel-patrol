@@ -11,6 +11,11 @@ so determinism is the contract, not a nicety.
 env -> crawl -> fingerprint -> Firestore -> Pub/Sub -> exit
 ```
 
+The fingerprint's shape, its hash and its schema generation live in
+`@pixel-patrol/shared`, which the agent reads through as well: the agent used to
+keep a hand-synced copy of those types and it drifted twice, which does not fail a
+build — it makes the differ silently stop seeing hosts.
+
 The crawler, classifier, consent bypass, cookie/tracker databases and the SSRF
 URL validator are lifted from the `gdpr-toolkit` scanner. Only the logger type
 changed (Fastify's logger became pino's). The SSRF validator is a security
@@ -72,8 +77,11 @@ files.
 
 ## Running locally
 
+This is an npm workspace; install from the repo root, not from here.
+
 ```bash
-npm install
+cd .. && npm install                # one lockfile, shared symlinked into node_modules
+cd crawler
 npx playwright install chromium     # only if you have no Playwright browsers yet
 gcloud auth application-default login
 
@@ -92,8 +100,14 @@ Other scripts: `npm run typecheck`, `npm test`, `npm run build`, `npm start`.
 ## Building the image
 
 ```bash
-docker build -t pixel-patrol-crawler .
+docker build -f crawler/Dockerfile -t pixel-patrol-crawler ..
 ```
+
+The context is the **repo root**, not this directory, because the job imports
+`@pixel-patrol/shared` from outside it. `infra/deploy-crawler.sh` submits the root
+with `infra/cloudbuild-crawler.yaml` for the same reason. The npm install inside the
+Dockerfile is filtered to this workspace and `shared`, so the agent's dependencies
+never land in this image.
 
 Base image is `mcr.microsoft.com/playwright:v1.48.0-noble`, matching the pinned
 Playwright version so the browser and the npm package never drift apart. Runs as

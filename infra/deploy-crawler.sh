@@ -12,8 +12,14 @@ IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${AR_REPO}/crawler:${TAG}"
 CRAWL_SA="patrol-crawler@${PROJECT_ID}.iam.gserviceaccount.com"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
+# the context is the repo root, not crawler/: the job imports
+# @pixel-patrol/shared, and `gcloud builds submit crawler` would upload only
+# crawler/ and fail on the missing package inside Docker
 echo "== build ${IMAGE}"
-gcloud builds submit "${ROOT}/crawler" --tag "$IMAGE" --project "$PROJECT_ID" --quiet
+gcloud builds submit "$ROOT" \
+  --config "${ROOT}/infra/cloudbuild-crawler.yaml" \
+  --substitutions "_IMAGE=${IMAGE}" \
+  --project "$PROJECT_ID" --quiet
 
 echo "== job patrol-crawler"
 gcloud run jobs deploy patrol-crawler \

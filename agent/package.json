@@ -8,17 +8,22 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "prebuild": "npm --prefix ../shared run build",
     "build": "tsc -p tsconfig.build.json",
+    "pretypecheck": "npm --prefix ../shared run build",
     "typecheck": "tsc --noEmit",
+    "pretest": "npm --prefix ../shared run build",
     "test": "node --test --import tsx src/*.test.ts",
     "start": "node dist/server.js",
-    "dev": "tsx watch src/server.ts"
+    "dev": "tsx watch src/server.ts",
+    "report": "tsx scripts/stability-report.ts"
   },
   "dependencies": {
     "@google-cloud/firestore": "^7.11.0",
     "@google-cloud/pubsub": "^4.9.0",
     "@google-cloud/run": "^1.5.0",
     "@google/adk": "^2.0.0",
+    "@pixel-patrol/shared": "*",
     "express": "^5.1.0",
     "google-auth-library": "^10.3.0",
     "pino": "^9.5.0",

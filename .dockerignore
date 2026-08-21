@@ -1,0 +1,14 @@
+# the build context is the repo root for both images, so this is the one
+# .dockerignore that applies to either build
+node_modules
+**/node_modules
+dist
+**/dist
+.git
+.gitignore
+.env
+.env.*
+*.log
+.DS_Store
+docs
+infra

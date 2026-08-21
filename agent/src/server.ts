@@ -62,6 +62,11 @@ const sweepDoneSchema = z.discriminatedUnion("status", [
   }),
 ]);
 
+/** an operator approving a sweep as the site's baseline */
+const approveBaselineSchema = z.object({
+  sweepId: z.string().min(1),
+});
+
 /** an operator registering a site */
 const registerSiteSchema = z.object({
   siteId: z
@@ -103,7 +108,10 @@ export interface AppDeps {
  */
 export function createDeps(config: AgentConfig, log: Logger): AppDeps {
   const store = createStore(config.projectId);
-  const runner = createAnalystRunner(store, config.model);
+  const runner = createAnalystRunner(store, config.model, {
+    stabilityWindow: config.stabilityWindow,
+    goneAfter: config.goneAfter,
+  });
 
   return {
     config,
@@ -286,7 +294,7 @@ export function createApp(deps: AppDeps): Express {
       // fail fast before spending a model call: if the fingerprint has not landed
       // yet, a 500 sends this back through Pub/Sub's retry rather than letting the
       // agent flounder against a missing document
-      await loadComparison(deps.store, siteId, sweepId);
+      await loadComparison(deps.store, siteId, sweepId, config.stabilityWindow);
 
       const started = Date.now();
       const result = await deps.analyse({ siteId, sweepId });
@@ -356,6 +364,45 @@ export function createApp(deps: AppDeps): Express {
       await deps.publisher.publishSiteSweep({ siteId, siteUrl: site.url, sweepId });
       log.info({ siteId, sweepId }, "sweep forced by operator");
       res.status(202).json({ siteId, sweepId });
+    }, log),
+  );
+
+  // approving a baseline is a human decision by design — the agent may only do
+  // it on a site's first sweep. this is where the operator does it for every
+  // other case, without a model in the loop: it points the site at a sweep it
+  // has actually seen and clears the findings that were waiting on that call.
+  app.post(
+    "/sites/:siteId/baseline",
+    requireAdminKey,
+    asyncRoute(async (req: Request, res: Response) => {
+      const siteId = String(req.params.siteId);
+      const { sweepId } = approveBaselineSchema.parse(req.body);
+
+      const site = await deps.store.getSite(siteId);
+      if (!site) {
+        res.status(404).json({ error: `no site registered as "${siteId}"` });
+        return;
+      }
+      // refuse a sweepId with no fingerprint behind it: a typo would otherwise
+      // point the site at a baseline that can never be loaded, and every later
+      // sweep would fall back to comparing against the previous one
+      const fingerprint = await deps.store.getFingerprint(siteId, sweepId);
+      if (!fingerprint) {
+        res.status(404).json({ error: `no fingerprint at sites/${siteId}/fingerprints/${sweepId}` });
+        return;
+      }
+
+      await deps.store.setApprovedBaseline(siteId, sweepId);
+      log.info({ siteId, sweepId }, "baseline approved by operator");
+      res.status(200).json({
+        siteId,
+        approvedBaselineId: sweepId,
+        scannedAt: fingerprint.scannedAt,
+        hostsCount: fingerprint.hosts.length,
+        cookiesCount: fingerprint.cookies.length,
+        pendingCleared:
+          (site.pendingDomains?.length ?? 0) + (site.pendingCookies?.length ?? 0),
+      });
     }, log),
   );
 
@@ -454,6 +501,8 @@ function main(): void {
         model: config.model,
         geminiLocation: config.geminiLocation,
         crawlerJob: config.crawlerJob,
+        stabilityWindow: config.stabilityWindow,
+        goneAfter: config.goneAfter,
       },
       "patrol-agent listening",
     );

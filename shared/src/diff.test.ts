@@ -13,7 +13,7 @@ import { test } from "node:test";
 
 import { diffFingerprints, isIncompatible } from "./diff.js";
 import type { FingerprintDiff } from "./diff.js";
-import type { Fingerprint, FingerprintCookie, FingerprintHost } from "./types.js";
+import type { Fingerprint, FingerprintCookie, FingerprintHost } from "./fingerprint.js";
 
 /** a host entry with sane defaults, overridable per test */
 function host(

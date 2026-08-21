@@ -10,30 +10,21 @@
 // category enums — match CHECK constraints in detected_cookies / detected_trackers
 // ---------------------------------------------------------------------------
 
-/** cookie category — maps to detected_cookies.category CHECK constraint */
-export type CookieCategory =
-  | "necessary"
-  | "analytics"
-  | "marketing"
-  | "functional"
-  | "unclassified";
-
 /**
- * tracker category — maps to detected_trackers.category CHECK constraint.
- * note: NO `necessary` — trackers are never necessary by definition.
- * the classifier must enforce this.
+ * the classifier's category enums live in `@pixel-patrol/shared`, because the
+ * fingerprint carries them across the wire to the agent and one definition is
+ * the whole point of that package. they still map to the CHECK constraints on
+ * detected_cookies.category and detected_trackers.category.
+ *
+ * TrackerCategory has NO `necessary` — a tracker is never necessary by
+ * definition, and the classifier must enforce that.
  */
-export type TrackerCategory =
-  | "analytics"
-  | "marketing"
-  | "functional"
-  | "unclassified";
+import type { CookieCategory, TrackerCategory, TrackerType } from "@pixel-patrol/shared";
+
+export type { CookieCategory, TrackerCategory, TrackerType };
 
 /** how the category was determined — maps to detected_cookies.category_source CHECK */
 export type CategorySource = "auto" | "manual";
-
-/** tracker resource type — maps to detected_trackers.type CHECK constraint */
-export type TrackerType = "script" | "pixel" | "iframe" | "font";
 
 // ---------------------------------------------------------------------------
 // crawler output — raw data before classification

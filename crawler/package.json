@@ -8,8 +8,11 @@
     "node": ">=22.0.0"
   },
   "scripts": {
+    "prebuild": "npm --prefix ../shared run build",
     "build": "tsc -p tsconfig.build.json",
+    "pretypecheck": "npm --prefix ../shared run build",
     "typecheck": "tsc --noEmit",
+    "pretest": "npm --prefix ../shared run build",
     "test": "node --test --import tsx src/*.test.ts",
     "start": "node dist/job.js",
     "dev": "tsx src/job.ts"
@@ -17,6 +20,7 @@
   "dependencies": {
     "@google-cloud/firestore": "^7.11.0",
     "@google-cloud/pubsub": "^4.9.0",
+    "@pixel-patrol/shared": "*",
     "pino": "^9.5.0",
     "playwright": "1.48.0",
     "tldts": "^7.4.10"

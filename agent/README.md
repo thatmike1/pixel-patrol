@@ -33,9 +33,9 @@ One `LlmAgent` on `gemini-3.5-flash`, four `FunctionTool`s, one decision per swe
 | tool | what it does |
 | --- | --- |
 | `get_sweep_context` | site, this sweep's fingerprint summary, the approved baseline and the previous sweep |
-| `diff_against_baseline` | the deterministic set difference: tracking domains and cookies added and removed |
-| `approve_baseline` | points the site at this sweep, for a site's first sweep only |
-| `record_decision` | writes the verdict — `noop`, `drift` or `baseline-created` |
+| `diff_against_baseline` | the deterministic set difference, split into `alerts` and `noise` by the stability window |
+| `approve_baseline` | points the site at this sweep and clears pending, for a site's first sweep only |
+| `record_decision` | writes the verdict — `noop`, `drift` or `baseline-created` — and parks what it alerted on |
 
 The split is deliberate. Everything that must be exactly right is a tool: reading
 fingerprints, computing the difference, writing the verdict. The model decides what a
@@ -55,6 +55,64 @@ decision stores the domains, so downstream ticket de-duplication sees a stable s
 
 Cookies keep `(name, domain)` identity — cookie domains do not rotate that way.
 
+### The stability window
+
+Keying on the registrable domain killed CDN shard churn. It did not kill the other
+kind: on a commercial site the domain *set* moves between sweeps by itself, because
+a programmatic ad slot fills with a different vendor on every pageview. novinky.cz
+showed `alza.cz` on one sweep and different ad tech on the next, with nothing about
+the site having changed. An agent that alerts on that gets muted in a week, and a
+muted watchdog is worse than none.
+
+So a set difference is not an alert. Every domain and cookie in
+(current ∪ baseline ∪ the last N sweeps) is classified against the site's own recent
+history, in `@pixel-patrol/shared`, deterministically:
+
+| class | meaning | alerts |
+| --- | --- | --- |
+| `stable` | in the baseline and in this sweep | no |
+| `new` | in this sweep, not in the baseline, in none of the last N — never seen before | **yes** |
+| `returning` | in this sweep, not in the baseline, in *all* of the last N — a persistent addition nobody approved | **yes** |
+| `flapping` | in and out across the window; or a cookie whose name carries a generated identifier | no |
+| `gone` | in the baseline, absent here and from the last M sweeps | **yes** |
+| `missing-once` | in the baseline, absent here, but present within the last M | no |
+| `pending` | would have alerted, but was already reported and is waiting on a human | no |
+
+`N` is `STABILITY_WINDOW` (default 5), `M` is `GONE_AFTER` (default 3). Each entry
+carries its `presenceRatio`, the fraction of the window that contained it. The
+reference snapshot is excluded from its own window: it is already the other side of
+the comparison, and counting it again would hold a genuine addition's ratio below 1
+for the next N sweeps and file it as rotation.
+
+`diff_against_baseline` returns `{comparedTo, windowSize, alerts, noise, noiseCount,
+hashChanged}`. The model may only read the split, never redraw it: alerts non-empty
+is `drift`, alerts empty is `noop`, and the noop summary may say how many rotating
+domains were ignored.
+
+### Reporting a finding once
+
+An alert parks its keys in the site's `pendingDomains` and `pendingCookies`. The next
+sweep sees them as `pending` — reported, not alerted — so an hourly schedule does not
+re-file the same finding every hour until somebody acts. Approving a baseline clears
+them, because approving *is* the decision they were waiting for.
+
+The keys are recomputed inside `record_decision` rather than taken from the model's
+arguments: the dedupe key has to be exactly the key the classifier alerted on, and a
+model that renames `facebook.net` to `connect.facebook.net` would silently break it.
+The sweep that wrote the pending entries is exempt from its own suppression, so a
+Pub/Sub redelivery re-reports drift instead of overwriting the verdict with a noop.
+
+### The tuning tool
+
+```bash
+PROJECT_ID=pixel-patrol-mp ./infra/stability-report.sh smoke-trackers 5
+```
+
+prints every registrable domain with its presence ratio, whether the baseline has it
+and which class it landed in, then the decisions the analyst recorded. Read-only.
+The thresholds are guesses until they are checked against overnight data from a site
+with real ad tech on it, and this is what that check looks like.
+
 Fingerprints carry a `schemaVersion`. If the two sides differ, or either is missing one
 (generation 1, written before the crawler stamped it and before `registrableDomain`
 existed), the diff returns `{comparedTo: "incompatible", reason}` rather than a result:
@@ -72,6 +130,7 @@ record `baseline-created`.
 | `POST` | `/trigger/sweep-done` | push OIDC | `204`, once a decision is recorded |
 | `POST` | `/sites` | `x-admin-key` | `201` — body `{siteId, url, ownerEmail?}` |
 | `POST` | `/sites/:siteId/sweep` | `x-admin-key` | `202 {siteId, sweepId}` — forces a re-check |
+| `POST` | `/sites/:siteId/baseline` | `x-admin-key` | `200` — body `{sweepId}`; approves it and clears pending |
 | `GET` | `/sites/:siteId/decisions?limit=10` | `x-admin-key` | `200 {siteId, decisions}` |
 
 Any non-2xx on a trigger is a nack, so Pub/Sub retries and eventually dead-letters. That
@@ -104,6 +163,8 @@ demo and for forcing a re-check.
 | `MODEL` | no, `gemini-3.5-flash` | |
 | `REGION` | no, `europe-west1` | region of the crawler job and this service |
 | `CRAWLER_JOB` | no, `patrol-crawler` | Cloud Run Job to execute |
+| `STABILITY_WINDOW` | no, `5` | N: sweeps of history the drift classification reasons over |
+| `GONE_AFTER` | no, `3` | M: consecutive absences before a baseline entry counts as removed |
 | `SITE_SWEEP_TOPIC` | no, `site-sweep` | |
 | `SELF_URL` | for triggers | this service's base URL, the expected OIDC audience |
 | `PORT` | no, `8080` | Cloud Run injects it |
@@ -115,16 +176,20 @@ is set. `infra/deploy-agent.sh` sets it in a second pass immediately after deplo
 
 ## Local
 
+This is an npm workspace. Install from the repo root, not from here:
+
 ```bash
-npm install
+cd .. && npm install                    # one lockfile, shared symlinked into node_modules
 gcloud auth application-default login   # ADC for Firestore, Pub/Sub and Vertex
-cp .env.example .env                    # then export the variables you need
+cd agent && cp .env.example .env        # then export the variables you need
 npm run typecheck && npm test
 npm run dev
 ```
 
-`npm test` covers the pure parts — the diff and the push-envelope decoder — and needs no
-credentials or emulator. The rest is verified against the real project.
+`@pixel-patrol/shared` ships compiled JS, so every script here builds it first through
+a `pre` hook. `npm test` covers the store-backed drift pipeline and the push-envelope
+decoder and needs no credentials or emulator; the pure classification is tested in
+`shared`. The rest is verified against the real project.
 
 Pub/Sub push cannot reach `localhost`, so a local run is driven by hand:
 
@@ -143,6 +208,12 @@ curl -sS localhost:8080/sites -H "x-admin-key: $ADMIN_KEY" -H 'content-type: app
 PROJECT_ID=pixel-patrol-mp ./infra/deploy-agent.sh   # build, deploy, set SELF_URL, grant run.invoker
 PROJECT_ID=pixel-patrol-mp ./infra/wire-pubsub.sh    # topics, push subscriptions, DLQ IAM, scheduler
 ```
+
+The image is built with the **repo root** as the Docker context
+(`infra/cloudbuild-agent.yaml`), because this service imports `@pixel-patrol/shared`
+from outside this directory and `gcloud builds submit agent` would upload only
+`agent/`. The npm install inside the Dockerfile is filtered to this workspace and
+`shared`, so the crawler's Playwright never lands in this image.
 
 Both are idempotent. `deploy-agent.sh` prints a generated `ADMIN_KEY` once on the first
 run and reuses the deployed one afterwards, so a redeploy does not invalidate it.

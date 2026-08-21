@@ -1,83 +1,21 @@
 /**
  * the documents this service reads and writes, and the messages it moves.
  *
- * the fingerprint types are a verbatim copy of `crawler/src/fingerprint.ts` and
- * `crawler/src/types.ts` rather than an import. the two packages build and ship
- * as separate containers — `gcloud builds submit agent` only uploads `agent/`,
- * so a relative import across the package boundary compiles locally and then
- * fails inside Docker. if the shape here drifts from the crawler's, the diff
- * silently stops seeing hosts; the crawler's file is the source of truth.
+ * the fingerprint shape is NOT defined here. it comes from
+ * `@pixel-patrol/shared`, which the crawler writes through and this service
+ * reads through, because the hand-synced copy that used to live in this file
+ * drifted from the crawler's twice — and a drifted fingerprint type does not
+ * fail a build, it makes the differ silently stop seeing hosts.
  */
 
-// ---------------------------------------------------------------------------
-// fingerprint — mirrors crawler/src/fingerprint.ts
-// ---------------------------------------------------------------------------
-
-/** cookie category — mirrors crawler/src/types.ts */
-export type CookieCategory =
-  | "necessary"
-  | "analytics"
-  | "marketing"
-  | "functional"
-  | "unclassified";
-
-/** tracker category — mirrors crawler/src/types.ts; trackers are never `necessary` */
-export type TrackerCategory = "analytics" | "marketing" | "functional" | "unclassified";
-
-/** tracker resource type — mirrors crawler/src/types.ts */
-export type TrackerType = "script" | "pixel" | "iframe" | "font";
-
-/** a third-party host observed loading resources on the site */
-export interface FingerprintHost {
-  host: string;
-  /**
-   * the registrable domain (eTLD+1) of `host`, e.g. `sdn.cz` for
-   * `d15-a.sdn.cz`. this is the unit drift is measured in: sharded CDN
-   * hostnames rotate between sweeps and would otherwise read as drift every
-   * single time.
-   *
-   * required from schema generation 2 onward; optional here because this
-   * service still reads generation 1 documents written before the crawler
-   * emitted it.
-   */
-  registrableDomain?: string;
-  vendor: string | null;
-  category: TrackerCategory;
-  type: TrackerType;
-}
-
-/** a cookie observed during the sweep — identity and metadata only, never a value */
-export interface FingerprintCookie {
-  name: string;
-  domain: string;
-  path: string;
-  category: CookieCategory;
-  isFirstParty: boolean;
-  durationSeconds: number | null;
-}
-
-/** one sweep's snapshot of a site, stored at sites/{siteId}/fingerprints/{sweepId} */
-export interface Fingerprint {
-  /**
-   * the fingerprint schema generation. absent means generation 1 — documents
-   * written before the crawler started stamping it, which also lack
-   * `registrableDomain` on their hosts.
-   *
-   * two fingerprints from different generations are not comparable, so the diff
-   * refuses rather than producing a plausible-looking wrong answer.
-   */
-  schemaVersion?: number;
-  siteId: string;
-  sweepId: string;
-  siteUrl: string;
-  scannedAt: string;
-  pagesScanned: number;
-  hosts: FingerprintHost[];
-  cookies: FingerprintCookie[];
-  preConsentNonNecessaryCount: number;
-  complianceScore: number;
-  hash: string;
-}
+export type {
+  CookieCategory,
+  Fingerprint,
+  FingerprintCookie,
+  FingerprintHost,
+  TrackerCategory,
+  TrackerType,
+} from "@pixel-patrol/shared";
 
 // ---------------------------------------------------------------------------
 // documents
@@ -96,6 +34,23 @@ export interface Site {
   lastSweepId?: string;
   lastSweepAt?: string;
   createdAt?: string;
+  /**
+   * registrable domains already reported as drift and not yet approved into a
+   * baseline. an hourly sweep would otherwise re-report the same finding every
+   * hour until someone acted on it, which is how an owner learns to ignore the
+   * alerts. cleared when a baseline is approved.
+   */
+  pendingDomains?: string[];
+  /** cookie keys (`domain name`) already reported; see {@link Site.pendingDomains} */
+  pendingCookies?: string[];
+  /**
+   * the sweep that last wrote the pending sets.
+   *
+   * a Pub/Sub redelivery re-analyses a sweep that already recorded drift, and
+   * its own findings are sitting in pending by then. without this, the second
+   * pass would suppress them and overwrite the drift verdict with a noop.
+   */
+  pendingSweepId?: string;
 }
 
 /** the record of a dispatched sweep at sites/{siteId}/sweeps/{sweepId} */
@@ -122,6 +77,13 @@ export interface Decision {
    */
   hostsAdded?: string[];
   hostsRemoved?: string[];
+  /**
+   * how many differences the stability window explained away as rotation,
+   * one-off absences or already-reported findings. a noop with a noiseCount of
+   * 30 is the watchdog working, not the watchdog asleep, and the number is what
+   * makes that visible in the decision log.
+   */
+  noiseCount?: number;
   error?: string;
   at: string;
   model: string;

@@ -1,0 +1,19 @@
+{
+  "name": "pixel-patrol",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Pixel Patrol — GDPR drift watchdog. npm workspaces: one lockfile, one copy of the fingerprint types.",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "workspaces": [
+    "shared",
+    "crawler",
+    "agent"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @pixel-patrol/shared && npm run build --workspace pixel-patrol-crawler && npm run build --workspace pixel-patrol-agent",
+    "typecheck": "npm run typecheck --workspace @pixel-patrol/shared && npm run typecheck --workspace pixel-patrol-crawler && npm run typecheck --workspace pixel-patrol-agent",
+    "test": "npm run test --workspace @pixel-patrol/shared && npm run test --workspace pixel-patrol-crawler && npm run test --workspace pixel-patrol-agent"
+  }
+}

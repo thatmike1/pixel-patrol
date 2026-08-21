@@ -5,11 +5,20 @@
  * what the dashboard, the ticket and the owner email will read. the instruction
  * requires exactly one call, so the tool reports back what it wrote and the
  * model has nothing left to do afterwards.
+ *
+ * recording drift also parks the alerting entries in the site's pending sets, so
+ * an hourly sweep reports a finding once rather than every hour until someone
+ * acts on it. what gets parked is recomputed here rather than taken from the
+ * model's arguments: the dedupe key has to be exactly the key the classifier
+ * alerted on, or the next sweep will not recognise it.
  */
 
 import { FunctionTool } from "@google/adk";
+import { alertKeys } from "@pixel-patrol/shared";
 import { z } from "zod";
 
+import { analyseDrift, verdictOf } from "../drift.js";
+import type { DriftOptions } from "../drift.js";
 import type { Store } from "../firestore.js";
 import type { Decision } from "../types.js";
 
@@ -20,24 +29,84 @@ const parameters = z.object({
   action: z
     .enum(["noop", "drift", "baseline-created"])
     .describe(
-      "noop when nothing changed, drift when hosts or cookies were added or removed, " +
-        "baseline-created when this sweep became the site's first approved baseline",
+      "noop when the alerts lists were all empty, drift when any alert list had an entry, " +
+        "baseline-created when this sweep became the site's approved baseline",
     ),
   summary: z.string().describe("one sentence a non-technical site owner would understand"),
   hostsAdded: z
     .array(z.string())
     .optional()
-    .describe("registrableDomain values that appeared, from the diff; omit when none"),
+    .describe("registrableDomain values from alerts.hostsAdded; omit when none"),
   hostsRemoved: z
     .array(z.string())
     .optional()
-    .describe("registrableDomain values that disappeared, from the diff; omit when none"),
+    .describe("registrableDomain values from alerts.hostsRemoved; omit when none"),
+  noiseCount: z
+    .number()
+    .int()
+    .min(0)
+    .optional()
+    .describe("the noiseCount the diff returned — differences the window explained away"),
 });
 
 /** what the tool confirms back to the model */
-interface RecordDecisionResult {
+export interface RecordDecisionResult {
   ok: true;
   path: string;
+}
+
+/** the verdict as the model reports it */
+export type RecordDecisionArgs = z.infer<typeof parameters>;
+
+/**
+ * writes the decision and parks whatever it alerted on.
+ *
+ * separate from the tool wrapper so the pending bookkeeping — the part that
+ * decides whether tomorrow's sweep repeats today's finding — can be tested
+ * without an LLM or the ADK's tool plumbing.
+ *
+ * @param store the Firestore accessors
+ * @param model the model id stamped on the decision
+ * @param options the stability window rules
+ * @param args the verdict the analyst reported
+ * @returns where the decision was written
+ */
+export async function recordDecision(
+  store: Store,
+  model: string,
+  options: DriftOptions,
+  args: RecordDecisionArgs,
+): Promise<RecordDecisionResult> {
+  // the counts and the dedupe keys come from the classifier, not from the
+  // model's retyping of them. a baseline-created run is exempt: the baseline it
+  // just approved is this very sweep, so there is nothing to recompute against.
+  const verdict =
+    args.action === "baseline-created"
+      ? null
+      : verdictOf(await analyseDrift(store, args.siteId, args.sweepId, options));
+
+  const decision: Decision = {
+    siteId: args.siteId,
+    sweepId: args.sweepId,
+    action: args.action,
+    summary: args.summary,
+    ...(args.hostsAdded?.length ? { hostsAdded: args.hostsAdded } : {}),
+    ...(args.hostsRemoved?.length ? { hostsRemoved: args.hostsRemoved } : {}),
+    noiseCount: verdict ? verdict.noiseCount : (args.noiseCount ?? 0),
+    at: new Date().toISOString(),
+    model,
+  };
+
+  await store.writeDecision(decision);
+
+  if (args.action === "drift" && verdict) {
+    const keys = alertKeys(verdict);
+    if (keys.domains.length > 0 || keys.cookies.length > 0) {
+      await store.setPending(args.siteId, { ...keys, sweepId: args.sweepId });
+    }
+  }
+
+  return { ok: true, path: `sites/${args.siteId}/decisions/${args.sweepId}` };
 }
 
 /**
@@ -45,11 +114,13 @@ interface RecordDecisionResult {
  *
  * @param store the Firestore accessors
  * @param model the model id stamped on the decision, for provenance
+ * @param options the stability window rules, for recomputing what to park
  * @returns the ADK tool
  */
 export function createRecordDecisionTool(
   store: Store,
   model: string,
+  options: DriftOptions,
 ): FunctionTool<typeof parameters> {
   return new FunctionTool({
     name: "record_decision",
@@ -57,19 +128,7 @@ export function createRecordDecisionTool(
       "Records the verdict for this sweep. Call this exactly once, as the last thing you do.",
     parameters,
     async execute(args): Promise<RecordDecisionResult> {
-      const decision: Decision = {
-        siteId: args.siteId,
-        sweepId: args.sweepId,
-        action: args.action,
-        summary: args.summary,
-        ...(args.hostsAdded?.length ? { hostsAdded: args.hostsAdded } : {}),
-        ...(args.hostsRemoved?.length ? { hostsRemoved: args.hostsRemoved } : {}),
-        at: new Date().toISOString(),
-        model,
-      };
-
-      await store.writeDecision(decision);
-      return { ok: true, path: `sites/${args.siteId}/decisions/${args.sweepId}` };
+      return recordDecision(store, model, options, args);
     },
   });
 }
