@@ -1,0 +1,33 @@
+{
+  "name": "pixel-patrol-agent",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Pixel Patrol agent — Cloud Run service that fans sweeps out to the crawler and runs the ADK drift analyst when one finishes.",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --import tsx src/*.test.ts",
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts"
+  },
+  "dependencies": {
+    "@google-cloud/firestore": "^7.11.0",
+    "@google-cloud/pubsub": "^4.9.0",
+    "@google-cloud/run": "^1.5.0",
+    "@google/adk": "^2.0.0",
+    "express": "^5.1.0",
+    "google-auth-library": "^10.3.0",
+    "pino": "^9.5.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
