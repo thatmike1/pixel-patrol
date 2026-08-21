@@ -18,7 +18,8 @@
     "@google-cloud/firestore": "^7.11.0",
     "@google-cloud/pubsub": "^4.9.0",
     "pino": "^9.5.0",
-    "playwright": "1.48.0"
+    "playwright": "1.48.0",
+    "tldts": "^7.4.10"
   },
   "devDependencies": {
     "@types/node": "^22.9.0",

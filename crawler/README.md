@@ -25,15 +25,29 @@ Stored at `sites/{siteId}/fingerprints/{sweepId}`:
 | --- | --- |
 | `siteId`, `sweepId`, `siteUrl`, `scannedAt` | sweep identity |
 | `pagesScanned` | pages actually visited, which can be fewer than requested |
-| `hosts[]` | third-party hosts, deduped and sorted: `host`, `vendor`, `category`, `type` |
+| `hosts[]` | third-party hosts, deduped and sorted: `host`, `registrableDomain`, `vendor`, `category`, `type` |
 | `cookies[]` | sorted by name, domain, path: `name`, `domain`, `path`, `category`, `isFirstParty`, `durationSeconds` |
 | `preConsentNonNecessaryCount` | non-necessary cookies set before any consent was given |
 | `complianceScore` | 0-100, scanner-observable signals only |
-| `hash` | sha256 over host names plus cookie name+domain, and nothing else |
+| `hash` | sha256 over the unique registrable domains plus cookie name+domain, and nothing else |
 
 **Cookie values are never captured or stored.** Only cookie identity and
 metadata. The hash deliberately ignores durations, categories and ordering, so a
 cookie whose max-age ticks down between sweeps does not read as drift.
+
+### Why the hash uses registrable domains
+
+CDNs and ad networks shard third-party requests across rotating numbered hosts.
+Two consecutive sweeps of an unchanged novinky.cz contacted `d15-a.sdn.cz` on
+one and `d21-a.sdn.cz` on the other, along with ten different
+`NN.onegar-XX.imedia.cz` shards. Hashing full hostnames would have reported
+drift on every sweep of most commercial sites.
+
+So each host carries a `registrableDomain` (eTLD+1, from `tldts`, which bundles
+the public suffix list and does no network lookup) and the hash counts the
+unique set of those. `hosts[]` still holds every full hostname, because display
+wants them. The hash moves when the site starts talking to a **new
+organization**, which is the question the product actually asks.
 
 The job also merges `{url, lastSweepId, lastSweepAt}` into `sites/{siteId}` and
 publishes one message to the sweep-done topic:
@@ -90,9 +104,8 @@ container. Deployment is owned outside this directory.
 - The crawl gets a hard 8 minute budget. When it expires the abort signal fires
   and the crawler stops between pages, so the fingerprint reflects the pages it
   reached rather than failing outright.
-- Sites that shard third-party requests across numbered hostnames (`d15-a.sdn.cz`,
-  `d21-a.sdn.cz`, and so on) produce a different host set on every sweep, which
-  means a different hash and false drift. Normalizing hosts to their registrable
-  domain would fix it and is not implemented.
+- Drift is tracked at organization granularity, not hostname. A site moving
+  between two shards of the same CDN is deliberately invisible to the hash;
+  compare `hosts[]` directly if you need hostname-level detail.
 - Google Consent Mode v2 state is not captured. A site can load gtag with denied
   consent defaults and look identical to one that loads it with consent granted.

@@ -190,6 +190,64 @@ test("cookie values never reach the fingerprint", () => {
   }
 });
 
+test("rotating cdn shards collapse to one registrable domain and one hash", () => {
+  // the same CDN reached through two shard hostnames on two consecutive sweeps
+  const sweepA = buildFingerprint(
+    scanResult([cookie("_ga", "example.com")], [tracker("d15-a.sdn.cz")]),
+    META,
+  );
+  const sweepB = buildFingerprint(
+    scanResult([cookie("_ga", "example.com")], [tracker("d21-a.sdn.cz")]),
+    { ...META, sweepId: "sweep-2" },
+  );
+
+  assert.equal(sweepA.hosts[0]?.registrableDomain, "sdn.cz");
+  assert.equal(sweepB.hosts[0]?.registrableDomain, "sdn.cz");
+
+  // the full hostnames still differ, which is what display needs
+  assert.equal(sweepA.hosts[0]?.host, "d15-a.sdn.cz");
+  assert.equal(sweepB.hosts[0]?.host, "d21-a.sdn.cz");
+
+  // ...but the drift hash does not move
+  assert.equal(sweepB.hash, sweepA.hash);
+});
+
+test("ad-network shards across different subdomains collapse to imedia.cz", () => {
+  const fp = buildFingerprint(
+    scanResult(
+      [],
+      [tracker("30.onegar-ko.imedia.cz"), tracker("47.onegar-ng.imedia.cz")],
+    ),
+    META,
+  );
+
+  assert.deepEqual(
+    fp.hosts.map((h) => h.registrableDomain),
+    ["imedia.cz", "imedia.cz"],
+  );
+
+  // two hosts are kept for display, but they count as one domain in the hash
+  assert.equal(fp.hosts.length, 2);
+  const single = buildFingerprint(
+    scanResult([], [tracker("30.onegar-ko.imedia.cz")]),
+    META,
+  );
+  assert.equal(fp.hash, single.hash);
+});
+
+test("a genuinely new organization still moves the hash", () => {
+  const before = buildFingerprint(
+    scanResult([], [tracker("d15-a.sdn.cz")]),
+    META,
+  );
+  const after = buildFingerprint(
+    scanResult([], [tracker("d15-a.sdn.cz"), tracker("hotjar.com")]),
+    META,
+  );
+
+  assert.notEqual(after.hash, before.hash);
+});
+
 test("hosts are deduped by host name", () => {
   const fp = buildFingerprint(
     scanResult(

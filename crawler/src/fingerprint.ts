@@ -5,14 +5,16 @@
  * determinism is the contract here, not a nicety:
  *
  *   - arrays are sorted by a total order that does not depend on crawl order
- *   - the hash covers ONLY host names and cookie name+domain, so a cookie
- *     whose max-age ticks down between sweeps does not read as drift
+ *   - the hash covers ONLY registrable domains and cookie name+domain, so a
+ *     cookie whose max-age ticks down between sweeps does not read as drift
  *   - cookie VALUES are never carried into a fingerprint (they are session
  *     tokens and identifiers; storing them would be the privacy leak this
  *     tool exists to find)
  */
 
 import { createHash } from "node:crypto";
+
+import { getDomain } from "tldts";
 
 import type {
   CookieCategory,
@@ -27,7 +29,14 @@ import type {
 
 /** a third-party host observed loading resources on the site */
 export interface FingerprintHost {
+  /** the full hostname exactly as observed, kept for display */
   host: string;
+  /**
+   * the registrable domain (eTLD+1) of `host`, or `host` itself when there is
+   * no registrable domain to derive (an IP literal, or a suffix-only name).
+   * this is the unit the hash counts, not `host`.
+   */
+  registrableDomain: string;
   vendor: string | null;
   category: TrackerCategory;
   type: TrackerType;
@@ -105,15 +114,27 @@ export function canonicalJson(value: JsonValue): string {
 // ---------------------------------------------------------------------------
 
 /**
- * computes the drift hash: sha256 over the canonical JSON of host names plus
- * cookie name+domain pairs, and nothing else.
+ * computes the drift hash: sha256 over the canonical JSON of the unique
+ * registrable domains plus cookie name+domain pairs, and nothing else.
  *
- * deliberately narrow. category, vendor, path, duration and compliance score
- * all move for reasons that are not "this site started loading something new",
- * so including them would make every sweep look like drift.
+ * deliberately narrow on two axes.
+ *
+ * it hashes registrable domains rather than full hostnames because CDNs and
+ * ad networks shard third-party requests across rotating numbered hosts
+ * (`d15-a.sdn.cz`, `d21-a.sdn.cz`, `30.onegar-ko.imedia.cz`, ...). those names
+ * are assigned per request, so hashing them would make an unchanged site
+ * produce a different hash on every single sweep. collapsing to `sdn.cz` and
+ * `imedia.cz` means the hash moves when the site starts talking to a NEW
+ * organization, which is the question the product actually asks. the full
+ * hostnames stay in `hosts[]` for display.
+ *
+ * it also ignores category, vendor, path, duration and compliance score: those
+ * move for reasons that are not "this site started loading something new".
  */
 export function fingerprintHash(fp: HashableFingerprint): string {
-  const hosts = fp.hosts.map((h) => h.host).sort(compareStrings);
+  const hosts = [...new Set(fp.hosts.map((h) => h.registrableDomain))].sort(
+    compareStrings,
+  );
   const cookies = fp.cookies
     .map((c) => ({ domain: c.domain, name: c.name }))
     .sort(
@@ -133,9 +154,11 @@ export function fingerprintHash(fp: HashableFingerprint): string {
 /**
  * builds a fingerprint from a raw scan result.
  *
- * third-party hosts are deduped by host name (the crawler already dedupes
+ * third-party hosts are deduped by FULL host name (the crawler already dedupes
  * trackers by domain, but a fingerprint that silently depended on that would
- * be fragile) and both arrays are sorted into their canonical order.
+ * be fragile) and both arrays are sorted into their canonical order. the
+ * registrable domain is derived per host and collapsed only inside the hash,
+ * so display keeps every hostname the site actually contacted.
  */
 export function buildFingerprint(
   result: ScanResult,
@@ -147,6 +170,8 @@ export function buildFingerprint(
     if (byHost.has(host)) continue;
     byHost.set(host, {
       host,
+      // tldts ships the public suffix list in-process; no network lookup
+      registrableDomain: getDomain(host) ?? host,
       vendor: tracker.vendorName,
       category: tracker.category,
       type: tracker.type,
