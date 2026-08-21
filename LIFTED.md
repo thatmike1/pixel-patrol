@@ -19,8 +19,9 @@ Copied into `crawler/src/` with only import and logger-type changes:
 - `types.ts` shared scan result types
 - `Dockerfile` base (Playwright 1.48 Noble image, non-root user, heap cap)
 
-New in `crawler/`: the Cloud Run Job entry (`job.ts`), the normalized fingerprint and its
-hash (`fingerprint.ts`), and the Firestore and Pub/Sub sinks (`sinks.ts`).
+New in `crawler/`: the Cloud Run Job entry (`job.ts`) and the Firestore and Pub/Sub sinks
+(`sinks.ts`). New in `shared/`: the fingerprint types, hash, stability window and diff
+kernel that both services import (moved out of `crawler/src/fingerprint.ts` on day 4).
 
 ## Third-party
 Standard open-source dependencies as listed in each `package.json` (Playwright, pino,
