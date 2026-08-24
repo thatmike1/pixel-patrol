@@ -30,6 +30,14 @@ Cloud Scheduler --> sweep-tick --> POST /trigger/tick
                                                                  |
                                                                  v
                                                 sites/{id}/redlines/{sweepId}
+                                                                 |
+                                                                 v
+                                                    notifier (plain code)
+                                                        |             |
+                                                   GitHub issue   owner email
+                                                        |             |
+                                                        v             v
+                                              sites/{id}/notifications/{sweepId}
 ```
 
 ## The analyst
@@ -157,6 +165,49 @@ A scribe failure is logged and swallowed rather than retried. The decision is al
 written and it is what the alerting is built on; a nack here would re-run the expensive
 analyst to retry the cheap half.
 
+## The notifier
+
+Everything above this point is a document in Firestore that nobody is looking at.
+A drift decision and its redline are worth exactly as much as the odds someone opens
+the console, which on a watchdog running every ten minutes is zero. So once the scribe
+has written the paperwork, the finding leaves the system twice: a GitHub issue on
+`thatmike1/pixel-patrol-tickets`, where the work gets tracked, and an email to the
+site's owner, where it gets noticed. Both carry the same content — the analyst's
+summary and classification table, the Czech `policyRedline`, the RoPA row, and the
+Firestore paths behind them.
+
+This one is **not** an `LlmAgent`. The analyst and the scribe exist because judgement
+was needed: what a difference means, and how to write it up for a regulator. Nothing
+here needs judgement. The words already exist in two documents, and what is left —
+file this, send that, exactly once — is mechanics, where a model can only add a way
+for it to go wrong.
+
+### Exactly once
+
+Pub/Sub redelivers. A redelivered `sweep-done` rewrites the same decision and the same
+redline, both keyed by `sweepId`, so a replay costs money and changes nothing. Neither
+escapes the system. A ticket and an email do, and a second copy of each is what teaches
+an owner to stop reading them.
+
+So the outcome is recorded at `sites/{id}/notifications/{sweepId}` and read before
+anything is sent. The two halves are stored separately — filing can succeed while the
+mail fails — and a replay then sends only the missing half. Re-filing the ticket to get
+the mail out would leave two tickets for one finding, which is the thing being prevented.
+
+A notifier failure is logged and swallowed, like the scribe's, and for the same reason:
+a nack here would re-run the analyst and the scribe to retry an HTTP call. What it
+leaves behind is a notification document with the missing half still `null` and the
+reason on it.
+
+### The Resend constraint
+
+The account sends from Resend's shared `onboarding@resend.dev`, which delivers **only**
+to the address that owns the account. Every other recipient is accepted with a `200`
+and an id, then dropped. A `200` therefore proves the request was well formed, not that
+anyone received anything. Until a domain is verified, the deliverable address is
+`DEFAULT_OWNER_EMAIL`, which is what a site with no `ownerEmail` falls back to —
+including every site registered before the field existed.
+
 ## Endpoints
 
 | method | path | auth | returns |
@@ -205,6 +256,11 @@ demo and for forcing a re-check.
 | `STABILITY_WINDOW` | no, `5` | N: sweeps of history the drift classification reasons over |
 | `GONE_AFTER` | no, `3` | M: consecutive absences before a baseline entry counts as removed |
 | `SITE_SWEEP_TOPIC` | no, `site-sweep` | |
+| `GITHUB_TICKETS_TOKEN` | no | PAT with `issues: write`; from Secret Manager. Unset means no tickets |
+| `GITHUB_TICKETS_REPO` | no, `thatmike1/pixel-patrol-tickets` | `owner/repo` the tickets are filed against |
+| `RESEND_API_KEY` | no | from Secret Manager. Unset means no owner mail |
+| `RESEND_FROM` | no, `Pixel Patrol <onboarding@resend.dev>` | must be a sender Resend accepts |
+| `DEFAULT_OWNER_EMAIL` | no, `thatmike.dev@gmail.com` | where a site with no `ownerEmail` is mailed |
 | `SELF_URL` | for triggers | this service's base URL, the expected OIDC audience |
 | `PORT` | no, `8080` | Cloud Run injects it |
 | `LOG_LEVEL` | no, `info` | |

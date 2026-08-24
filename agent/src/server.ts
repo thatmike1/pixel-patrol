@@ -27,6 +27,8 @@ import { createStore } from "./firestore.js";
 import type { Store } from "./firestore.js";
 import { createPublisher, newSweepId } from "./pubsub.js";
 import type { Publisher } from "./pubsub.js";
+import { notifyDrift } from "./notifier.js";
+import type { NotifyOutcome } from "./notifier.js";
 import { decodePushMessage, PushDecodeError } from "./push-message.js";
 import { createJobRunner } from "./run-job.js";
 import type { JobRunner } from "./run-job.js";
@@ -103,6 +105,8 @@ export interface AppDeps {
     finalText: string;
     toolCalls: string[];
   }>;
+  /** files the ticket and mails the owner about a drift the scribe has documented */
+  notify: (decision: Decision) => Promise<NotifyOutcome>;
 }
 
 /**
@@ -127,6 +131,7 @@ export function createDeps(config: AgentConfig, log: Logger): AppDeps {
     verifier: createPushVerifier(`patrol-agent@${config.projectId}.iam.gserviceaccount.com`),
     analyse: (input) => analyseSweep(runner, input),
     scribe: (input) => writeRedlineFor(scribeRunner, input),
+    notify: (decision) => notifyDrift({ store, log, config: config.notify }, decision),
   };
 }
 
@@ -318,6 +323,7 @@ export function createApp(deps: AppDeps): Express {
       }
 
       const redline = await runScribeIfDrift(deps, recorded);
+      const notification = await runNotifierIfDrift(deps, recorded);
 
       log.info(
         {
@@ -325,6 +331,7 @@ export function createApp(deps: AppDeps): Express {
           sweepId,
           action: recorded.action,
           redline,
+          notification,
           summary: recorded.summary,
           toolCalls: result.toolCalls,
           finalText: result.finalText,
@@ -521,6 +528,35 @@ export async function runScribeIfDrift(
       "compliance scribe failed; the drift decision stands without its redline",
     );
     return { written: false, error: errorMessage(err) };
+  }
+}
+
+/**
+ * runs the notifier, and never lets it fail the delivery.
+ *
+ * `notifyDrift` already swallows a GitHub or Resend refusal into the
+ * notification record. this catches the outer band — a Firestore write that
+ * fails, a client that throws before it reaches its own handler — for the same
+ * reason the scribe is wrapped: the decision is the durable record, and a
+ * non-2xx here would re-run the analyst and the scribe to retry an HTTP call.
+ *
+ * @param deps the wired dependencies
+ * @param decision the verdict just recorded
+ * @returns what happened, for the analysis log line
+ */
+export async function runNotifierIfDrift(
+  deps: Pick<AppDeps, "notify" | "log">,
+  decision: Decision,
+): Promise<NotifyOutcome & { error?: string }> {
+  if (decision.action !== "drift") return { notified: false, skipped: "not-drift" };
+  try {
+    return await deps.notify(decision);
+  } catch (err) {
+    deps.log.error(
+      { siteId: decision.siteId, sweepId: decision.sweepId, err: errorMessage(err) },
+      "notifier failed; the drift decision and its redline stand unannounced",
+    );
+    return { notified: false, error: errorMessage(err) };
   }
 }
 

@@ -158,6 +158,52 @@ export interface Redline {
   model: string;
 }
 
+/** one half of a notification, once it has actually landed somewhere */
+export interface NotificationDelivery {
+  at: string;
+}
+
+/** the GitHub issue a drift filed */
+export interface IssueDelivery extends NotificationDelivery {
+  number: number;
+  url: string;
+}
+
+/** the owner email a drift sent */
+export interface EmailDelivery extends NotificationDelivery {
+  id: string;
+  to: string;
+}
+
+/**
+ * what one drift finding was told to the outside world, at
+ * sites/{siteId}/notifications/{sweepId}.
+ *
+ * keyed by sweepId like the decision and the redline, and read before anything
+ * is sent: a Pub/Sub redelivery must not file a second ticket or send a second
+ * email for a finding the owner has already seen.
+ *
+ * the two halves are recorded separately on purpose. filing the issue can
+ * succeed and the email fail, and a replay then owes the owner exactly the
+ * missing half — re-filing the ticket to get the mail out would leave two
+ * tickets for one finding.
+ */
+export interface NotificationRecord {
+  siteId: string;
+  sweepId: string;
+  /** the filed issue, or null when filing has not succeeded yet */
+  issue: IssueDelivery | null;
+  /** the sent email, or null when sending has not succeeded yet */
+  email: EmailDelivery | null;
+  /** why the issue is still null, when an attempt failed */
+  issueError?: string;
+  /** why the email is still null, when an attempt failed */
+  emailError?: string;
+  /** the domains notified about, copied from the decision */
+  domains: string[];
+  at: string;
+}
+
 // ---------------------------------------------------------------------------
 // messages
 // ---------------------------------------------------------------------------

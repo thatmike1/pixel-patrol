@@ -6,6 +6,7 @@
  *     sweeps/{sweepId}         dispatch record: when we asked for the crawl
  *     decisions/{sweepId}      what the analyst concluded
  *     redlines/{sweepId}       the policy edit and RoPA row a drift decision produced
+ *     notifications/{sweepId}  what was filed and mailed about that drift
  *
  * every read that crosses into the model goes through here, so the shapes the
  * tools hand to Gemini are the shapes this file returns and nothing wider.
@@ -15,7 +16,14 @@
 
 import { FieldValue, Firestore } from "@google-cloud/firestore";
 
-import type { Decision, Fingerprint, Redline, Site, SweepRecord } from "./types.js";
+import type {
+  Decision,
+  Fingerprint,
+  NotificationRecord,
+  Redline,
+  Site,
+  SweepRecord,
+} from "./types.js";
 
 /** the entries a sweep reported and parked for a human to accept or reject */
 export interface PendingUpdate {
@@ -49,6 +57,8 @@ export interface Store {
   writeRedline(redline: Redline): Promise<void>;
   getRedline(siteId: string, sweepId: string): Promise<Redline | null>;
   listRedlines(siteId: string, limit: number): Promise<Redline[]>;
+  writeNotification(notification: NotificationRecord): Promise<void>;
+  getNotification(siteId: string, sweepId: string): Promise<NotificationRecord | null>;
 }
 
 /**
@@ -225,6 +235,25 @@ export function createStore(projectId: string): Store {
         .limit(limit)
         .get();
       return snapshot.docs.map((doc) => doc.data() as Redline);
+    },
+
+    /**
+     * records what a drift was told to the outside world. keyed by sweepId, and
+     * written whole rather than merged: the record is rebuilt from what already
+     * landed plus what this attempt achieved, so a merge would only make it
+     * possible for a stale half to survive.
+     */
+    async writeNotification(notification: NotificationRecord): Promise<void> {
+      await sites
+        .doc(notification.siteId)
+        .collection("notifications")
+        .doc(notification.sweepId)
+        .set(notification, { merge: false });
+    },
+
+    async getNotification(siteId: string, sweepId: string): Promise<NotificationRecord | null> {
+      const doc = await sites.doc(siteId).collection("notifications").doc(sweepId).get();
+      return doc.exists ? (doc.data() as NotificationRecord) : null;
     },
 
     async listDecisions(siteId: string, limit: number): Promise<Decision[]> {

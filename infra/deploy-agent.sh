@@ -19,6 +19,15 @@ CRAWLER_JOB="${CRAWLER_JOB:-patrol-crawler}"
 # the stability window: N sweeps of history, M absences before a removal
 STABILITY_WINDOW="${STABILITY_WINDOW:-5}"
 GONE_AFTER="${GONE_AFTER:-3}"
+# where a drift finding is filed and mailed
+GITHUB_TICKETS_REPO="${GITHUB_TICKETS_REPO:-thatmike1/pixel-patrol-tickets}"
+RESEND_FROM="${RESEND_FROM:-Pixel Patrol <onboarding@resend.dev>}"
+# the Resend account sends from an unverified domain, so this is the only
+# address it will actually deliver to; verifying a domain makes it a free choice
+DEFAULT_OWNER_EMAIL="${DEFAULT_OWNER_EMAIL:-thatmike.dev@gmail.com}"
+# Secret Manager secret names, mounted as env vars on the service
+GITHUB_TOKEN_SECRET="${GITHUB_TOKEN_SECRET:-github-tickets-token}"
+RESEND_KEY_SECRET="${RESEND_KEY_SECRET:-resend-api-key}"
 SERVICE="patrol-agent"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TAG="${TAG:-$(git -C "$ROOT" rev-parse --short HEAD)}"
@@ -67,9 +76,19 @@ ENV_VARS="${ENV_VARS}##SITE_SWEEP_TOPIC=${SWEEP_TOPIC}"
 ENV_VARS="${ENV_VARS}##STABILITY_WINDOW=${STABILITY_WINDOW}"
 ENV_VARS="${ENV_VARS}##GONE_AFTER=${GONE_AFTER}"
 ENV_VARS="${ENV_VARS}##ADMIN_KEY=${ADMIN_KEY}"
+ENV_VARS="${ENV_VARS}##GITHUB_TICKETS_REPO=${GITHUB_TICKETS_REPO}"
+ENV_VARS="${ENV_VARS}##RESEND_FROM=${RESEND_FROM}"
+ENV_VARS="${ENV_VARS}##DEFAULT_OWNER_EMAIL=${DEFAULT_OWNER_EMAIL}"
 if [[ -n "$SELF_URL" ]]; then
   ENV_VARS="${ENV_VARS}##SELF_URL=${SELF_URL}"
 fi
+
+# the notifier's two credentials, mounted from Secret Manager rather than set as
+# env vars: a `gcloud run services describe` prints every env var it finds, and
+# the service description is the first thing anyone runs when a deploy looks
+# wrong. the SA needs roles/secretmanager.secretAccessor on both.
+SECRETS="GITHUB_TICKETS_TOKEN=${GITHUB_TOKEN_SECRET}:latest"
+SECRETS="${SECRETS},RESEND_API_KEY=${RESEND_KEY_SECRET}:latest"
 
 echo "== service ${SERVICE}"
 gcloud run deploy "$SERVICE" \
@@ -79,6 +98,7 @@ gcloud run deploy "$SERVICE" \
   --no-allow-unauthenticated \
   --memory 1Gi --cpu 1 --timeout 600 --concurrency 20 --max-instances 10 \
   --set-env-vars "$ENV_VARS" \
+  --set-secrets "$SECRETS" \
   --quiet
 
 SELF_URL="$(gcloud run services describe "$SERVICE" \

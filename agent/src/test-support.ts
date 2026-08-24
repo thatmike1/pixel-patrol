@@ -15,7 +15,7 @@ import type { Fingerprint, FingerprintCookie, FingerprintHost } from "@pixel-pat
 
 import type { DriftOptions } from "./drift.js";
 import type { PendingUpdate, Store } from "./firestore.js";
-import type { Decision, Redline, Site, SweepRecord } from "./types.js";
+import type { Decision, NotificationRecord, Redline, Site, SweepRecord } from "./types.js";
 
 // ---------------------------------------------------------------------------
 // fixtures
@@ -82,6 +82,7 @@ export interface Recorded {
   pending: PendingUpdate[];
   approvals: string[];
   redlines: Redline[];
+  notifications: NotificationRecord[];
 }
 
 /**
@@ -94,7 +95,13 @@ export function fakeStore(
   site: Site | null,
   fingerprints: Fingerprint[],
 ): { store: Store; recorded: Recorded } {
-  const recorded: Recorded = { decisions: [], pending: [], approvals: [], redlines: [] };
+  const recorded: Recorded = {
+    decisions: [],
+    pending: [],
+    approvals: [],
+    redlines: [],
+    notifications: [],
+  };
   let current = site;
 
   const store: Store = {
@@ -157,6 +164,15 @@ export function fakeStore(
     },
     async listRedlines(_siteId, limit) {
       return recorded.redlines.slice(-limit).reverse();
+    },
+    async writeNotification(notification) {
+      // keyed by sweepId in Firestore, so a rewrite replaces rather than appends
+      const index = recorded.notifications.findIndex((n) => n.sweepId === notification.sweepId);
+      if (index >= 0) recorded.notifications[index] = notification;
+      else recorded.notifications.push(notification);
+    },
+    async getNotification(_siteId, sweepId) {
+      return recorded.notifications.find((n) => n.sweepId === sweepId) ?? null;
     },
   };
 

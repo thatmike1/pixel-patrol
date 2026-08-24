@@ -8,6 +8,27 @@
 
 import { DEFAULT_GONE_AFTER, DEFAULT_STABILITY_WINDOW } from "@pixel-patrol/shared";
 
+/** where a drift finding is filed and mailed */
+export interface NotifyConfig {
+  /** PAT with `issues: write` on {@link NotifyConfig.githubRepo}, or null */
+  githubToken: string | null;
+  /** `owner/repo` the tickets are filed against */
+  githubRepo: string;
+  /** Resend API key, or null */
+  resendApiKey: string | null;
+  /** the From header; must be a Resend-verified sender */
+  resendFrom: string;
+  /**
+   * where a site's mail goes when the site document names no owner.
+   *
+   * the Resend account sends from an unverified domain, which means it will
+   * only deliver to the address that owns it. that address is the default here
+   * rather than a compile-time constant so a verified domain later is an env
+   * change, not a deploy of new code.
+   */
+  defaultOwnerEmail: string;
+}
+
 /** the fully validated environment for one agent process */
 export interface AgentConfig {
   /** GCP project the Firestore, Pub/Sub and Cloud Run clients address */
@@ -43,6 +64,15 @@ export interface AgentConfig {
    * routes refuse to serve until it is set (see `requirePushAuth`).
    */
   selfUrl: string | null;
+  /**
+   * how a drift finding reaches a human.
+   *
+   * every field is optional, and the notifier skips the half it has no
+   * credential for. the service has to boot without them: the crawl, the
+   * analyst and the scribe are the durable record, and a missing Resend key
+   * must not take the watchdog itself offline.
+   */
+  notify: NotifyConfig;
   /** HTTP port — Cloud Run injects this */
   port: number;
   /** pino level */
@@ -142,6 +172,13 @@ export function readConfig(env: NodeJS.ProcessEnv): AgentConfig {
     goneAfter,
     siteSweepTopic: env.SITE_SWEEP_TOPIC?.trim() || "site-sweep",
     adminKey,
+    notify: {
+      githubToken: env.GITHUB_TICKETS_TOKEN?.trim() || null,
+      githubRepo: env.GITHUB_TICKETS_REPO?.trim() || "thatmike1/pixel-patrol-tickets",
+      resendApiKey: env.RESEND_API_KEY?.trim() || null,
+      resendFrom: env.RESEND_FROM?.trim() || "Pixel Patrol <onboarding@resend.dev>",
+      defaultOwnerEmail: env.DEFAULT_OWNER_EMAIL?.trim() || "thatmike.dev@gmail.com",
+    },
     selfUrl: env.SELF_URL?.trim().replace(/\/+$/, "") || null,
     port,
     logLevel: env.LOG_LEVEL?.trim() || "info",
