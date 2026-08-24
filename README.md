@@ -80,6 +80,9 @@ PROJECT_ID=<your-project> ./infra/wire-pubsub.sh
 
 # 5. the five demo pages, on their own zero-privilege service account
 PROJECT_ID=<your-project> ./infra/deploy-demo-sites.sh
+
+# 6. the one alert: something is parked in a dead-letter queue
+PROJECT_ID=<your-project> ALERT_EMAIL=you@example.com ./infra/wire-alerts.sh
 ```
 
 That is a working watchdog: it crawls, diffs, analyses and records. To make it file

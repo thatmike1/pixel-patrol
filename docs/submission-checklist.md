@@ -2,6 +2,16 @@
 
 Sources: https://allthingsagentichackathon.devpost.com/rules and https://allthingsagentichackathon.devpost.com/ (fetched 2026-08-21).
 
+## What is left after day 8
+
+Everything that is a document, a URL or a piece of infrastructure is done. What remains
+needs either a camera or the Devpost form itself:
+
+1. The demo video (day 9): under four minutes, live and unedited, public on YouTube.
+2. The form fields: track selection, team block, and pasting `docs/devpost-draft.md`.
+3. The optional bonus items, which are worth up to 0.2 points each and none of which are
+   started.
+
 ## Hard constraints
 
 1. **Deadline:** August 31, 2026, 5:00 P.M. Pacific Time (submission period opened August 3, 2026, 9:00 A.M. PT).
@@ -16,14 +26,14 @@ Other tracks (pick exactly one on the form): The Collaborative Partner, The Fort
 
 ## Deliverables
 
-- [ ] Project category selected on the Devpost form (Taskmaster).
-- [ ] Text description covering features, functionality, technologies used, data sources, and findings/learnings.
-- [ ] Code repository URL (GitHub, GitLab or Bitbucket). Public or private both allowed.
-- [ ] If the repo is private, access granted to **testing@devpost.com** and **cloudhackathons@google.com**.
-- [ ] README.md with spin-up instructions (reproducible setup).
-- [ ] Architecture diagram: a visual representation of the system.
-- [ ] Hosted project URL, described in the rules as "URL to the hosted Project (if available) for judging and testing". The one to give is the demo-sites index, `https://demo-sites-b2xhora5ka-ew.a.run.app/` — it is the only surface a judge can open without a credential, it names all five watched pages, and it is itself a `.run.app` URL, which the video section separately asks for. `patrol-agent` is deployed `--no-allow-unauthenticated` and has no UI.
-- [ ] Demo video URL (YouTube or Vimeo).
+- [ ] Project category selected on the Devpost form (Taskmaster). Named in `docs/devpost-draft.md`; still has to be picked on the form.
+- [x] Text description covering features, functionality, technologies used, data sources, and findings/learnings. Written: **`docs/devpost-draft.md`**, paste-ready, two placeholders left (video URL, team block).
+- [x] Code repository URL (GitHub, GitLab or Bitbucket). Public or private both allowed. **https://github.com/thatmike1/pixel-patrol**, public.
+- [x] If the repo is private, access granted to **testing@devpost.com** and **cloudhackathons@google.com**. Not applicable, the repo is public.
+- [x] README.md with spin-up instructions (reproducible setup). Rewritten for a judge: six numbered steps from an empty GCP project, every command checked against the script it calls, plus `docs/iam.md` for the permission model.
+- [x] Architecture diagram: a visual representation of the system. **`docs/architecture.svg`** (PNG alongside for embedding), embedded in the README.
+- [x] Hosted project URL, described in the rules as "URL to the hosted Project (if available) for judging and testing". The one to give is the demo-sites index, `https://demo-sites-b2xhora5ka-ew.a.run.app/` — it is the only surface a judge can open without a credential, it names all five watched pages, and it is itself a `.run.app` URL, which the video section separately asks for. `patrol-agent` is deployed `--no-allow-unauthenticated` and has no UI.
+- [ ] Demo video URL (YouTube or Vimeo). Day 9.
 
 ## Video
 
@@ -36,9 +46,9 @@ Other tracks (pick exactly one on the form): The Collaborative Partner, The Fort
 
 ## Stack compliance
 
-- [ ] Gemini 3.5 or newer, via Gemini API or Vertex AI.
-- [ ] At least one of: Google ADK, GenAI SDK, Antigravity SDK, GenKit.
-- [ ] At least one of: Cloud Run, Cloud SQL, Firestore, GKE, Pub/Sub (the list is "such as", so other GCP infra services should also qualify).
+- [x] Gemini 3.5 or newer, via Gemini API or Vertex AI. `gemini-3.5-flash` on Vertex, `global` location.
+- [x] At least one of: Google ADK, GenAI SDK, Antigravity SDK, GenKit. ADK, two `LlmAgent`s with `FunctionTool`s.
+- [x] At least one of: Cloud Run, Cloud SQL, Firestore, GKE, Pub/Sub (the list is "such as", so other GCP infra services should also qualify). Cloud Run services and a Cloud Run Job, Pub/Sub with dead-letter topics, Firestore, Cloud Scheduler, Secret Manager, Cloud Monitoring, Cloud Build, Artifact Registry.
 
 ## Judging
 
@@ -56,7 +66,7 @@ Final score is 1 to 6 points including bonuses.
 
 ## Fine print
 
-- [ ] **Pre-existing code:** "Projects must be newly created during the Submission Period. Participants may use standard development tools, including frameworks, libraries, starter templates, and AI coding assistants, but must disclose any other pre-existing code or work incorporated into the Project." Reused code from the earlier codebase must be disclosed in the description.
+- [x] **Pre-existing code:** "Projects must be newly created during the Submission Period. Participants may use standard development tools, including frameworks, libraries, starter templates, and AI coding assistants, but must disclose any other pre-existing code or work incorporated into the Project." Reused code from the earlier codebase must be disclosed in the description. `LIFTED.md` is the running list and is copied verbatim into the last section of `docs/devpost-draft.md`.
 - **Eligibility:** entrants must be above the age of majority. Restricted regions listed: Italy, Quebec, Crimea, Cuba, Iran, Syria, North Korea, Sudan, Belarus, Russia. Czechia is not on the restricted list, so a Czech solo entrant is eligible.
 - **Team:** may enter as an individual, a team, or on behalf of an organization, with one authorized Representative. All team members must be listed on the Devpost project. Solo entry is explicitly allowed. (no maximum team size confirmed from these two pages)
 - **After the deadline:** "Once the Submission Period has ended, you may not make any changes or alterations to your Submission, but you may continue to update the Project in your Devpost portfolio." The Sponsor may allow removal of infringing or inappropriate content.

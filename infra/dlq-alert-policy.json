@@ -1,0 +1,30 @@
+{
+  "displayName": "Pixel Patrol: a message is parked in a dead-letter queue",
+  "documentation": {
+    "content": "A message failed five delivery attempts to one of the agent's push endpoints and was parked. It is retained for seven days on the pull subscription named in the alert.\n\nRead it without acking:\n\n  gcloud pubsub subscriptions pull <subscription> --project pixel-patrol-mp --limit 5 --format=json\n\nThe payload and its CloudPubSubDeadLetterSource* attributes say which subscription gave up and after how many attempts. docs/dlq-verification.md covers what is and is not dead-lettered. A non-empty DLQ is meant to stay a real signal, so ack the message once it has been dealt with.",
+    "mimeType": "text/markdown"
+  },
+  "combiner": "OR",
+  "conditions": [
+    {
+      "displayName": "num_undelivered_messages above zero on a dead-letter subscription",
+      "conditionThreshold": {
+        "filter": "resource.type = \"pubsub_subscription\" AND metric.type = \"pubsub.googleapis.com/subscription/num_undelivered_messages\" AND (resource.label.subscription_id = \"site-sweep-dlq-pull\" OR resource.label.subscription_id = \"sweep-done-dlq-pull\")",
+        "comparison": "COMPARISON_GT",
+        "thresholdValue": 0,
+        "duration": "300s",
+        "trigger": { "count": 1 },
+        "aggregations": [
+          {
+            "alignmentPeriod": "300s",
+            "perSeriesAligner": "ALIGN_MAX"
+          }
+        ]
+      }
+    }
+  ],
+  "alertStrategy": {
+    "autoClose": "604800s"
+  },
+  "enabled": true
+}

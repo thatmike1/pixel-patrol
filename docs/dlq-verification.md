@@ -125,8 +125,28 @@ failures are logged, and the notifier additionally records the half that did not
 on `sites/{id}/notifications/{sweepId}` so a deliberate replay finishes the job rather
 than starting it over.
 
+## Watching it
+
+A parked message that nobody is told about is a slower version of the bug this whole
+document is about: the evidence survives, and still nobody finds out.
+
+`infra/wire-alerts.sh` creates the alert that closes it. One Cloud Monitoring policy on
+`pubsub.googleapis.com/subscription/num_undelivered_messages`, aligned `ALIGN_MAX` over
+five minutes, firing above zero on either `site-sweep-dlq-pull` or `sweep-done-dlq-pull`,
+notifying an email channel. The policy body lives in `infra/dlq-alert-policy.json` and
+carries the pull command in its documentation field, so the mail says what to do next
+rather than only what happened. The script matches the channel by address and the policy
+by display name before creating either, so re-running it does not end up sending two
+mails per parked message.
+
+Live as `projects/pixel-patrol-mp/alertPolicies/16866233994362950382`, notifying
+`thatmike.dev@gmail.com`. It has not fired, because both queues are empty, which is the
+correct state and also the reason it has not been observed firing.
+
 ## Gaps
 
-Nothing watches the DLQ subscriptions. A message parked there is now retained for seven
-days and readable, but no alert fires and nobody is told. A `num_undelivered_messages`
-alert on both is the obvious next step and is not built.
+The alert proves a message arrived; it does not diagnose it. Reading a dead letter is
+still a manual `gcloud pubsub subscriptions pull`, and the message has to be acked by
+hand once dealt with, or the alert stays open. That is deliberate at this size: an
+automatic drain would quietly restore the original failure, where a poison message
+disappears and the system reports success.
