@@ -33,6 +33,18 @@ export interface Site {
    * against this when it is set, and against the previous sweep when it is not.
    */
   approvedBaselineId?: string;
+  /**
+   * whether the scheduler still sweeps this site. absent means yes, so no
+   * migration is needed for sites registered before the field existed.
+   *
+   * disabling is not deleting on purpose. a site that is retired — a demo
+   * target pointed at somebody else's domain, a client who left — stops being
+   * crawled, but its decisions, redlines and notifications stay exactly where
+   * they are: they are the record of what was reported and when, and a
+   * compliance tool that erases that when a site goes away is worse than one
+   * that never wrote it down.
+   */
+  enabled?: boolean;
   lastSweepId?: string;
   lastSweepAt?: string;
   createdAt?: string;

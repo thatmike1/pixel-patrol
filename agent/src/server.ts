@@ -70,6 +70,11 @@ const approveBaselineSchema = z.object({
   sweepId: z.string().min(1),
 });
 
+/** an operator taking a site off the schedule, or putting it back on */
+const setEnabledSchema = z.object({
+  enabled: z.boolean(),
+});
+
 /** an operator registering a site */
 const registerSiteSchema = z.object({
   siteId: z
@@ -219,10 +224,18 @@ export function createApp(deps: AppDeps): Express {
       const sites = await deps.store.listSites();
       const published: string[] = [];
       const skipped: string[] = [];
+      const disabled: string[] = [];
 
       for (const site of sites) {
         if (!site.url) {
           skipped.push(site.siteId);
+          continue;
+        }
+        // a retired site keeps its history and stops costing crawls. the check
+        // is `=== false` rather than a truthiness test: every site registered
+        // before the field existed has no `enabled` at all and must keep running
+        if (site.enabled === false) {
+          disabled.push(site.siteId);
           continue;
         }
         // one message per site, not one message listing every site: a site whose
@@ -236,7 +249,7 @@ export function createApp(deps: AppDeps): Express {
         published.push(site.siteId);
       }
 
-      log.info({ published: published.length, skipped }, "tick fanned out");
+      log.info({ published: published.length, skipped, disabled }, "tick fanned out");
       res.status(204).end();
     }, log),
   );
@@ -360,6 +373,28 @@ export function createApp(deps: AppDeps): Express {
       });
       log.info({ siteId: body.siteId, url: body.url }, "site registered");
       res.status(201).json({ siteId: body.siteId, url: body.url });
+    }, log),
+  );
+
+  // retiring a site. a forced sweep still works on a disabled site — the
+  // operator asking for one is the decision the flag exists to automate away,
+  // and refusing it would mean deregistering to re-check a retired site once.
+  app.post(
+    "/sites/:siteId/enabled",
+    requireAdminKey,
+    asyncRoute(async (req: Request, res: Response) => {
+      const siteId = String(req.params.siteId);
+      const { enabled } = setEnabledSchema.parse(req.body);
+
+      const site = await deps.store.getSite(siteId);
+      if (!site) {
+        res.status(404).json({ error: `no site registered as "${siteId}"` });
+        return;
+      }
+
+      await deps.store.upsertSite({ siteId, url: site.url, enabled });
+      log.info({ siteId, enabled }, enabled ? "site re-enabled" : "site disabled");
+      res.status(200).json({ siteId, enabled });
     }, log),
   );
 

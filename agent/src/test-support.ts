@@ -108,8 +108,9 @@ export function fakeStore(
     async listSites() {
       return current ? [current] : [];
     },
-    async getSite() {
-      return current;
+    async getSite(siteId) {
+      // id-aware, so a route's "no such site" branch is reachable in a test
+      return current?.siteId === siteId ? current : null;
     },
     async upsertSite(next) {
       current = { ...(current ?? next), ...next };

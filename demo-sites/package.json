@@ -1,0 +1,23 @@
+{
+  "name": "pixel-patrol-demo-sites",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Pixel Patrol demo targets — five pages we own, each shaped to produce one class of drift on demand. The watchdog is pointed at these rather than at somebody else's site.",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test --import tsx src/*.test.ts",
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
+    "drift": "tsx scripts/drift.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

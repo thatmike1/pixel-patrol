@@ -1,0 +1,138 @@
+/*
+ * one stylesheet for all five demo pages. same-origin, so it never shows up as
+ * a third-party host — which is also why there are no web fonts here: a
+ * stylesheet from fonts.googleapis.com would be a tracker in every fingerprint
+ * and would move on its own between sweeps.
+ */
+
+:root {
+  --ink: #1b1a17;
+  --muted: #6d6a63;
+  --line: #e2ded5;
+  --paper: #fbf9f5;
+  --card: #ffffff;
+  --accent: #7a5c3e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.wrap {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+header {
+  border-bottom: 1px solid var(--line);
+  background: var(--card);
+}
+
+header .wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.brand {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.brand span {
+  color: var(--accent);
+}
+
+nav a {
+  color: var(--muted);
+  text-decoration: none;
+  margin-left: 1.25rem;
+  font-size: 0.9rem;
+}
+
+nav a:hover {
+  color: var(--ink);
+}
+
+.hero {
+  padding-block: 3.5rem 2.5rem;
+}
+
+.hero h1 {
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
+  line-height: 1.15;
+  margin: 0 0 0.75rem;
+  max-width: 24ch;
+}
+
+.hero p {
+  color: var(--muted);
+  max-width: 52ch;
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.25rem;
+  padding-bottom: 3rem;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+}
+
+.card h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+}
+
+.card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.price {
+  display: block;
+  margin-top: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+footer {
+  border-top: 1px solid var(--line);
+  padding-block: 1.75rem 3rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+footer p {
+  margin: 0.25rem 0;
+}
+
+.notice {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 0.35rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 3rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}

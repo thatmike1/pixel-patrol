@@ -1,0 +1,14 @@
+# builds the demo-sites image with the REPO ROOT as the Docker context.
+#
+# same reason as the agent build: the service is an npm workspace and its
+# TypeScript compiler is resolved from the root lockfile, so the context has to
+# be the root and the Dockerfile has to be named explicitly.
+#
+#   gcloud builds submit . --config infra/cloudbuild-demo-sites.yaml \
+#     --substitutions _IMAGE=<image>
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-f", "demo-sites/Dockerfile", "-t", "${_IMAGE}", "."]
+images:
+  - "${_IMAGE}"
+timeout: 1800s

@@ -9,11 +9,12 @@
   "workspaces": [
     "shared",
     "crawler",
-    "agent"
+    "agent",
+    "demo-sites"
   ],
   "scripts": {
-    "build": "npm run build --workspace @pixel-patrol/shared && npm run build --workspace pixel-patrol-crawler && npm run build --workspace pixel-patrol-agent",
-    "typecheck": "npm run typecheck --workspace @pixel-patrol/shared && npm run typecheck --workspace pixel-patrol-crawler && npm run typecheck --workspace pixel-patrol-agent",
-    "test": "npm run test --workspace @pixel-patrol/shared && npm run test --workspace pixel-patrol-crawler && npm run test --workspace pixel-patrol-agent"
+    "build": "npm run build --workspace @pixel-patrol/shared && npm run build --workspace pixel-patrol-crawler && npm run build --workspace pixel-patrol-agent && npm run build --workspace pixel-patrol-demo-sites",
+    "typecheck": "npm run typecheck --workspace @pixel-patrol/shared && npm run typecheck --workspace pixel-patrol-crawler && npm run typecheck --workspace pixel-patrol-agent && npm run typecheck --workspace pixel-patrol-demo-sites",
+    "test": "npm run test --workspace @pixel-patrol/shared && npm run test --workspace pixel-patrol-crawler && npm run test --workspace pixel-patrol-agent && npm run test --workspace pixel-patrol-demo-sites"
   }
 }

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pixel Patrol — demo targets</title>
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="icon" href="data:,">
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">Pixel <span>Patrol</span></div>
+    <nav><a href="https://github.com/thatmike1/pixel-patrol-tickets">Tickets</a></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>Five pages the watchdog is pointed at</h1>
+    <p>
+      Each one is registered as its own site and shaped to produce exactly one class of
+      drift when it is edited. Nothing here links to anything else here: the crawler
+      follows same-origin links, and one page discovering another would merge two sites
+      into one fingerprint.
+    </p>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <h3>Ateliér Lumen</h3>
+      <p><code>/boutique/</code> — <code>demo-boutique</code>. No third-party host at all, until a marketing pixel is pasted in.</p>
+    </article>
+    <article class="card">
+      <h3>Střípky</h3>
+      <p><code>/magazine/</code> — <code>demo-magazine</code>. Analytics and session recording, one of which gets removed.</p>
+    </article>
+    <article class="card">
+      <h3>Ordinace Na Vyhlídce</h3>
+      <p><code>/clinic/</code> — <code>demo-clinic</code>. Gains a host the vendor tables have never heard of.</p>
+    </article>
+    <article class="card">
+      <h3>Bistro Kotelna</h3>
+      <p><code>/bistro/</code> — <code>demo-bistro</code>. Gains a cookie without gaining a domain.</p>
+    </article>
+    <article class="card">
+      <h3>Truhlářství Zádveří</h3>
+      <p><code>/atelier/</code> — <code>demo-atelier</code>. Several real trackers and no switch. It should never alert.</p>
+    </article>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>Demo targets for a GDPR drift watchdog. The businesses are invented; the trackers are real.</p>
+</footer>
+</body>
+</html>
