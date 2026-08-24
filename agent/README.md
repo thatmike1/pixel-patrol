@@ -208,6 +208,26 @@ anyone received anything. Until a domain is verified, the deliverable address is
 `DEFAULT_OWNER_EMAIL`, which is what a site with no `ownerEmail` falls back to —
 including every site registered before the field existed.
 
+### Planting a drift for a demo
+
+The honest way to show this working is to wait for a real site to add a tracker, which
+happens on nobody's schedule. `scripts/seed-drift.ts` does the equivalent from the other
+end: it deletes a domain the site genuinely loads out of the *approved baseline*, so the
+next sweep finds that domain present and unaccounted for.
+
+```bash
+npm --prefix agent run seed-drift -- demo-shop                              # list the baseline
+npm --prefix agent run seed-drift -- demo-shop doubleclick.net facebook.net # plant
+```
+
+The signal is real: the differ, the stability classification, the analyst and the scribe
+all run over actual crawl data and none of them knows anything was arranged. The only
+fabricated part is the approval history, which is the one thing a demo cannot wait for.
+
+`demo-shop` is registered against a Czech e-shop that loads around forty third-party
+hosts, so a planted drift on `doubleclick.net`, `facebook.net` and `clarity.ms` produces
+three high-confidence table hits and a redline naming every cookie each one sets.
+
 ## Endpoints
 
 | method | path | auth | returns |
