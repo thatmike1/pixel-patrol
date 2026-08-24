@@ -176,6 +176,25 @@ site's owner, where it gets noticed. Both carry the same content — the analyst
 summary and classification table, the Czech `policyRedline`, the RoPA row, and the
 Firestore paths behind them.
 
+### Two languages, labelled
+
+The frame is English; the deliverables are Czech.
+
+The redline and the RoPA row stay Czech because that is what they *are* — text the owner
+pastes into a public cookie policy, and a row they file with ÚOOÚ. Translating them would
+destroy the artifact: the point of the product is that the paperwork arrives finished,
+not described.
+
+Everything around them is English, because a reader who does not speak Czech still has to
+follow which site, which domains, what the analyst concluded, and which block goes where.
+So each Czech block sits under an English heading that names it and says what to do with
+it — "Cookie policy redline (Czech — ready to paste)", "RoPA row (Czech)" — and the Czech
+begins only after that line. An English summary running straight into unlabelled Czech
+reads as a rendering bug.
+
+The RoPA table's field labels are English too. They match the toolkit's own field keys
+(`legal_basis`, `third_country_transfers`); only the values are the filed document.
+
 This one is **not** an `LlmAgent`. The analyst and the scribe exist because judgement
 was needed: what a difference means, and how to write it up for a regulator. Nothing
 here needs judgement. The words already exist in two documents, and what is left —

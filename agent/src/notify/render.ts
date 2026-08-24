@@ -9,6 +9,24 @@
  * contradict, at the price of another failure mode on the path between finding
  * a tracker and telling somebody about it. what is left is assembly, and
  * assembly should be exactly reproducible.
+ *
+ * ## two languages, on purpose
+ *
+ * the frame is English and the deliverables are Czech, and the seam between
+ * them is labelled.
+ *
+ * the redline and the RoPA row are Czech because that is what they are: text a
+ * Czech site owner pastes into a public cookie policy, and a row they file with
+ * ÚOOÚ. translating them would destroy the artifact — the whole product is that
+ * the paperwork arrives finished rather than as a description of paperwork
+ * somebody still has to write.
+ *
+ * everything around them is English because a reader who does not speak Czech
+ * has to be able to follow what happened: which site, which domains, what the
+ * analyst concluded, and which block is the thing to paste where. an English
+ * summary running straight into unlabelled Czech reads as a rendering bug. so
+ * every Czech block sits under an English heading that says what it is and what
+ * to do with it, and the Czech starts only after that heading.
  */
 
 import type { Decision, Redline, RopaRow, Site } from "../types.js";
@@ -75,39 +93,41 @@ export function renderIssue(content: NotifyContent): RenderedIssue {
 
   const added = decision.hostsAdded ?? [];
   const removed = decision.hostsRemoved ?? [];
-  if (added.length > 0) sections.push(`### Přibylo\n\n${added.map(bullet).join("\n")}`);
-  if (removed.length > 0) sections.push(`### Zmizelo\n\n${removed.map(bullet).join("\n")}`);
+  if (added.length > 0) sections.push(`### Domains added\n\n${added.map(bullet).join("\n")}`);
+  if (removed.length > 0) sections.push(`### Domains removed\n\n${removed.map(bullet).join("\n")}`);
 
   if (decision.classifications && decision.classifications.length > 0) {
     const rows = decision.classifications.map(
       (entry) =>
-        `| \`${entry.domain}\` | ${entry.vendor ?? "_nezjištěn_"} | ${entry.category} | ${entry.confidence} | ${escapePipes(entry.basis)} |`,
+        `| \`${entry.domain}\` | ${entry.vendor ?? "_not identified_"} | ${entry.category} | ${entry.confidence} | ${escapePipes(entry.basis)} |`,
     );
     sections.push(
       [
-        "### Klasifikace",
+        "### Classification",
         "",
-        "| doména | provozovatel | kategorie | jistota | podklad |",
+        "| domain | vendor | category | confidence | basis |",
         "| --- | --- | --- | --- | --- |",
         ...rows,
       ].join("\n"),
     );
   }
 
-  sections.push(`### Úprava cookie lišty a zásad\n\n${redline.policyRedline}`);
-  sections.push(`### Záznam o činnostech zpracování\n\n${ropaMarkdown(redline.ropaRow)}`);
+  sections.push(
+    `### ${REDLINE_HEADING}\n\n${REDLINE_LEDE}\n\n${redline.policyRedline}`,
+    `### ${ROPA_HEADING}\n\n${ROPA_LEDE}\n\n${ropaMarkdown(redline.ropaRow)}`,
+  );
 
   const noise = decision.noiseCount ?? 0;
   sections.push(
     [
-      "### Původ",
+      "### Provenance",
       "",
-      `- rozhodnutí: \`sites/${site.siteId}/decisions/${decision.sweepId}\``,
+      `- decision: \`sites/${site.siteId}/decisions/${decision.sweepId}\``,
       `- redline: \`sites/${site.siteId}/redlines/${decision.sweepId}\``,
-      `- otisk: \`sites/${site.siteId}/fingerprints/${decision.sweepId}\``,
-      `- sweep \`${decision.sweepId}\`, rozhodnuto ${decision.at} (${decision.model})`,
-      `- redline zapsán ${redline.at}`,
-      `- rotující rozdíly, které stabilizační okno odfiltrovalo: ${noise}`,
+      `- fingerprint: \`sites/${site.siteId}/fingerprints/${decision.sweepId}\``,
+      `- sweep \`${decision.sweepId}\`, decided ${decision.at} by ${decision.model}`,
+      `- redline written ${redline.at}`,
+      `- rotating differences the stability window filtered out: ${noise}`,
     ].join("\n"),
   );
 
@@ -137,44 +157,46 @@ export function renderEmail(content: NotifyContent, issueUrl: string | null): Re
     `<p style="margin:0 0 16px">${esc(decision.summary)}</p>`,
   );
 
-  if (added.length > 0) blocks.push(list("Přibylo", added));
-  if (removed.length > 0) blocks.push(list("Zmizelo", removed));
+  if (added.length > 0) blocks.push(list("Domains added", added));
+  if (removed.length > 0) blocks.push(list("Domains removed", removed));
 
   if (decision.classifications && decision.classifications.length > 0) {
     const rows = decision.classifications
       .map(
         (entry) =>
           `<tr><td style="${CELL}"><code>${esc(entry.domain)}</code></td>` +
-          `<td style="${CELL}">${esc(entry.vendor ?? "nezjištěn")}</td>` +
+          `<td style="${CELL}">${esc(entry.vendor ?? "not identified")}</td>` +
           `<td style="${CELL}">${esc(entry.category)}</td>` +
           `<td style="${CELL}">${esc(entry.confidence)}</td>` +
           `<td style="${CELL}">${esc(entry.basis)}</td></tr>`,
       )
       .join("");
     blocks.push(
-      heading("Klasifikace"),
+      heading("Classification"),
       `<table style="border-collapse:collapse;width:100%;font-size:14px">` +
-        `<tr><th style="${CELL};text-align:left">doména</th><th style="${CELL};text-align:left">provozovatel</th>` +
-        `<th style="${CELL};text-align:left">kategorie</th><th style="${CELL};text-align:left">jistota</th>` +
-        `<th style="${CELL};text-align:left">podklad</th></tr>${rows}</table>`,
+        `<tr><th style="${CELL};text-align:left">domain</th><th style="${CELL};text-align:left">vendor</th>` +
+        `<th style="${CELL};text-align:left">category</th><th style="${CELL};text-align:left">confidence</th>` +
+        `<th style="${CELL};text-align:left">basis</th></tr>${rows}</table>`,
     );
   }
 
   blocks.push(
-    heading("Úprava cookie lišty a zásad"),
+    heading(REDLINE_HEADING),
+    lede(REDLINE_LEDE),
     `<div style="${PANEL}">${paragraphs(redline.policyRedline)}</div>`,
-    heading("Záznam o činnostech zpracování"),
+    heading(ROPA_HEADING),
+    lede(ROPA_LEDE),
     `<table style="border-collapse:collapse;width:100%;font-size:14px">${ropaRows(redline.ropaRow)}</table>`,
   );
 
   if (issueUrl) {
     blocks.push(
-      `<p style="margin:24px 0 0"><a href="${esc(issueUrl)}" style="background:#1f6feb;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;display:inline-block">Otevřít ticket</a></p>`,
+      `<p style="margin:24px 0 0"><a href="${esc(issueUrl)}" style="background:#1f6feb;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none;display:inline-block">Open ticket</a></p>`,
     );
   }
 
   blocks.push(
-    `<p style="margin:24px 0 0;color:#777;font-size:12px">Pixel Patrol — rozhodnutí <code>sites/${esc(site.siteId)}/decisions/${esc(decision.sweepId)}</code>, redline <code>sites/${esc(site.siteId)}/redlines/${esc(decision.sweepId)}</code>. Rozhodnuto ${esc(decision.at)} modelem ${esc(decision.model)}.</p>`,
+    `<p style="margin:24px 0 0;color:#777;font-size:12px">Pixel Patrol — decision <code>sites/${esc(site.siteId)}/decisions/${esc(decision.sweepId)}</code>, redline <code>sites/${esc(site.siteId)}/redlines/${esc(decision.sweepId)}</code>. Decided ${esc(decision.at)} by ${esc(decision.model)}.</p>`,
   );
 
   return {
@@ -187,31 +209,54 @@ export function renderEmail(content: NotifyContent, issueUrl: string | null): Re
 // pieces
 // ---------------------------------------------------------------------------
 
+/**
+ * the English headings the two Czech deliverables sit under, and the one line
+ * each that says what to do with it.
+ *
+ * shared between the issue and the email so the two never drift into describing
+ * the same block differently. each names the language explicitly: a reader
+ * scrolling past should know the Czech is the deliverable and not a rendering
+ * accident before they reach the first Czech word.
+ */
+const REDLINE_HEADING = "Cookie policy redline (Czech — ready to paste)";
+const REDLINE_LEDE =
+  "Edit instructions for the site's public cookie policy, written for the Czech site owner to paste and adjust.";
+const ROPA_HEADING = "RoPA row (Czech)";
+const ROPA_LEDE =
+  "One record-of-processing-activities row for this tracking, in the field shape a Czech supervisory authority (ÚOOÚ) expects.";
+
 /** border and padding shared by every table cell */
 const CELL = "border:1px solid #ddd;padding:6px 8px;vertical-align:top";
 
 /** the tinted block the Czech redline sits in */
 const PANEL = "background:#f6f8fa;border-left:3px solid #1f6feb;padding:12px 16px;white-space:normal";
 
-/** the RoPA field labels, in the order the toolkit's export prints them */
+/**
+ * the RoPA field labels, in the order the toolkit's export prints them.
+ *
+ * English, matching the toolkit's own field keys (`legal_basis`,
+ * `third_country_transfers`). the values stay Czech because they are the filed
+ * document; the labels are the frame, and a Czech label over a Czech value
+ * leaves a non-Czech reader with a table they cannot enter at any point.
+ */
 const ROPA_LABELS: Array<[keyof RopaRow, string]> = [
-  ["name", "Název"],
-  ["purpose", "Účel"],
-  ["legal_basis", "Právní základ"],
-  ["data_categories", "Kategorie údajů"],
-  ["data_subject_categories", "Subjekty údajů"],
-  ["recipients", "Příjemci"],
-  ["retention_period", "Doba uložení"],
-  ["third_country_transfers", "Třetí země"],
-  ["is_dpia_required", "DPIA"],
-  ["notes", "Poznámky"],
+  ["name", "Name"],
+  ["purpose", "Purpose"],
+  ["legal_basis", "Legal basis"],
+  ["data_categories", "Data categories"],
+  ["data_subject_categories", "Data subject categories"],
+  ["recipients", "Recipients"],
+  ["retention_period", "Retention period"],
+  ["third_country_transfers", "Third country transfers"],
+  ["is_dpia_required", "DPIA required"],
+  ["notes", "Notes"],
 ];
 
 /** one RoPA value as text, whatever its field type is */
 function ropaValue(row: RopaRow, key: keyof RopaRow): string {
   const value = row[key];
   if (Array.isArray(value)) return value.join(", ");
-  if (typeof value === "boolean") return value ? "ano" : "ne";
+  if (typeof value === "boolean") return value ? "yes" : "no";
   return String(value);
 }
 
@@ -242,6 +287,11 @@ function escapePipes(value: string): string {
 /** an email section heading */
 function heading(text: string): string {
   return `<h3 style="margin:24px 0 8px;font-size:15px">${esc(text)}</h3>`;
+}
+
+/** the English line under a heading that frames the Czech block below it */
+function lede(text: string): string {
+  return `<p style="margin:0 0 10px;color:#555;font-size:13px">${esc(text)}</p>`;
 }
 
 /** an email bullet list of domains */

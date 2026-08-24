@@ -370,11 +370,32 @@ test("the headline names the site and what moved", () => {
 
   const issue = renderIssue(content);
   assert.equal(issue.title, "demo-shop: +doubleclick.net -hotjar.com");
-  assert.match(issue.body, /### Klasifikace/);
+  assert.match(issue.body, /### Classification/);
   assert.match(issue.body, /Google Marketing Platform/);
-  // the boolean and the arrays have to survive into readable Czech
-  assert.match(issue.body, /\*\*DPIA:\*\* ne/);
+  // the boolean and the arrays have to survive into something readable
+  assert.match(issue.body, /\*\*DPIA required:\*\* no/);
   assert.match(issue.body, /Identifikátory v cookies, IP adresa/);
+});
+
+test("every Czech block sits under an English heading that names it", () => {
+  // an English summary running straight into unlabelled Czech reads as a
+  // rendering bug, and the reader cannot tell which block to paste where
+  const content = {
+    site: { siteId: "demo-shop", url: "https://example.test" },
+    decision: decision(),
+    redline: redline(),
+  };
+
+  for (const rendered of [renderIssue(content).body, renderEmail(content, null).html]) {
+    const czech = rendered.indexOf("Přidat: doména");
+    const heading = rendered.indexOf("Cookie policy redline (Czech");
+    assert.ok(heading >= 0, "the redline is introduced in English");
+    assert.ok(heading < czech, "and the heading comes before the Czech");
+    assert.match(rendered, /RoPA row \(Czech\)/);
+    // the frame stays English all the way down
+    assert.equal(rendered.includes("Přibylo"), false);
+    assert.equal(rendered.includes("Klasifikace"), false);
+  }
 });
 
 test("model-written text cannot inject markup into the email", () => {
