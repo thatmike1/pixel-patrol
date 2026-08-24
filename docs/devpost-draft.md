@@ -104,6 +104,18 @@ TypeScript on Node 22 in npm workspaces, so the fingerprint types and the diff k
 exist exactly once and both services import the same copy. 135 tests under `node --test`,
 no framework.
 
+**Data sources.** The system generates most of its own data: every fingerprint comes from
+a real browser visiting a real page, and the history each decision is made against is the
+site's own previous sweeps. The one external body of knowledge is a pair of vendor tables
+carried in the repo, 500 tracker domains and 1699 cookies, each entry naming the vendor,
+the category (analytics, marketing or functional), a Czech description and a typical
+retention period. They come from the author's earlier cookie-scanner project and are
+disclosed as pre-existing code below. They are what grounds the analyst: a domain the
+tables do not cover, and that the hostname heuristics cannot place either, is reported as
+`unclassified` with a null vendor rather than guessed at. The scribe uses the same tables
+for the retention periods it quotes in the redline, so the policy text and the
+classification cannot disagree with each other.
+
 The demo estate is five pages this project owns and serves, one per class of drift: a
 tracker-free page that gains a Meta Pixel, a page whose approved tracker is removed, one
 that gains a host the vendor tables have never heard of, one that gains a cookie without
