@@ -94,16 +94,23 @@ test("a duplicated marker is an error", () => {
   assert.throws(() => blockState(doubled, "live-one"), BlockError);
 });
 
-test("every registered block exists in its page, in its baseline state", () => {
+test("every registered block is in its page and toggles both ways", () => {
+  // deliberately not "is at baseline": a demo run leaves these pages drifted on
+  // purpose, and a test that failed mid-demo would be noise. `drift status` is
+  // what answers where a page currently stands
   for (const block of DRIFT_BLOCKS) {
     const html = readFileSync(resolve(PUBLIC, block.page), "utf-8");
-    assert.equal(
-      blockState(html, block.name),
-      baselineState(block),
-      `${block.name} is not in its baseline state in ${block.page}`,
-    );
-    assert.notEqual(driftedState(block), baselineState(block));
     assert.equal(findBlock(block.name), block);
+    assert.notEqual(driftedState(block), baselineState(block));
+
+    const drifted = setBlockState(html, block.name, driftedState(block)).html;
+    assert.equal(blockState(drifted, block.name), driftedState(block));
+
+    const reset = setBlockState(drifted, block.name, baselineState(block)).html;
+    assert.equal(blockState(reset, block.name), baselineState(block));
+
+    // and the payload survived the round trip, whichever state the file was in
+    assert.ok(readBlock(reset, block.name).trim().length > 0);
   }
 });
 

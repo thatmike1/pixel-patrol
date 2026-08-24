@@ -15,7 +15,14 @@ REGION="${REGION:-europe-west1}"
 AR_REPO="${AR_REPO:-patrol}"
 SERVICE="demo-sites"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-TAG="${TAG:-$(git -C "$ROOT" rev-parse --short HEAD)}"
+# the tag carries the pages' content, not just the commit. a demo run edits the
+# HTML and redeploys WITHOUT committing, so a commit-only tag would push
+# different pages under a name that already existed — and then "which pages are
+# live" could not be answered from the registry. the content hash also makes a
+# reset land back on the tag it came from instead of minting a new one.
+PAGES_HASH="$(find "${ROOT}/demo-sites/public" -type f -print0 \
+  | sort -z | xargs -0 sha256sum | sha256sum | cut -c1-8)"
+TAG="${TAG:-$(git -C "$ROOT" rev-parse --short HEAD)-${PAGES_HASH}}"
 IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${AR_REPO}/demo-sites:${TAG}"
 
 echo "== build ${IMAGE}"

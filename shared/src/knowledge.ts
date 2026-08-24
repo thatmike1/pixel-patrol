@@ -226,15 +226,19 @@ export function lookupHostKnowledge(
   const relatedCookies: RelatedCookie[] = [];
 
   if (token) {
+    // the label as written, split on its own separators: `hotjar-cdn` is two
+    // words, `toplist` is one, and that is what keeps the second match
+    // direction from matching a fragment
+    const tokenWords = words(domain.split(".")[0] ?? "");
     for (const entry of allTrackers()) {
       if (entry.domain.toLowerCase() === domain) continue;
-      if (matchesToken(entry.domain, entry.vendor, token)) {
+      if (matchesToken(entry.domain, entry.vendor, token, tokenWords)) {
         related.push({ ...entry, sharedToken: token });
         if (related.length >= MAX_RELATED) break;
       }
     }
     for (const entry of allCookies()) {
-      if (matchesToken(entry.name, entry.vendor, token)) {
+      if (matchesToken(entry.name, entry.vendor, token, tokenWords)) {
         relatedCookies.push({ ...entry, sharedToken: token });
         if (relatedCookies.length >= MAX_RELATED) break;
       }
@@ -294,16 +298,27 @@ export function trackerCategories(): TrackerCategory[] {
  * both directions are checked, because a vendor's second domain is named either
  * way round: `jhmt.cz` should find a `jhmt-analytics.com` entry (the entry
  * contains the token), and a queried `hotjar-cdn.io` should find plain
- * `hotjar.com` (the token contains the entry's own token). the containing side
- * is held to the same minimum length, so a short fragment cannot drag in
- * everything it happens to appear inside.
+ * `hotjar.com` (the token is made of the entry's own word plus another).
+ *
+ * the second direction matches WORDS, not substrings, and that distinction was
+ * bought the hard way. matching any 4-character substring made `toplist.cz` — a
+ * Czech hit counter nobody has heard of — come back as a near match for
+ * Mailchimp's `list-manage.com`, because "toplist" contains "list". The model
+ * did exactly what it was told with that, and named Mailchimp as the probable
+ * operator of a domain Mailchimp has nothing to do with. An invented vendor in
+ * a document filed with a regulator is the worst output this system can
+ * produce, and it came out of one loose `includes`.
+ *
+ * `tokenWords` is the queried domain split the same way, so `hotjar-cdn` still
+ * finds `hotjar` while `toplist` does not find `list`.
  */
-function matchesToken(name: string, vendor: string, token: string): boolean {
+function matchesToken(name: string, vendor: string, token: string, tokenWords: string[]): boolean {
   const haystack = `${name} ${vendor}`.toLowerCase().replace(/[^a-z0-9]/g, "");
   if (haystack.includes(token)) return true;
 
+  const queried = new Set(tokenWords);
   return words(`${name} ${vendor}`).some(
-    (word) => word.length >= MIN_TOKEN_LENGTH && token.includes(word),
+    (word) => word.length >= MIN_TOKEN_LENGTH && queried.has(word),
   );
 }
 

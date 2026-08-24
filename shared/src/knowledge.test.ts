@@ -56,6 +56,30 @@ test("a domain nothing knows about comes back empty on every tier", () => {
   assert.equal(knowledge.heuristic.matchedRule, null);
 });
 
+test("a token that merely contains a known vendor's word is not a near match", () => {
+  // found live on a demo sweep: `toplist.cz` came back related to Mailchimp's
+  // `list-manage.com`, because "toplist" contains "list". the model then named
+  // Mailchimp as the probable operator at medium confidence, which is the one
+  // output this system must never produce
+  const knowledge = lookupHostKnowledge("toplist.cz", "www.toplist.cz");
+
+  assert.equal(knowledge.exact, null);
+  assert.deepEqual(
+    knowledge.related,
+    [],
+    "a fragment of the brand token is not evidence of a vendor",
+  );
+  assert.deepEqual(knowledge.relatedCookies, []);
+});
+
+test("a sibling naming the vendor as its own word is still a near match", () => {
+  // the other direction has to keep working: the fix must not buy silence by
+  // switching the second tier off
+  const knowledge = lookupHostKnowledge("hotjar-cdn.io", "x.hotjar-cdn.io");
+
+  assert.ok(knowledge.related.some((entry) => entry.vendor.startsWith("Hotjar")));
+});
+
 test("the taxonomy is a closed set that always offers unclassified", () => {
   const categories = trackerCategories();
 
