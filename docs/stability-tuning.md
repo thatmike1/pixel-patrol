@@ -59,6 +59,27 @@ quiet afterwards fails safe. One tuned to be quiet in its first hour would have
 to be quiet by ignoring things, and the failure it exists to prevent is a
 marketing pixel that nobody noticed.
 
+### It reproduced itself while this was being written
+
+A fresh baseline was approved on `smoke-trackers` at 12:02 UTC on 2026-08-24 to
+clear its pending set. The 13:00 scheduled sweep — the very next one — reported
+drift: four domains added (`adsafeprotected.com`, `alza.cz`, `cloudflare.com`,
+`google-analytics.com`) and four removed (`2mdn.net`,
+`adtrafficquality.google`, `googlesyndication.com`, `googletagservices.com`),
+with a `noiseCount` of 3.
+
+Every one of those eight was flapping or pending an hour earlier. Nothing about
+novinky.cz changed; the window was emptied along with the baseline, so a
+half-full ad rotation read as four arrivals, and the other half of the same
+rotation read as four departures. The removal side comes from the same cause:
+`absentFromRecent` is vacuously true when there is nothing recent to check
+against, so a `gone` needs no three sweeps of evidence when the window is empty.
+
+Two independent instances, two days apart, same mechanism. The operational
+consequence is worth stating plainly for whoever runs the demo: **re-baselining
+a churn-heavy site costs exactly one noisy drift on the next sweep.** Do it well
+before anything is being filmed.
+
 ## M=3, separately
 
 `GONE_AFTER` was exercised by the removal demo rather than by novinky.cz, which
@@ -69,8 +90,10 @@ with history the same removal costs three sweeps of absence before it is called
 a removal, which is the intended trade: a single bad pageview that drops a
 script must not read as the site removing a tracker.
 
-Nothing in 69 sweeps of novinky.cz produced a `gone` or a false `missing-once`
-that outlived its window. `adform.net` and `google-analytics.com` both sat in
+Nothing in the 69 measured sweeps of novinky.cz produced a `gone` or a false
+`missing-once` that outlived its window (the four `gone` entries at 13:00 on
+2026-08-24 fall outside that window and are the cold-window effect above, not
+M). `adform.net` and `google-analytics.com` both sat in
 `missing-once` during the measurement period and both came back, which is M
 doing exactly its job.
 
