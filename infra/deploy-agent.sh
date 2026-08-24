@@ -21,9 +21,8 @@ STABILITY_WINDOW="${STABILITY_WINDOW:-5}"
 GONE_AFTER="${GONE_AFTER:-3}"
 # where a drift finding is filed and mailed
 GITHUB_TICKETS_REPO="${GITHUB_TICKETS_REPO:-thatmike1/pixel-patrol-tickets}"
-RESEND_FROM="${RESEND_FROM:-Pixel Patrol <onboarding@resend.dev>}"
-# the Resend account sends from an unverified domain, so this is the only
-# address it will actually deliver to; verifying a domain makes it a free choice
+# ssscribe.app is a verified Resend sending domain, so mail reaches any recipient
+RESEND_FROM="${RESEND_FROM:-Pixel Patrol <patrol@ssscribe.app>}"
 DEFAULT_OWNER_EMAIL="${DEFAULT_OWNER_EMAIL:-thatmike.dev@gmail.com}"
 # Secret Manager secret names, mounted as env vars on the service
 GITHUB_TOKEN_SECRET="${GITHUB_TOKEN_SECRET:-github-tickets-token}"

@@ -78,7 +78,7 @@ function notifyConfig(overrides: Partial<NotifyConfig> = {}): NotifyConfig {
     githubToken: "ghp-test",
     githubRepo: "thatmike1/pixel-patrol-tickets",
     resendApiKey: "re-test",
-    resendFrom: "Pixel Patrol <onboarding@resend.dev>",
+    resendFrom: "Pixel Patrol <patrol@ssscribe.app>",
     defaultOwnerEmail: "thatmike.dev@gmail.com",
     ...overrides,
   };
@@ -187,9 +187,9 @@ test("a drift with a redline files a ticket and mails the owner", async () => {
 
   const email = calls[1];
   assert.equal(email?.url, "https://api.resend.com/emails");
-  // the account's domain is unverified, so this is the only address that lands
+  // a site with no ownerEmail still has an owner who needs to hear about this
   assert.deepEqual(email?.body.to, ["thatmike.dev@gmail.com"]);
-  assert.equal(email?.body.from, "Pixel Patrol <onboarding@resend.dev>");
+  assert.equal(email?.body.from, "Pixel Patrol <patrol@ssscribe.app>");
   assert.match(String(email?.body.html), /Přidat: doména doubleclick\.net/);
   // the ticket is linked from the mail, which means it has to be filed first
   assert.match(String(email?.body.html), /issues\/7/);

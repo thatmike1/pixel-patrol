@@ -45,7 +45,7 @@ function config(): AgentConfig {
       githubToken: null,
       githubRepo: "thatmike1/pixel-patrol-tickets",
       resendApiKey: null,
-      resendFrom: "Pixel Patrol <onboarding@resend.dev>",
+      resendFrom: "Pixel Patrol <patrol@ssscribe.app>",
       defaultOwnerEmail: "thatmike.dev@gmail.com",
     },
     selfUrl: SELF_URL,

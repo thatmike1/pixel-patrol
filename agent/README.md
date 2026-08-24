@@ -199,14 +199,19 @@ a nack here would re-run the analyst and the scribe to retry an HTTP call. What 
 leaves behind is a notification document with the missing half still `null` and the
 reason on it.
 
-### The Resend constraint
+### The sender
 
-The account sends from Resend's shared `onboarding@resend.dev`, which delivers **only**
-to the address that owns the account. Every other recipient is accepted with a `200`
-and an id, then dropped. A `200` therefore proves the request was well formed, not that
-anyone received anything. Until a domain is verified, the deliverable address is
-`DEFAULT_OWNER_EMAIL`, which is what a site with no `ownerEmail` falls back to —
-including every site registered before the field existed.
+Mail goes out as `Pixel Patrol <patrol@ssscribe.app>`. `ssscribe.app` is a verified
+Resend sending domain, so a `200` means the message was accepted for delivery to
+whatever recipient it named.
+
+That is worth spelling out because it was not always true. On Resend's shared
+`onboarding@resend.dev` sender the same code path returns the same `200` and the same
+message id while delivering only to the account owner and silently dropping every other
+recipient — a green result that proves the request was well formed and nothing more.
+
+A site with no `ownerEmail` falls back to `DEFAULT_OWNER_EMAIL`, which is how every site
+registered before the field existed still reaches someone.
 
 ### Planting a drift for a demo
 
@@ -279,7 +284,7 @@ demo and for forcing a re-check.
 | `GITHUB_TICKETS_TOKEN` | no | PAT with `issues: write`; from Secret Manager. Unset means no tickets |
 | `GITHUB_TICKETS_REPO` | no, `thatmike1/pixel-patrol-tickets` | `owner/repo` the tickets are filed against |
 | `RESEND_API_KEY` | no | from Secret Manager. Unset means no owner mail |
-| `RESEND_FROM` | no, `Pixel Patrol <onboarding@resend.dev>` | must be a sender Resend accepts |
+| `RESEND_FROM` | no, `Pixel Patrol <patrol@ssscribe.app>` | must be on a Resend-verified sending domain |
 | `DEFAULT_OWNER_EMAIL` | no, `thatmike.dev@gmail.com` | where a site with no `ownerEmail` is mailed |
 | `SELF_URL` | for triggers | this service's base URL, the expected OIDC audience |
 | `PORT` | no, `8080` | Cloud Run injects it |

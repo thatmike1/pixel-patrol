@@ -1,12 +1,13 @@
 /**
  * sending the owner mail, through Resend's REST API.
  *
- * one caveat worth stating where it will be read: this account sends from
- * Resend's shared `onboarding@resend.dev` sender, which only delivers to the
- * address that owns the account. every other recipient is accepted with a 200
- * and an id, then dropped. so a 200 here proves the request was well formed, not
- * that anyone received anything — until a domain is verified, the deliverable
- * address is the one in `DEFAULT_OWNER_EMAIL`.
+ * the sender is an address on `ssscribe.app`, a verified Resend sending domain,
+ * so mail reaches any recipient. that is worth stating because the shape of the
+ * code would be identical on Resend's shared `onboarding@resend.dev` sender,
+ * which silently delivers only to the account owner and accepts every other
+ * recipient with a 200 and an id before dropping it. a 200 from an unverified
+ * sender proves the request was well formed and nothing else; from this one it
+ * means the message was accepted for delivery.
  */
 
 /** the id Resend gave the queued message */

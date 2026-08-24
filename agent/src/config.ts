@@ -16,16 +16,9 @@ export interface NotifyConfig {
   githubRepo: string;
   /** Resend API key, or null */
   resendApiKey: string | null;
-  /** the From header; must be a Resend-verified sender */
+  /** the From header; must be an address on a Resend-verified sending domain */
   resendFrom: string;
-  /**
-   * where a site's mail goes when the site document names no owner.
-   *
-   * the Resend account sends from an unverified domain, which means it will
-   * only deliver to the address that owns it. that address is the default here
-   * rather than a compile-time constant so a verified domain later is an env
-   * change, not a deploy of new code.
-   */
+  /** where a site's mail goes when the site document names no owner */
   defaultOwnerEmail: string;
 }
 
@@ -176,7 +169,7 @@ export function readConfig(env: NodeJS.ProcessEnv): AgentConfig {
       githubToken: env.GITHUB_TICKETS_TOKEN?.trim() || null,
       githubRepo: env.GITHUB_TICKETS_REPO?.trim() || "thatmike1/pixel-patrol-tickets",
       resendApiKey: env.RESEND_API_KEY?.trim() || null,
-      resendFrom: env.RESEND_FROM?.trim() || "Pixel Patrol <onboarding@resend.dev>",
+      resendFrom: env.RESEND_FROM?.trim() || "Pixel Patrol <patrol@ssscribe.app>",
       defaultOwnerEmail: env.DEFAULT_OWNER_EMAIL?.trim() || "thatmike.dev@gmail.com",
     },
     selfUrl: env.SELF_URL?.trim().replace(/\/+$/, "") || null,
