@@ -220,6 +220,22 @@ gcloud run jobs executions list --job patrol-crawler --region europe-west1 \
   --format='table(metadata.name,status.completionTime,status.succeededCount)'
 ```
 
+The agent's own log lines — good footage, since the rules ask for live execution
+visible as terminal logs. Note the `logName`: without it the query returns Cloud
+Run's HTTP request log, which carries no `jsonPayload` and looks like the service
+is logging nothing.
+
+```bash
+gcloud logging read \
+  'logName="projects/pixel-patrol-mp/logs/run.googleapis.com%2Fstdout"
+   AND resource.labels.service_name="patrol-agent"' \
+  --project pixel-patrol-mp --limit 20 \
+  --format='value(timestamp,jsonPayload.msg,jsonPayload.siteId,jsonPayload.action)'
+```
+
+`tick fanned out` carries `published`, `disabled` and `skipped`; `analysis
+complete` carries the action, the summary and the notification outcome.
+
 ---
 
 ## (d) Where the ticket and the email land
