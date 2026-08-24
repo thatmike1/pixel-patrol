@@ -55,7 +55,10 @@ if (domains.length === 0) {
 }
 
 const wanted = new Set(domains);
-const kept = baseline.hosts.filter((entry) => !wanted.has(entry.registrableDomain));
+// a generation 1 host has no registrableDomain and is never a match
+const kept = baseline.hosts.filter(
+  (entry) => entry.registrableDomain === undefined || !wanted.has(entry.registrableDomain),
+);
 const removed = baseline.hosts.length - kept.length;
 if (removed === 0) {
   throw new Error(`none of ${domains.join(", ")} is in the baseline; run without domains to list them`);
