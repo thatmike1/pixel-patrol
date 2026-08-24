@@ -22,7 +22,7 @@ Other tracks (pick exactly one on the form): The Collaborative Partner, The Fort
 - [ ] If the repo is private, access granted to **testing@devpost.com** and **cloudhackathons@google.com**.
 - [ ] README.md with spin-up instructions (reproducible setup).
 - [ ] Architecture diagram: a visual representation of the system.
-- [ ] Hosted project URL, described in the rules as "URL to the hosted Project (if available) for judging and testing".
+- [ ] Hosted project URL, described in the rules as "URL to the hosted Project (if available) for judging and testing". The one to give is the demo-sites index, `https://demo-sites-b2xhora5ka-ew.a.run.app/` — it is the only surface a judge can open without a credential, it names all five watched pages, and it is itself a `.run.app` URL, which the video section separately asks for. `patrol-agent` is deployed `--no-allow-unauthenticated` and has no UI.
 - [ ] Demo video URL (YouTube or Vimeo).
 
 ## Video
