@@ -4,7 +4,7 @@ The orchestrator. A Cloud Run service that fans scheduled ticks out into one cra
 site, starts those crawls, and — when one finishes — runs the ADK drift analyst over the
 fingerprint it produced.
 
-Three of its four endpoints are Pub/Sub push targets. Nothing polls, nothing blocks, and
+Three of its endpoints are Pub/Sub push targets. Nothing polls, nothing blocks, and
 no request waits on a crawl.
 
 ```
@@ -20,20 +20,27 @@ Cloud Scheduler --> sweep-tick --> POST /trigger/tick
                                                 sweep-done --> POST /trigger/sweep-done
                                                                  |
                                                                  v
-                                                        LlmAgent + 4 tools
+                                                     drift analyst + 5 tools
                                                                  |
                                                                  v
                                                 sites/{id}/decisions/{sweepId}
+                                                                 |  only on drift
+                                                                 v
+                                                      compliance scribe + 2 tools
+                                                                 |
+                                                                 v
+                                                sites/{id}/redlines/{sweepId}
 ```
 
-## The agent
+## The analyst
 
-One `LlmAgent` on `gemini-3.5-flash`, four `FunctionTool`s, one decision per sweep.
+One `LlmAgent` on `gemini-3.5-flash`, five `FunctionTool`s, one decision per sweep.
 
 | tool | what it does |
 | --- | --- |
 | `get_sweep_context` | site, this sweep's fingerprint summary, the approved baseline and the previous sweep |
 | `diff_against_baseline` | the deterministic set difference, split into `alerts` and `noise` by the stability window |
+| `lookup_host_knowledge` | what the vendor tables know about a domain that appeared: exact entry, near matches, naming heuristic, and the closed category set |
 | `approve_baseline` | points the site at this sweep and clears pending, for a site's first sweep only |
 | `record_decision` | writes the verdict — `noop`, `drift` or `baseline-created` — and parks what it alerted on |
 
@@ -120,6 +127,36 @@ comparing across generations would report the site's entire tracker set as remov
 re-added. The agent's recovery is to approve the current sweep as a fresh baseline and
 record `baseline-created`.
 
+## The scribe
+
+A drift decision on its own is a notification. The work it creates — rewriting the cookie
+policy, filing the RoPA row — is the part that never happens, so a second `LlmAgent` does
+it in the same request, immediately after the analyst records `action: "drift"`.
+
+| tool | what it does |
+| --- | --- |
+| `get_drift_context` | the decision, the alerting half of the diff, and the vendor table entries for every domain and cookie in it |
+| `write_redline` | writes `sites/{id}/redlines/{sweepId}`: `policyRedline` and `ropaRow` |
+
+`policyRedline` is Czech `Přidat:` / `Odstranit:` edit instructions naming each tracker,
+its operator, purpose, consent category, and the cookie names and durations the tables
+know. `ropaRow` is one record-of-processing row in the field shape the gdpr-toolkit
+exports. Both are keyed by `sweepId`, so a Pub/Sub redelivery rewrites the same document.
+
+It is a separate agent rather than four more paragraphs in the analyst's instruction for
+two reasons: it only runs on drift, so the hourly noop path does not pay for a prompt
+about document drafting; and its job pulls the other way — the analyst writes one careful
+sentence for a log, the scribe writes a page of regulated prose.
+
+Both agents are held to the same rule: state only what a tool returned. A domain the
+tables have never seen is recorded as `unclassified`, `vendor: null`, confidence `low`,
+with a `basis` saying so, and the redline tells the owner to establish who runs it before
+publishing. An invented vendor in a document filed with a regulator is worse than a gap.
+
+A scribe failure is logged and swallowed rather than retried. The decision is already
+written and it is what the alerting is built on; a nack here would re-run the expensive
+analyst to retry the cheap half.
+
 ## Endpoints
 
 | method | path | auth | returns |
@@ -132,6 +169,8 @@ record `baseline-created`.
 | `POST` | `/sites/:siteId/sweep` | `x-admin-key` | `202 {siteId, sweepId}` — forces a re-check |
 | `POST` | `/sites/:siteId/baseline` | `x-admin-key` | `200` — body `{sweepId}`; approves it and clears pending |
 | `GET` | `/sites/:siteId/decisions?limit=10` | `x-admin-key` | `200 {siteId, decisions}` |
+| `GET` | `/sites/:siteId/redlines?limit=10` | `x-admin-key` | `200 {siteId, redlines}` |
+| `GET` | `/sites/:siteId/redlines/:sweepId` | `x-admin-key` | `200` the redline, `404` when the sweep produced none |
 
 Any non-2xx on a trigger is a nack, so Pub/Sub retries and eventually dead-letters. That
 is intentional: a `500` from `/trigger/sweep-done` means the fingerprint had not landed
@@ -187,8 +226,9 @@ npm run dev
 ```
 
 `@pixel-patrol/shared` ships compiled JS, so every script here builds it first through
-a `pre` hook. `npm test` covers the store-backed drift pipeline and the push-envelope
-decoder and needs no credentials or emulator; the pure classification is tested in
+a `pre` hook. `npm test` covers the store-backed drift pipeline, the classification and redline
+machinery around the two agents, and the push-envelope decoder, and needs no credentials
+or emulator; the pure classification is tested in
 `shared`. The rest is verified against the real project.
 
 Pub/Sub push cannot reach `localhost`, so a local run is driven by hand:
