@@ -47,6 +47,27 @@ const parameters = z.object({
     .min(0)
     .optional()
     .describe("the noiseCount the diff returned — differences the window explained away"),
+  classifications: z
+    .array(
+      z.object({
+        domain: z.string().describe("a registrableDomain from alerts.hostsAdded"),
+        vendor: z
+          .string()
+          .nullable()
+          .describe("the operator behind it, or null when the lookup established none"),
+        category: z
+          .string()
+          .describe("one of the categories lookup_host_knowledge returned, or 'unclassified'"),
+        confidence: z
+          .enum(["high", "medium", "low"])
+          .describe("high only for a table entry, medium for a near match, low for a heuristic or nothing"),
+        basis: z
+          .string()
+          .describe("what in the lookup result supports this, named specifically"),
+      }),
+    )
+    .optional()
+    .describe("one entry per added domain, from lookup_host_knowledge; omit when nothing was added"),
 });
 
 /** what the tool confirms back to the model */
@@ -92,6 +113,10 @@ export async function recordDecision(
     summary: args.summary,
     ...(args.hostsAdded?.length ? { hostsAdded: args.hostsAdded } : {}),
     ...(args.hostsRemoved?.length ? { hostsRemoved: args.hostsRemoved } : {}),
+    // the classifications pass through as the model wrote them: unlike the
+    // counts and the dedupe keys, there is no deterministic version of this to
+    // recompute against, which is the whole reason `basis` is required
+    ...(args.classifications?.length ? { classifications: args.classifications } : {}),
     noiseCount: verdict ? verdict.noiseCount : (args.noiseCount ?? 0),
     at: new Date().toISOString(),
     model,

@@ -8,6 +8,8 @@
  * fail a build, it makes the differ silently stop seeing hosts.
  */
 
+import type { TrackerCategory } from "@pixel-patrol/shared";
+
 export type {
   CookieCategory,
   Fingerprint,
@@ -63,6 +65,28 @@ export interface SweepRecord {
 /** what the analyst concluded about one sweep */
 export type DecisionAction = "noop" | "drift" | "baseline-created" | "failed";
 
+/**
+ * what the analyst judged one newly appeared domain to be.
+ *
+ * this is the model's contribution to the record, and it is stored apart from
+ * the diff for that reason: `hostsAdded` is what the scanner measured, this is
+ * what a language model concluded about it. `basis` is not decoration — it has
+ * to name what `lookup_host_knowledge` returned, so a reader can see whether a
+ * vendor came out of the tables or out of the model, and a classification with
+ * nothing behind it is supposed to arrive as `unclassified` at low confidence.
+ */
+export interface DomainClassification {
+  /** the registrable domain, matching an entry in {@link Decision.hostsAdded} */
+  domain: string;
+  /** the operator behind it, or null when nothing established one */
+  vendor: string | null;
+  /** a category from the tables' closed set */
+  category: TrackerCategory | string;
+  confidence: "high" | "medium" | "low";
+  /** what in the lookup supports this — a table entry, a near match, or a regex */
+  basis: string;
+}
+
 /** the decision document at sites/{siteId}/decisions/{sweepId} */
 export interface Decision {
   siteId: string;
@@ -84,6 +108,13 @@ export interface Decision {
    * makes that visible in the decision log.
    */
   noiseCount?: number;
+  /**
+   * the analyst's judgement of each added domain. absent on a noop or a
+   * baseline, and absent on a drift the model chose not to classify — the
+   * redline scribe reads it and falls back to the raw domains, because a
+   * missing classification must not stop a finding reaching its owner.
+   */
+  classifications?: DomainClassification[];
   error?: string;
   at: string;
   model: string;

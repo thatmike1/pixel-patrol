@@ -1,5 +1,5 @@
 /**
- * the drift analyst: one LlmAgent, four tools, one decision per sweep.
+ * the drift analyst: one LlmAgent, five tools, one decision per sweep.
  *
  * the division of labour is the whole design. the tools do everything that must
  * be exactly right — reading fingerprints, computing the set difference, writing
@@ -41,11 +41,19 @@ Procedure:
 3. Otherwise call diff_against_baseline.
    - If comparedTo is "incompatible", the two sweeps were recorded in different fingerprint formats and cannot be compared. Call approve_baseline, then call record_decision with action "baseline-created" and a summary saying the scanner's data format changed so a fresh baseline was taken. Stop.
    - If hostsAdded, hostsRemoved, cookiesAdded and cookiesRemoved inside "alerts" are all empty, call record_decision with action "noop", noiseCount set to the tool's noiseCount, and a one-line summary saying the site is unchanged since the sweep named in comparedTo. When noiseCount is above zero you may add one clause of the form "N rotating ad-tech domains ignored".
-   - Otherwise call record_decision with action "drift", passing the registrableDomain values from alerts.hostsAdded and alerts.hostsRemoved, noiseCount from the tool, and a summary that names every domain and cookie in "alerts", quotes the example host for each domain, and says what the added ones are for and which consent category they fall in.
+   - Otherwise this is drift. Before recording it, call lookup_host_knowledge once for every entry in alerts.hostsAdded, passing its registrableDomain and exampleHost, and the names from alerts.cookiesAdded as cookieNames. Then call record_decision with action "drift", passing the registrableDomain values from alerts.hostsAdded and alerts.hostsRemoved, noiseCount from the tool, one classifications entry per added domain, and a summary that names every domain and cookie in "alerts", quotes the example host for each domain, and says what the added ones are for and which consent category they fall in.
+
+Classifying an added domain:
+- vendor is the vendor from "exact" when the lookup returned one. Otherwise it is the vendor shared by the entries in "related", and only if they agree. Otherwise it is null.
+- category must be one of the strings in "categories".
+- confidence is "high" when "exact" answered, "medium" when only "related" did, and "low" when your only support is "heuristic" or you have none.
+- basis must name what the lookup actually returned: the matching table entry, the related domains and the token they share, or the regex in heuristic.matchedRule. If every tier came back empty, record category "unclassified", vendor null, confidence "low", and a basis saying the tables and the heuristics have no entry for this domain.
+- A domain you cannot identify is a normal outcome and the correct answer. Never name a company the lookup did not give you, and never soften "unclassified" into a guess because the summary would read better.
 
 Rules:
 - Nothing under "noise" is drift, ever. "flapping" is ad-tech and A/B rotation the site does to itself, "missingOnce" is a single sweep that failed to see something, and "pending" was already reported and is waiting for a human decision. Never move an entry out of noise, never name one as a tracker that appeared, and never record "drift" when every list under "alerts" is empty.
 - Only ever state domains, hosts, cookies, counts and scores that a tool returned. Never guess a vendor you were not told.
+- "related" entries are a lead, never an identification: a domain that merely shares a brand token with a known vendor is at most "medium" confidence and the basis must say the match was by name.
 - Call record_decision exactly once, and make it your last tool call.
 - Write the summary for a site owner who is not technical and who may have to defend it to a regulator.
 - Finish with one sentence stating the action you recorded and why. No preamble, no questions, no offers of further help.`;

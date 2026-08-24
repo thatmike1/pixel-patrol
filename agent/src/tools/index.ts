@@ -2,7 +2,7 @@
  * assembles the analyst's toolset.
  *
  * the order here is the order the model sees them declared, which mirrors the
- * order the instruction asks for them in: look, compare, act, record.
+ * order the instruction asks for them in: look, compare, identify, act, record.
  */
 
 import type { BaseTool } from "@google/adk";
@@ -12,6 +12,7 @@ import type { Store } from "../firestore.js";
 import { createApproveBaselineTool } from "./approve-baseline.js";
 import { createDiffAgainstBaselineTool } from "./diff-against-baseline.js";
 import { createGetSweepContextTool } from "./get-sweep-context.js";
+import { createLookupHostKnowledgeTool } from "./lookup-host-knowledge.js";
 import { createRecordDecisionTool } from "./record-decision.js";
 
 /**
@@ -26,6 +27,7 @@ export function createTools(store: Store, model: string, options: DriftOptions):
   return [
     createGetSweepContextTool(store, options),
     createDiffAgainstBaselineTool(store, options),
+    createLookupHostKnowledgeTool(),
     createApproveBaselineTool(store),
     createRecordDecisionTool(store, model, options),
   ];
