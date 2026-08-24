@@ -175,6 +175,9 @@ export function fakeStore(
     async getNotification(_siteId, sweepId) {
       return recorded.notifications.find((n) => n.sweepId === sweepId) ?? null;
     },
+    async listNotifications(_siteId, limit) {
+      return recorded.notifications.slice(-limit).reverse();
+    },
   };
 
   return { store, recorded };

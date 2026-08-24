@@ -59,6 +59,7 @@ export interface Store {
   listRedlines(siteId: string, limit: number): Promise<Redline[]>;
   writeNotification(notification: NotificationRecord): Promise<void>;
   getNotification(siteId: string, sweepId: string): Promise<NotificationRecord | null>;
+  listNotifications(siteId: string, limit: number): Promise<NotificationRecord[]>;
 }
 
 /**
@@ -254,6 +255,16 @@ export function createStore(projectId: string): Store {
     async getNotification(siteId: string, sweepId: string): Promise<NotificationRecord | null> {
       const doc = await sites.doc(siteId).collection("notifications").doc(sweepId).get();
       return doc.exists ? (doc.data() as NotificationRecord) : null;
+    },
+
+    async listNotifications(siteId: string, limit: number): Promise<NotificationRecord[]> {
+      const snapshot = await sites
+        .doc(siteId)
+        .collection("notifications")
+        .orderBy("at", "desc")
+        .limit(limit)
+        .get();
+      return snapshot.docs.map((doc) => doc.data() as NotificationRecord);
     },
 
     async listDecisions(siteId: string, limit: number): Promise<Decision[]> {

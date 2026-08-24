@@ -462,9 +462,7 @@ export function createApp(deps: AppDeps): Express {
     requireAdminKey,
     asyncRoute(async (req: Request, res: Response) => {
       const siteId = String(req.params.siteId);
-      const requested = Number(req.query.limit ?? 10);
-      const limit = Number.isInteger(requested) && requested > 0 ? Math.min(requested, 100) : 10;
-      res.status(200).json({ siteId, redlines: await deps.store.listRedlines(siteId, limit) });
+      res.status(200).json({ siteId, redlines: await deps.store.listRedlines(siteId, readLimit(req)) });
     }, log),
   );
 
@@ -483,14 +481,28 @@ export function createApp(deps: AppDeps): Express {
     }, log),
   );
 
+  // what actually left the system. a drift that produced no ticket and no mail
+  // is indistinguishable from a drift nobody looked at, and until this endpoint
+  // existed the only way to tell them apart was a log line or the Firestore
+  // console — neither of which is available while a demo is running.
+  app.get(
+    "/sites/:siteId/notifications",
+    requireAdminKey,
+    asyncRoute(async (req: Request, res: Response) => {
+      const siteId = String(req.params.siteId);
+      res.status(200).json({
+        siteId,
+        notifications: await deps.store.listNotifications(siteId, readLimit(req)),
+      });
+    }, log),
+  );
+
   app.get(
     "/sites/:siteId/decisions",
     requireAdminKey,
     asyncRoute(async (req: Request, res: Response) => {
       const siteId = String(req.params.siteId);
-      const requested = Number(req.query.limit ?? 10);
-      const limit = Number.isInteger(requested) && requested > 0 ? Math.min(requested, 100) : 10;
-      res.status(200).json({ siteId, decisions: await deps.store.listDecisions(siteId, limit) });
+      res.status(200).json({ siteId, decisions: await deps.store.listDecisions(siteId, readLimit(req)) });
     }, log),
   );
 
@@ -593,6 +605,18 @@ export async function runNotifierIfDrift(
     );
     return { notified: false, error: errorMessage(err) };
   }
+}
+
+/**
+ * the `?limit=` a list route was asked for, clamped to something a Firestore
+ * query and a JSON response can both carry.
+ *
+ * @param req the request
+ * @returns a limit between 1 and 100, defaulting to 10
+ */
+function readLimit(req: Request): number {
+  const requested = Number(req.query.limit ?? 10);
+  return Number.isInteger(requested) && requested > 0 ? Math.min(requested, 100) : 10;
 }
 
 /**
