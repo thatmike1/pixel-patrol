@@ -54,6 +54,13 @@ Findings land in two places, both live:
 
 Run this before every take. It takes about four minutes, most of it waiting.
 
+**As of 2026-08-24 the reset is not optional for `demo-boutique`.** A day-8 verification
+run drifted that page on purpose to prove the chain still reaches GitHub and email after
+the `demo-sites` service moved onto its own service account. It worked (issue #13, since
+closed), the page is back at baseline and redeployed, but the drifted sweep is still in
+the site's history. Step 2 below is what clears it. Skip step 2 and re-inducing the same
+pixel will classify as `flapping` and silently do nothing.
+
 ```bash
 cd ~/git/pixel-patrol
 
