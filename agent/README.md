@@ -217,8 +217,16 @@ registered before the field existed still reaches someone.
 
 The honest way to show this working is to wait for a real site to add a tracker, which
 happens on nobody's schedule. `scripts/seed-drift.ts` does the equivalent from the other
-end: it deletes a domain the site genuinely loads out of the *approved baseline*, so the
-next sweep finds that domain present and unaccounted for.
+end: it deletes a domain the site genuinely loads out of *every fingerprint the site
+has*, so the next sweep finds that domain present with nothing in the record to account
+for it.
+
+Every fingerprint, not just the approved baseline. Removing it from the baseline alone
+works exactly once — on a site whose first sweep *is* its baseline — and then quietly
+stops, because a domain missing from the baseline but present in the last N sweeps has a
+presence ratio strictly between 0 and 1 and classifies as `flapping`, which is rotation,
+which is noise. That is the stability window working correctly, and it is worth knowing
+that a botched demo setup looks exactly like a watchdog asleep.
 
 ```bash
 npm --prefix agent run seed-drift -- demo-shop                              # list the baseline
