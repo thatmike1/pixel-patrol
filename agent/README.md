@@ -5,7 +5,8 @@ site, starts those crawls, and — when one finishes — runs the ADK drift anal
 fingerprint it produced.
 
 Three of its endpoints are Pub/Sub push targets. Nothing polls, nothing blocks, and
-no request waits on a crawl.
+no request waits on a crawl. The whole system, including the parts outside this service,
+is drawn in [../docs/architecture.svg](../docs/architecture.svg).
 
 ```
 Cloud Scheduler --> sweep-tick --> POST /trigger/tick

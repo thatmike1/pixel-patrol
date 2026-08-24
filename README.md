@@ -181,7 +181,8 @@ static server.
 | [docs/stability-tuning.md](docs/stability-tuning.md) | why N=5 and M=3, measured against real ad-tech churn |
 | [docs/dlq-verification.md](docs/dlq-verification.md) | what happens to a poison message, verified end to end |
 | [docs/iam.md](docs/iam.md) | every grant in the project and why it is the narrowest one that works |
-| [docs/architecture.svg](docs/architecture.svg) | the diagram above |
+| [docs/architecture.svg](docs/architecture.svg) | the diagram above, as source |
+| [docs/devpost-draft.md](docs/devpost-draft.md) | the hackathon submission text |
 | [LIFTED.md](LIFTED.md) | the pre-existing code disclosure the hackathon rules require |
 
 ## Stack
@@ -189,5 +190,5 @@ static server.
 Gemini 3.5 Flash on Vertex AI (`global`), Google ADK (`LlmAgent` with `FunctionTool`s),
 Cloud Run services and a Cloud Run Job, Pub/Sub with dead-letter topics and pull
 subscriptions on both, Firestore in native mode, Cloud Scheduler, Secret Manager, Cloud
-Build and Artifact Registry. TypeScript on Node 22 throughout, in npm workspaces so the
+Monitoring, Cloud Build and Artifact Registry. TypeScript on Node 22 throughout, in npm workspaces so the
 fingerprint types exist exactly once.
