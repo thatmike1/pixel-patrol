@@ -49,6 +49,32 @@ ensure_topic sweep-tick
 ensure_topic sweep-done-dlq
 
 # ---------------------------------------------------------------------------
+# dead-letter subscriptions
+#
+# a topic with no subscription attached retains nothing: Pub/Sub delivers a
+# published message to every subscription and then drops it, so a dead-letter
+# topic nobody subscribes to is a message sink. the whole point of the DLQ is
+# that a poison message survives long enough for someone to read it, which means
+# a pull subscription has to exist before the first one arrives, not after.
+# ---------------------------------------------------------------------------
+ensure_pull_subscription() {
+  local name="$1" topic="$2"
+  if gcloud pubsub subscriptions describe "$name" --project "$PROJECT_ID" >/dev/null 2>&1; then
+    echo "== subscription ${name} exists"
+  else
+    echo "== subscription ${name} create"
+    gcloud pubsub subscriptions create "$name" --topic "$topic" \
+      --project "$PROJECT_ID" \
+      --message-retention-duration 7d \
+      --ack-deadline 60 \
+      --quiet
+  fi
+}
+
+ensure_pull_subscription site-sweep-dlq-pull site-sweep-dlq
+ensure_pull_subscription sweep-done-dlq-pull sweep-done-dlq
+
+# ---------------------------------------------------------------------------
 # push subscriptions
 #
 # each subscription's OIDC audience is the exact endpoint it pushes to, and the

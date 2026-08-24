@@ -16,7 +16,8 @@
     "test": "node --test --import tsx src/*.test.ts",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
-    "report": "tsx scripts/stability-report.ts"
+    "report": "tsx scripts/stability-report.ts",
+    "seed-drift": "tsx scripts/seed-drift.ts"
   },
   "dependencies": {
     "@google-cloud/firestore": "^7.11.0",
