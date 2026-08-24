@@ -61,8 +61,9 @@ candidate for deletion after 31 August.
 
 ## What was removed, and what it cost
 
-The audit found five over-broad grants. `provision.sh` no longer creates any of them,
-so a fresh project gets the matrix above from the first run.
+The audit found six over-broad grants. All six are gone from the live project, and
+`provision.sh` no longer creates any of them, so a fresh project gets the matrix above
+from its first run rather than needing the same clean-up later.
 
 | grant | why it was wrong |
 | --- | --- |
@@ -75,69 +76,69 @@ so a fresh project gets the matrix above from the first run.
 
 ## State of the live project
 
-Applied and verified live:
+**Applied in full on 2026-08-24.** The live project matches the matrix above. Every
+project-level binding held by the three accounts this system owns is now:
 
-- `patrol-demo-sites` created, and the `demo-sites` service redeployed onto it
-  (revision `demo-sites-00006-zth`). It holds no roles; the pages serve, and a sweep of
-  `demo-atelier` crawled them and came back `noop` with `noiseCount: 0`.
-- the `patrolCrawlerRunner` custom role created and bound on the `patrol-crawler` job.
-- per-secret `secretAccessor` bindings (these predate the audit).
+| account | project-level roles, in full |
+| --- | --- |
+| `patrol-agent` | `aiplatform.user`, `datastore.user`, `logging.logWriter` |
+| `patrol-crawler` | `datastore.user`, `logging.logWriter` |
+| `<n>-compute` | `cloudbuild.builds.builder` |
 
-Not yet applied: the six revocations in the table above, and the two topic-level
-publisher grants that replace the project-level ones. The commands are below, and they
-must be run in this order, because each narrower grant has to be in place before the
-wider one is removed.
+Everything else the system needs is bound on a resource: a topic, a job, a secret, a
+service, or a service account. Nothing was rolled back, and no revocation reported a
+binding that was already absent, which means the audit's reading of the policy was
+accurate rather than lucky.
 
-```bash
-export CLOUDSDK_ACTIVE_CONFIG_NAME=pixel-patrol
-P=pixel-patrol-mp
-AGENT=serviceAccount:patrol-agent@${P}.iam.gserviceaccount.com
-CRAWL=serviceAccount:patrol-crawler@${P}.iam.gserviceaccount.com
-BUILD=serviceAccount:663363395117-compute@developer.gserviceaccount.com
+The order mattered and is worth keeping if this is ever repeated: each narrower grant went
+in before the wider one came out, so an interruption at any point would have left a
+working system rather than a half-permissioned one.
 
-# 1. narrow the publish grants, then drop the project-wide ones
-gcloud pubsub topics add-iam-policy-binding site-sweep --project $P --member=$AGENT --role=roles/pubsub.publisher
-gcloud pubsub topics add-iam-policy-binding sweep-done --project $P --member=$CRAWL --role=roles/pubsub.publisher
-gcloud projects remove-iam-policy-binding $P --member=$AGENT --role=roles/pubsub.publisher --condition=None
-gcloud projects remove-iam-policy-binding $P --member=$CRAWL --role=roles/pubsub.publisher --condition=None
+### What proved each step
 
-# 2. the job-scoped custom role is already bound, so run.developer can go
-gcloud projects remove-iam-policy-binding $P --member=$AGENT --role=roles/run.developer --condition=None
+Verification was a forced sweep of `demo-atelier` after each risky step. That site has no
+drift switch, so it can be swept as often as needed without touching the demo estate or
+filing a ticket, and one sweep exercises agent publish, job start, the crawl, the
+Firestore write, Vertex and the analyst.
 
-# 3. grants for things the system does not do
-gcloud projects remove-iam-policy-binding $P --member=$AGENT --role=roles/cloudtasks.enqueuer --condition=None
-gcloud projects remove-iam-policy-binding $P --member=$AGENT --role=roles/pubsub.subscriber --condition=None
+| step | evidence |
+| --- | --- |
+| topic-scoped publisher replaces the project-wide grant on both accounts | sweep `20260824T144039Z-s8xnou`, `noop`, `noiseCount: 0` |
+| `roles/run.developer` removed, job-scoped custom role carries the crawl | sweep `20260824T151928Z-0wgsol`, `noop`, `noiseCount: 0` |
+| `cloudtasks.enqueuer` and `pubsub.subscriber` removed | sweep `20260824T152414Z-84g5l2`, `noop`, `noiseCount: 0` |
+| project-wide `secretAccessor` removed | revision `patrol-agent-00025-4fv` reached `Ready=True` |
+| `roles/editor` on the build account replaced by `cloudbuild.builds.builder` | Cloud Build SUCCESS at 15:27:12Z, `demo-sites` redeployed, pages serve `200` |
+| `demo-sites` moved onto the zero-role `patrol-demo-sites` | revision `demo-sites-00006-zth`, pages serve, crawl of them returns `noop` |
 
-# 4. secret access stays, but only on the two secrets
-gcloud projects remove-iam-policy-binding $P --member=$AGENT --role=roles/secretmanager.secretAccessor --condition=None
+Two of those need their reasoning stated, because the evidence is indirect.
 
-# 5. the build account keeps the role it actually needs
-gcloud projects add-iam-policy-binding $P --member=$BUILD --role=roles/cloudbuild.builds.builder --condition=None
-gcloud projects remove-iam-policy-binding $P --member=$BUILD --role=roles/editor --condition=None
-```
+**A healthy revision is the proof for the secret change.** Secrets are resolved when an
+instance starts, so the running instance still held its values and a policy read would
+have proved nothing. Cloud Run fails a revision outright when it cannot resolve a mounted
+secret, so a new revision reaching Ready is a stronger signal than any successful request
+against the old one. The probe variable `IAM_AUDIT=2026-08-24` that forced that revision
+is still set on the service; it is inert and can be dropped with
+`--remove-env-vars IAM_AUDIT`.
 
-After each numbered step, prove the chain still runs end to end rather than trusting the
-policy read:
+**That does not prove the notifier can still send.** It proves the credentials still
+resolve. Proving the send end needs a real drift, which costs a demo-estate reset. One
+was run earlier the same day, before the tightening, and passed end to end: sweep
+`20260824T142528Z-2wk7qm` filed issue #13 and sent Resend id
+`7bfa5438-4b04-428e-9e9d-02e834f24f71`. The next scheduled drift will be the first
+confirmation on the tightened policy.
 
-```bash
-# a forced sweep exercises publish, job start, Firestore, Vertex and the analyst
-api POST /sites/demo-atelier/sweep -d '{}'
-sleep 120
-api GET "/sites/demo-atelier/decisions?limit=1" | jq -c '.decisions[0] | {action, noiseCount}'
-```
+### Re-auditing
 
-Step 4 additionally needs a new revision before it means anything, because secrets are
-resolved at instance start:
-
-```bash
-gcloud run services update patrol-agent --region europe-west1 --project $P --no-traffic --tag probe
-```
-
-and step 5 needs a build:
+One command prints the project-level half of the matrix, which is the half that drifts:
 
 ```bash
-PROJECT_ID=pixel-patrol-mp ./infra/deploy-demo-sites.sh
+CLOUDSDK_ACTIVE_CONFIG_NAME=pixel-patrol gcloud projects get-iam-policy pixel-patrol-mp \
+  --flatten="bindings[].members" --format='table(bindings.members,bindings.role)' \
+  --filter="bindings.members:(patrol-agent patrol-crawler patrol-demo-sites compute)"
 ```
+
+Anything in that output beyond the six rows in the table above is new, and worth knowing
+why it arrived.
 
 ## Credentials
 
