@@ -117,6 +117,21 @@ model that renames `facebook.net` to `connect.facebook.net` would silently break
 The sweep that wrote the pending entries is exempt from its own suppression, so a
 Pub/Sub redelivery re-reports drift instead of overwriting the verdict with a noop.
 
+### Retiring a site
+
+`enabled: false` on the site document takes it off the tick fan-out. Absent
+means enabled, so nothing registered before the flag existed needs migrating,
+and the check is `=== false` rather than a truthiness test for that reason.
+
+Disabling is not deleting. A retired site — a demo target pointed at somebody
+else's domain, a client who left — stops being crawled, and its decisions,
+redlines and notifications stay exactly where they are. They are the record of
+what was reported and when, and a compliance tool that erases that when a site
+goes away is worse than one that never wrote it down.
+
+A forced sweep still works on a disabled site, because an operator asking for
+one is the decision the flag exists to automate away.
+
 ### The tuning tool
 
 ```bash
@@ -232,33 +247,51 @@ recipient — a green result that proves the request was well formed and nothing
 A site with no `ownerEmail` falls back to `DEFAULT_OWNER_EMAIL`, which is how every site
 registered before the field existed still reaches someone.
 
-### Planting a drift for a demo
+### Demo targets
 
-The honest way to show this working is to wait for a real site to add a tracker, which
-happens on nobody's schedule. `scripts/seed-drift.ts` does the equivalent from the other
-end: it deletes a domain the site genuinely loads out of *every fingerprint the site
-has*, so the next sweep finds that domain present with nothing in the record to account
-for it.
+Five pages this project owns, served by the `demo-sites` Cloud Run service, one
+per class of drift: a tracker-free page that gains a Meta Pixel, a page whose
+approved tracker is removed, one that gains a host the tables have never heard
+of, one that gains a cookie without gaining a domain, and one that loads four
+real trackers and never changes. A drift is induced by editing the HTML and
+redeploying, so "a marketer published a change and the watchdog caught it" is
+literally what happens.
 
-Every fingerprint, not just the approved baseline. Removing it from the baseline alone
-works exactly once — on a site whose first sweep *is* its baseline — and then quietly
-stops, because a domain missing from the baseline but present in the last N sweeps has a
-presence ratio strictly between 0 and 1 and classifies as `flapping`, which is rotation,
-which is noise. That is the stability window working correctly, and it is worth knowing
-that a botched demo setup looks exactly like a watchdog asleep.
+`demo-sites/README.md` describes the pages; `docs/demo-runbook.md` is the
+sequence to run them.
+
+Repeating a demo needs the site's sweep history deleted, not just a fresh
+baseline:
 
 ```bash
-npm --prefix agent run seed-drift -- demo-shop                              # list the baseline
-npm --prefix agent run seed-drift -- demo-shop doubleclick.net facebook.net # plant
+npm --prefix agent run reset-demo-site -- demo-boutique
 ```
 
-The signal is real: the differ, the stability classification, the analyst and the scribe
-all run over actual crawl data and none of them knows anything was arranged. The only
-fabricated part is the approval history, which is the one thing a demo cannot wait for.
+Approving a new baseline clears the pending set but leaves the drifted sweep in
+the stability window, and re-inducing the same change then gives that domain a
+presence ratio between 0 and 1 — `flapping`, rotation, no alert. The window is
+right to say so; the demo just has to stop lying to it. The script refuses any
+site id not starting `demo-`, because it deletes decisions and notifications.
 
-`demo-shop` is registered against a Czech e-shop that loads around forty third-party
-hosts, so a planted drift on `doubleclick.net`, `facebook.net` and `clarity.ms` produces
-three high-confidence table hits and a redline naming every cookie each one sets.
+### Planting a drift in someone else's site
+
+`scripts/seed-drift.ts` predates the demo pages and does the same job from the
+other end, for a site whose HTML we cannot edit: it deletes a domain the site
+genuinely loads out of *every fingerprint the site has*, so the next sweep finds
+that domain present with nothing in the record to account for it.
+
+Every fingerprint, not just the approved baseline — for exactly the reason
+above. Removing it from the baseline alone works once, on a site whose first
+sweep is its baseline, and then quietly stops.
+
+```bash
+npm --prefix agent run seed-drift -- <siteId>                              # list the baseline
+npm --prefix agent run seed-drift -- <siteId> doubleclick.net facebook.net # plant
+```
+
+The signal is real either way: the differ, the stability classification, the
+analyst and the scribe all run over actual crawl data and none of them knows
+anything was arranged. With the demo pages, nothing is arranged at all.
 
 ## Endpoints
 
@@ -269,9 +302,11 @@ three high-confidence table hits and a redline naming every cookie each one sets
 | `POST` | `/trigger/site-sweep` | push OIDC | `204`, once the crawl execution is accepted |
 | `POST` | `/trigger/sweep-done` | push OIDC | `204`, once a decision is recorded |
 | `POST` | `/sites` | `x-admin-key` | `201` — body `{siteId, url, ownerEmail?}` |
-| `POST` | `/sites/:siteId/sweep` | `x-admin-key` | `202 {siteId, sweepId}` — forces a re-check |
+| `POST` | `/sites/:siteId/sweep` | `x-admin-key` | `202 {siteId, sweepId}` — forces a re-check, disabled site included |
+| `POST` | `/sites/:siteId/enabled` | `x-admin-key` | `200` — body `{enabled}`; takes a site off the schedule, or puts it back |
 | `POST` | `/sites/:siteId/baseline` | `x-admin-key` | `200` — body `{sweepId}`; approves it and clears pending |
 | `GET` | `/sites/:siteId/decisions?limit=10` | `x-admin-key` | `200 {siteId, decisions}` |
+| `GET` | `/sites/:siteId/notifications?limit=10` | `x-admin-key` | `200 {siteId, notifications}` — what was filed and mailed |
 | `GET` | `/sites/:siteId/redlines?limit=10` | `x-admin-key` | `200 {siteId, redlines}` |
 | `GET` | `/sites/:siteId/redlines/:sweepId` | `x-admin-key` | `200` the redline, `404` when the sweep produced none |
 
