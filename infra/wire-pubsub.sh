@@ -9,7 +9,11 @@ set -euo pipefail
 PROJECT_ID="${PROJECT_ID:?set PROJECT_ID}"
 REGION="${REGION:-europe-west1}"
 SERVICE="${SERVICE:-patrol-agent}"
-SCHEDULE="${SCHEDULE:-*/10 * * * *}"
+# hourly, matching the deployed job. the create branch below never fires once
+# sweep-tick exists, so a stale default here would only ever mislead a reader or
+# a fresh project — which is worse than useless on the one script that is
+# supposed to describe the plumbing
+SCHEDULE="${SCHEDULE:-0 * * * *}"
 AGENT_SA="patrol-agent@${PROJECT_ID}.iam.gserviceaccount.com"
 
 SELF_URL="${SELF_URL:-$(gcloud run services describe "$SERVICE" \

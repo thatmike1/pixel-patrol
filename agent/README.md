@@ -184,7 +184,7 @@ analyst to retry the cheap half.
 
 Everything above this point is a document in Firestore that nobody is looking at.
 A drift decision and its redline are worth exactly as much as the odds someone opens
-the console, which on a watchdog running every ten minutes is zero. So once the scribe
+the console, which on a watchdog running every hour is zero. So once the scribe
 has written the paperwork, the finding leaves the system twice: a GitHub issue on
 `thatmike1/pixel-patrol-tickets`, where the work gets tracked, and an email to the
 site's owner, where it gets noticed. Both carry the same content — the analyst's
