@@ -14,6 +14,10 @@ PROJECT_ID="${PROJECT_ID:?set PROJECT_ID}"
 REGION="${REGION:-europe-west1}"
 AR_REPO="${AR_REPO:-patrol}"
 SERVICE="demo-sites"
+# its own identity, holding nothing but logging.logWriter. Cloud Run's default is the
+# compute service account, which on an older project carries roles/editor — a static
+# file server with permission to delete the Firestore it is being watched against.
+PAGES_SA="patrol-demo-sites@${PROJECT_ID}.iam.gserviceaccount.com"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 # the tag carries the pages' content, not just the commit. a demo run edits the
 # HTML and redeploys WITHOUT committing, so a commit-only tag would push
@@ -37,6 +41,7 @@ echo "== service ${SERVICE}"
 gcloud run deploy "$SERVICE" \
   --image "$IMAGE" \
   --region "$REGION" --project "$PROJECT_ID" \
+  --service-account "$PAGES_SA" \
   --allow-unauthenticated \
   --memory 256Mi --cpu 1 --timeout 60 --concurrency 80 --max-instances 4 \
   --quiet
