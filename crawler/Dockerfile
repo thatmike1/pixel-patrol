@@ -68,9 +68,11 @@ COPY --from=builder --chown=crawler:crawler /app/package.json ./package.json
 # has to be here at the same relative path for the import to resolve
 COPY --from=builder --chown=crawler:crawler /app/shared/package.json ./shared/package.json
 COPY --from=builder --chown=crawler:crawler /app/shared/dist ./shared/dist
+# the vendor tables are read at runtime from ../data relative to the compiled
+# lookups, so they ship next to dist rather than being bundled into it
+COPY --from=builder --chown=crawler:crawler /app/shared/data ./shared/data
 COPY --from=builder --chown=crawler:crawler /app/crawler/package.json ./crawler/package.json
 COPY --from=builder --chown=crawler:crawler /app/crawler/dist ./crawler/dist
-COPY --from=builder --chown=crawler:crawler /app/crawler/data ./crawler/data
 
 # cap Node heap at 1.5 GB — leaves headroom inside the 2 GB container limit
 ENV NODE_OPTIONS="--max-old-space-size=1536"

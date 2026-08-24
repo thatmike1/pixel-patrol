@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Pixel Patrol shared kernel — the fingerprint shape both services read, the drift diff, and the stability window that separates a real change from ad rotation.",
+  "description": "Pixel Patrol shared kernel — the fingerprint shape both services read, the drift diff, the stability window that separates a real change from ad rotation, and the vendor tables both the scanner and the agent classify against.",
   "engines": {
     "node": ">=22.0.0"
   },
@@ -16,6 +16,7 @@
     }
   },
   "files": [
+    "data",
     "dist"
   ],
   "scripts": {

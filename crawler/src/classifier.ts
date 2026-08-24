@@ -3,8 +3,13 @@
  * using a tiered approach:
  *   1. exact name match in known-cookies DB
  *   2. pattern match in known-cookies DB
- *   3. heuristic regex rules (11 rules covering common naming conventions)
+ *   3. heuristic regex rules covering common naming conventions
  *   4. fallback to `unclassified`
+ *
+ * the tables and the regex rules themselves live in `@pixel-patrol/shared`,
+ * because the agent grounds its classification of a newly appeared host in the
+ * same tiers. this file is the part only the scanner needs: applying them to
+ * raw scan rows and scoring the result.
  *
  * design principle: err toward over-restricting. if we're unsure, classify
  * as marketing/analytics rather than necessary. a false positive (blocking
@@ -17,79 +22,9 @@ import type {
   ClassifiedCookie,
   RawTracker,
   ClassifiedTracker,
-  CookieCategory,
-  TrackerCategory,
   ScanSummary,
 } from "./types.js";
-import { lookupCookie } from "./cookie-db.js";
-import { lookupTracker } from "./tracker-db.js";
-
-// ---------------------------------------------------------------------------
-// heuristic rules — applied when the DB has no match
-// ---------------------------------------------------------------------------
-
-interface HeuristicRule {
-  pattern: RegExp;
-  category: CookieCategory;
-}
-
-/**
- * regex-based heuristic rules for cookie classification.
- * order matters — first match wins. rules are conservative: tracking
- * patterns are caught before generic ones.
- */
-const HEURISTIC_RULES: HeuristicRule[] = [
-  // analytics patterns
-  { pattern: /^_ga/i, category: "analytics" },
-  { pattern: /^_gid$/i, category: "analytics" },
-  { pattern: /^_gat/i, category: "analytics" },
-  { pattern: /^_hj/i, category: "analytics" },
-  { pattern: /^_pk_/i, category: "analytics" },
-  { pattern: /^mp_/i, category: "analytics" },
-  { pattern: /^amplitude/i, category: "analytics" },
-  { pattern: /^ajs_/i, category: "analytics" },
-  { pattern: /^__utm/i, category: "analytics" },
-  { pattern: /^__hstc$/i, category: "analytics" },
-  { pattern: /^__hssc$/i, category: "analytics" },
-  { pattern: /^hubspotutk$/i, category: "analytics" },
-  { pattern: /^collect$/i, category: "analytics" },
-
-  // marketing / advertising patterns
-  { pattern: /^_fb/i, category: "marketing" },
-  { pattern: /^_gcl_/i, category: "marketing" },
-  { pattern: /^_rdt_uuid$/i, category: "marketing" },
-  { pattern: /^_tt_/i, category: "marketing" },
-  { pattern: /^_ttp$/i, category: "marketing" },
-  { pattern: /^_uet/i, category: "marketing" },
-  { pattern: /^IDE$/i, category: "marketing" },
-  { pattern: /^NID$/i, category: "marketing" },
-  { pattern: /^fr$/i, category: "marketing" },
-  { pattern: /^test_cookie$/i, category: "marketing" },
-  { pattern: /^sklikId$/i, category: "marketing" },
-  { pattern: /^_sas_/i, category: "marketing" },
-
-  // functional patterns
-  { pattern: /^ssupp/i, category: "functional" },
-  { pattern: /^__zlcmid$/i, category: "functional" },
-  { pattern: /^intercom-/i, category: "functional" },
-  { pattern: /^crisp-/i, category: "functional" },
-  { pattern: /^tawk/i, category: "functional" },
-
-  // necessary patterns (session, CSRF, consent)
-  { pattern: /^PHPSESSID$/i, category: "necessary" },
-  { pattern: /^JSESSIONID$/i, category: "necessary" },
-  { pattern: /^csrftoken$/i, category: "necessary" },
-  { pattern: /^_csrf$/i, category: "necessary" },
-  { pattern: /^XSRF-TOKEN$/i, category: "necessary" },
-  { pattern: /^__Host-/i, category: "necessary" },
-  { pattern: /^__Secure-/i, category: "necessary" },
-  { pattern: /^connect\.sid$/i, category: "necessary" },
-  { pattern: /^laravel_session$/i, category: "necessary" },
-  { pattern: /^cookieconsent/i, category: "necessary" },
-  { pattern: /^CookieConsent$/i, category: "necessary" },
-  { pattern: /^OptanonConsent$/i, category: "necessary" },
-  { pattern: /^euconsent/i, category: "necessary" },
-];
+import { heuristicCookieCategory, lookupCookie, lookupTracker } from "@pixel-patrol/shared";
 
 // ---------------------------------------------------------------------------
 // public API
@@ -112,15 +47,14 @@ export function classifyCookie(raw: RawCookie): ClassifiedCookie {
   }
 
   // tier 3: heuristic regex rules
-  for (const rule of HEURISTIC_RULES) {
-    if (rule.pattern.test(raw.name)) {
-      return {
-        ...raw,
-        category: rule.category,
-        categorySource: "auto",
-        description: null,
-      };
-    }
+  const heuristic = heuristicCookieCategory(raw.name);
+  if (heuristic) {
+    return {
+      ...raw,
+      category: heuristic,
+      categorySource: "auto",
+      description: null,
+    };
   }
 
   // tier 4: fallback

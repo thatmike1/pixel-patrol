@@ -4,13 +4,18 @@
  *
  * example: a request to `cdn.tracking.example.com` will match a DB entry
  * for `tracking.example.com` by stripping the `cdn.` prefix.
+ *
+ * it lives in `@pixel-patrol/shared` rather than in the crawler because the
+ * agent grounds its classification of an unknown host in the same table. two
+ * copies of a vendor table is two answers to "who is this domain", and the one
+ * that ends up in a compliance document has to be the one the scanner used.
  */
 
 import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import type { TrackerCategory, TrackerType } from "./types.js";
+import type { TrackerCategory, TrackerType } from "./fingerprint.js";
 
 /** shape of a single entry in known-trackers.json */
 export interface KnownTracker {
@@ -63,4 +68,18 @@ export function lookupTracker(domain: string): KnownTracker | null {
   }
 
   return null;
+}
+
+/**
+ * every entry in the tracker table.
+ *
+ * the lookup answers "is this exact domain known"; grounding an unknown domain
+ * needs the whole table to search for near matches and to read the closed set
+ * of categories off, so it is exposed rather than re-parsed by the caller.
+ *
+ * @returns the entries, in file order
+ */
+export function allTrackers(): KnownTracker[] {
+  ensureLoaded();
+  return [...domainMap!.values()];
 }

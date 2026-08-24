@@ -64,6 +64,9 @@ COPY --from=builder --chown=node:node /app/package.json ./package.json
 # has to be here at the same relative path for the import to resolve
 COPY --from=builder --chown=node:node /app/shared/package.json ./shared/package.json
 COPY --from=builder --chown=node:node /app/shared/dist ./shared/dist
+# the vendor tables are read at runtime from ../data relative to the compiled
+# lookups, so they ship next to dist rather than being bundled into it
+COPY --from=builder --chown=node:node /app/shared/data ./shared/data
 COPY --from=builder --chown=node:node /app/agent/package.json ./agent/package.json
 COPY --from=builder --chown=node:node /app/agent/dist ./agent/dist
 

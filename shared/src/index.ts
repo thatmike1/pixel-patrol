@@ -48,6 +48,27 @@ export type {
   IncompatibleDiff,
 } from "./diff.js";
 
+export { allCookies, lookupCookie } from "./cookie-db.js";
+export type { KnownCookie } from "./cookie-db.js";
+
+export { allTrackers, lookupTracker } from "./tracker-db.js";
+export type { KnownTracker } from "./tracker-db.js";
+
+export {
+  brandToken,
+  heuristicCookieCategory,
+  heuristicHostCategory,
+  lookupCookieKnowledge,
+  lookupHostKnowledge,
+  trackerCategories,
+} from "./knowledge.js";
+export type {
+  CookieKnowledge,
+  HostKnowledge,
+  RelatedCookie,
+  RelatedTracker,
+} from "./knowledge.js";
+
 export {
   alertKeys,
   analyseStability,

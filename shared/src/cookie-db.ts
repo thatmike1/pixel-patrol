@@ -4,13 +4,17 @@
  *
  * the JSON file is seeded from Open Cookie Database, Cookiepedia, and
  * Czech-specific sources (Shoptet, Heureka, Sklik, Seznam, etc.).
+ *
+ * shared for the same reason as the tracker table: the redline the agent writes
+ * quotes cookie purposes and durations out of this file, and they have to be
+ * the ones the scanner classified against.
  */
 
 import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import type { CookieCategory } from "./types.js";
+import type { CookieCategory } from "./fingerprint.js";
 
 /** shape of a single entry in known-cookies.json */
 export interface KnownCookie {
@@ -83,4 +87,17 @@ export function lookupCookie(name: string): KnownCookie | null {
   }
 
   return null;
+}
+
+/**
+ * every entry in the cookie table, exact and pattern alike.
+ *
+ * see {@link allTrackers} — the redline needs to search the table by vendor,
+ * not only by cookie name.
+ *
+ * @returns the entries, exact ones first
+ */
+export function allCookies(): KnownCookie[] {
+  ensureLoaded();
+  return [...exactMap!.values(), ...patterns!.map((entry) => entry.cookie)];
 }
