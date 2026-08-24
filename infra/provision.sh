@@ -84,9 +84,12 @@ done
 for ROLE in roles/datastore.user roles/logging.logWriter; do
   gcloud projects add-iam-policy-binding "$PROJECT_ID" --member="serviceAccount:${CRAWL_SA}" --role="$ROLE" --condition=None >/dev/null
 done
-# the demo page server reads files off its own disk. it needs to be able to log, and
-# nothing else at all.
-gcloud projects add-iam-policy-binding "$PROJECT_ID" --member="serviceAccount:${PAGES_SA}" --role=roles/logging.logWriter --condition=None >/dev/null
+# the demo page server gets no roles at all. it reads files off its own disk and needs
+# nothing from the project — not even logging.logWriter: Cloud Run forwards a container's
+# stdout itself rather than writing it as the service identity, which was checked by
+# giving this account nothing and watching its startup line still arrive in
+# run.googleapis.com%2Fstdout.
+
 # the agent may run the crawler job as the crawler identity
 gcloud iam service-accounts add-iam-policy-binding "$CRAWL_SA" \
   --member="serviceAccount:${AGENT_SA}" --role=roles/iam.serviceAccountUser >/dev/null
