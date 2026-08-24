@@ -120,6 +120,44 @@ export interface Decision {
   model: string;
 }
 
+/**
+ * one row of a record of processing activities, in the field shape the
+ * gdpr-toolkit's RoPA export expects. Czech text, because it is written for a
+ * Czech site owner to hand to a Czech supervisory authority.
+ */
+export interface RopaRow {
+  name: string;
+  purpose: string;
+  legal_basis: string;
+  data_categories: string[];
+  data_subject_categories: string[];
+  recipients: string[];
+  retention_period: string;
+  third_country_transfers: string;
+  is_dpia_required: boolean;
+  notes: string;
+}
+
+/**
+ * the paperwork one drift decision generates, at
+ * sites/{siteId}/redlines/{sweepId}.
+ *
+ * keyed by sweepId like the decision it follows, so a Pub/Sub redelivery
+ * rewrites the same document rather than leaving an owner with two conflicting
+ * versions of the same edit.
+ */
+export interface Redline {
+  siteId: string;
+  sweepId: string;
+  /** Czech edit instructions for the site's cookie policy */
+  policyRedline: string;
+  ropaRow: RopaRow;
+  /** the domains the redline was written about, copied from the decision */
+  domains: string[];
+  at: string;
+  model: string;
+}
+
 // ---------------------------------------------------------------------------
 // messages
 // ---------------------------------------------------------------------------

@@ -12,150 +12,15 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import type { Fingerprint, FingerprintCookie, FingerprintHost } from "@pixel-patrol/shared";
-
 import { analyseDrift, verdictOf } from "./drift.js";
 import type { DriftOptions } from "./drift.js";
 import { pendingFields } from "./firestore.js";
-import type { PendingUpdate, Store } from "./firestore.js";
+import type { Store } from "./firestore.js";
 import { loadComparison, NotFoundError, toSweepContext } from "./sweep-context.js";
+import { cookie, fakeStore, fingerprint, host, OPTIONS } from "./test-support.js";
 import { approveBaseline } from "./tools/approve-baseline.js";
 import { recordDecision } from "./tools/record-decision.js";
 import type { RecordDecisionArgs } from "./tools/record-decision.js";
-import type { Decision, Site, SweepRecord } from "./types.js";
-
-// ---------------------------------------------------------------------------
-// fixtures
-// ---------------------------------------------------------------------------
-
-const OPTIONS: DriftOptions = { stabilityWindow: 5, goneAfter: 3 };
-
-/** a host entry whose registrable domain is the hostname */
-function host(domain: string, overrides: Partial<FingerprintHost> = {}): FingerprintHost {
-  return {
-    host: domain,
-    registrableDomain: domain,
-    vendor: null,
-    category: "unclassified",
-    type: "script",
-    ...overrides,
-  };
-}
-
-/** a cookie entry with sane defaults */
-function cookie(name: string, domain: string): FingerprintCookie {
-  return {
-    name,
-    domain,
-    path: "/",
-    category: "unclassified",
-    isFirstParty: false,
-    durationSeconds: null,
-  };
-}
-
-/** minutes-apart sweep timestamps, so `scannedAt` ordering is unambiguous */
-function at(index: number): string {
-  return new Date(Date.UTC(2026, 7, 21, 12, index)).toISOString();
-}
-
-/** a generation 2 fingerprint */
-function fingerprint(
-  sweepId: string,
-  minute: number,
-  hosts: FingerprintHost[],
-  cookies: FingerprintCookie[] = [],
-  overrides: Partial<Fingerprint> = {},
-): Fingerprint {
-  return {
-    schemaVersion: 2,
-    siteId: "smoke",
-    sweepId,
-    siteUrl: "https://example.test",
-    scannedAt: at(minute),
-    pagesScanned: 5,
-    hosts,
-    cookies,
-    preConsentNonNecessaryCount: 0,
-    complianceScore: 100,
-    hash: `hash-${sweepId}`,
-    ...overrides,
-  };
-}
-
-/** what a fake store recorded, for assertions */
-interface Recorded {
-  decisions: Decision[];
-  pending: PendingUpdate[];
-  approvals: string[];
-}
-
-/**
- * an in-memory Store.
- *
- * it implements the same queries Firestore does, including the ordering and the
- * "strictly before" bound, because those are the parts the window depends on.
- */
-function fakeStore(
-  site: Site | null,
-  fingerprints: Fingerprint[],
-): { store: Store; recorded: Recorded } {
-  const recorded: Recorded = { decisions: [], pending: [], approvals: [] };
-  let current = site;
-
-  const store: Store = {
-    async listSites() {
-      return current ? [current] : [];
-    },
-    async getSite() {
-      return current;
-    },
-    async upsertSite(next) {
-      current = { ...(current ?? next), ...next };
-    },
-    async setApprovedBaseline(_siteId, sweepId) {
-      recorded.approvals.push(sweepId);
-      if (current) {
-        current = { ...current, approvedBaselineId: sweepId };
-        delete current.pendingDomains;
-        delete current.pendingCookies;
-        delete current.pendingSweepId;
-      }
-    },
-    async setPending(_siteId, update) {
-      recorded.pending.push(update);
-      if (current) {
-        current = {
-          ...current,
-          pendingDomains: [...new Set([...(current.pendingDomains ?? []), ...update.domains])],
-          pendingCookies: [...new Set([...(current.pendingCookies ?? []), ...update.cookies])],
-          pendingSweepId: update.sweepId,
-        };
-      }
-    },
-    async getFingerprint(_siteId, sweepId) {
-      return fingerprints.find((fp) => fp.sweepId === sweepId) ?? null;
-    },
-    async listFingerprintsBefore(_siteId, before, limit, excludeSweepId) {
-      return fingerprints
-        .filter((fp) => fp.scannedAt < before && fp.sweepId !== excludeSweepId)
-        .sort((a, b) => (a.scannedAt < b.scannedAt ? 1 : -1))
-        .slice(0, limit);
-    },
-    async recordSweepDispatch(_siteId: string, _sweepId: string, _record: SweepRecord) {},
-    async writeDecision(decision) {
-      recorded.decisions.push(decision);
-    },
-    async getDecision(_siteId, sweepId) {
-      return recorded.decisions.find((d) => d.sweepId === sweepId) ?? null;
-    },
-    async listDecisions(_siteId, limit) {
-      return recorded.decisions.slice(-limit).reverse();
-    },
-  };
-
-  return { store, recorded };
-}
 
 /** the verdict for a sweep, asserted to exist */
 async function analyse(store: Store, sweepId: string, options: DriftOptions = OPTIONS) {

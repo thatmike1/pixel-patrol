@@ -5,6 +5,7 @@
  *     fingerprints/{sweepId}   written by the crawler, never by this service
  *     sweeps/{sweepId}         dispatch record: when we asked for the crawl
  *     decisions/{sweepId}      what the analyst concluded
+ *     redlines/{sweepId}       the policy edit and RoPA row a drift decision produced
  *
  * every read that crosses into the model goes through here, so the shapes the
  * tools hand to Gemini are the shapes this file returns and nothing wider.
@@ -14,7 +15,7 @@
 
 import { FieldValue, Firestore } from "@google-cloud/firestore";
 
-import type { Decision, Fingerprint, Site, SweepRecord } from "./types.js";
+import type { Decision, Fingerprint, Redline, Site, SweepRecord } from "./types.js";
 
 /** the entries a sweep reported and parked for a human to accept or reject */
 export interface PendingUpdate {
@@ -45,6 +46,9 @@ export interface Store {
   writeDecision(decision: Decision): Promise<void>;
   getDecision(siteId: string, sweepId: string): Promise<Decision | null>;
   listDecisions(siteId: string, limit: number): Promise<Decision[]>;
+  writeRedline(redline: Redline): Promise<void>;
+  getRedline(siteId: string, sweepId: string): Promise<Redline | null>;
+  listRedlines(siteId: string, limit: number): Promise<Redline[]>;
 }
 
 /**
@@ -193,6 +197,34 @@ export function createStore(projectId: string): Store {
     async getDecision(siteId: string, sweepId: string): Promise<Decision | null> {
       const doc = await sites.doc(siteId).collection("decisions").doc(sweepId).get();
       return doc.exists ? (doc.data() as Decision) : null;
+    },
+
+    /**
+     * writes the paperwork for one drift decision. keyed by sweepId for the
+     * same reason the decision is: the scribe runs again on a redelivery, and
+     * an owner must not end up with two redlines for one finding.
+     */
+    async writeRedline(redline: Redline): Promise<void> {
+      await sites
+        .doc(redline.siteId)
+        .collection("redlines")
+        .doc(redline.sweepId)
+        .set(redline, { merge: false });
+    },
+
+    async getRedline(siteId: string, sweepId: string): Promise<Redline | null> {
+      const doc = await sites.doc(siteId).collection("redlines").doc(sweepId).get();
+      return doc.exists ? (doc.data() as Redline) : null;
+    },
+
+    async listRedlines(siteId: string, limit: number): Promise<Redline[]> {
+      const snapshot = await sites
+        .doc(siteId)
+        .collection("redlines")
+        .orderBy("at", "desc")
+        .limit(limit)
+        .get();
+      return snapshot.docs.map((doc) => doc.data() as Redline);
     },
 
     async listDecisions(siteId: string, limit: number): Promise<Decision[]> {
