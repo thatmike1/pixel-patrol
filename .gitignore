@@ -3,3 +3,9 @@ node_modules/
 __pycache__/
 .venv/
 *.pyc
+
+# video rig artifacts
+video-rig/*.mp4
+video-rig/profile/
+video-rig/marks.txt
+video-rig/issue-url.txt

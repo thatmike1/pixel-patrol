@@ -1,0 +1,28 @@
+<!doctype html><meta charset="utf-8"><title>Pixel Patrol</title>
+<style>
+ html,body{margin:0;height:100%;background:#0b1020;color:#e8eef6;
+   font:400 28px/1.5 "DejaVu Sans",system-ui,sans-serif;display:grid;place-items:center}
+ .card{max-width:1200px;padding:0 80px;opacity:0;transition:opacity .6s}
+ .card.on{opacity:1}
+ h1{font-size:76px;margin:0 0 24px;letter-spacing:-1px}
+ .sub{color:#8fa3bf;font-size:32px}
+ .k{color:#5cd0c8}
+ ul{margin:32px 0 0;padding-left:28px} li{margin:14px 0}
+</style>
+<div class="card" id="c">
+  <h1>Pixel&nbsp;Patrol</h1>
+  <div class="sub">An autonomous watchdog for tracker drift on websites you are legally liable for.</div>
+</div>
+<script>
+ const c=document.getElementById('c');
+ const slides=[
+  ['Pixel Patrol','An autonomous watchdog for tracker drift on the websites you are legally liable for.'],
+  ['The problem','A marketer pastes a tag. Your cookie policy is now wrong, and nobody finds out until a regulator does.'],
+  ['What it does','Sweeps your pages on a schedule, decides whether a change is real or noise, and files a ticket with a redlined policy.'],
+  ['Nothing is staged','The pages are ours. Everything after the edit is the agent. Watch the clock.'],
+ ];
+ let i=0;
+ function show(){const [h,s]=slides[i];c.classList.remove('on');
+  setTimeout(()=>{c.innerHTML='<h1>'+h+'</h1><div class="sub">'+s+'</div>';c.classList.add('on');},600);}
+ show(); window.__next=()=>{i=Math.min(i+1,slides.length-1);show();};
+</script>
