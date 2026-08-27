@@ -18,7 +18,7 @@ mark SWEEP_SENT
 
 log_window_reset
 say "live from Cloud Logging while the pipeline runs:"
-stream_logs 210 "analysis complete	demo-atelier"
+stream_logs 210 "analysis complete	demo-atelier	noop"
 
 say "verdict"
 api GET "/sites/demo-atelier/decisions?limit=1" | jq '.decisions[0] | {action, noiseCount, summary}'
