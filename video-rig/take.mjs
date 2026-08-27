@@ -35,7 +35,7 @@ const page = ctx.pages()[0] ?? await ctx.newPage();
 await page.goto(`file://${RIG}/cards/title.html`);
 
 const term = spawn('xterm', ['-fa', 'DejaVu Sans Mono', '-fs', '15', '-bg', '#0d1117', '-fg', '#c9d1d9',
-  '-b', '16', '-bc', '-e', `${RIG}/${script}`], { env: { ...env, LC_ALL: 'C' }, detached: true, stdio: 'ignore' });
+  '-b', '16', '-bc', '-e', `${RIG}/${script}`], { env: { ...env, LC_ALL: 'C.UTF-8' }, detached: true, stdio: 'ignore' });
 await sleep(3000);
 xdo('windowmove', winId(['--class', 'XTerm']), '0', '0');
 xdo('windowsize', winId(['--class', 'XTerm']), String(TERM_W), String(H));
