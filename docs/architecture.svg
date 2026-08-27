@@ -1,220 +1,231 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1040" width="1200" height="1040" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1196" width="2000" height="1196" font-family="Inter, 'Liberation Sans', Arial, Helvetica, sans-serif">
   <title>Pixel Patrol architecture</title>
   <desc>One scheduled tick becomes a crawl, a deterministic diff, two Gemini agents and a filed ticket. Judgement lives in the agents; everything that must be exactly right is code.</desc>
 
   <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
     </marker>
-    <marker id="arrow-dash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f766e"/>
-    </marker>
-    <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <marker id="a-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#b45309"/>
     </marker>
   </defs>
 
-  <rect x="0" y="0" width="1200" height="1040" fill="#ffffff"/>
+  <rect x="0" y="0" width="2000" height="1196" fill="#ffffff"/>
 
-  <!-- ── title ─────────────────────────────────────────────────────────── -->
-  <text x="40" y="46" font-size="27" font-weight="700" fill="#0f172a">Pixel Patrol</text>
-  <text x="40" y="70" font-size="14.5" fill="#475569">GDPR drift watchdog. A scheduled tick becomes a crawl, a deterministic diff, two Gemini</text>
-  <text x="40" y="88" font-size="14.5" fill="#475569">agents and a filed ticket, with no human step inside the run.</text>
-  <text x="40" y="108" font-size="13" fill="#64748b">Google Cloud, europe-west1. Gemini 3.5 Flash on Vertex AI, global endpoint.</text>
+  <!-- ═══ header ═══════════════════════════════════════════════════════ -->
+  <text x="64" y="62" font-size="36" font-weight="700" fill="#0f172a">Pixel Patrol</text>
+  <text x="64" y="92" font-size="17" fill="#475569">A GDPR drift watchdog. One scheduled tick becomes a crawl, a deterministic diff, two Gemini agents and a filed ticket.</text>
+  <text x="64" y="114" font-size="14.5" fill="#64748b">Google Cloud, europe-west1. Gemini 3.5 Flash on Vertex AI, global endpoint. There is no human step inside the run.</text>
 
-  <!-- ── legend ────────────────────────────────────────────────────────── -->
-  <g font-size="12" fill="#334155">
-    <rect x="852" y="34" width="26" height="16" rx="4" fill="#eef2f7" stroke="#64748b" stroke-width="1.4"/>
-    <text x="888" y="46">deterministic code, no model involved</text>
-    <rect x="852" y="58" width="26" height="16" rx="4" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.4"/>
-    <text x="888" y="70">Gemini 3.5 Flash agent (ADK LlmAgent)</text>
-    <rect x="852" y="82" width="26" height="16" rx="4" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.4"/>
-    <text x="888" y="94">managed Google Cloud service</text>
+  <!-- legend -->
+  <g font-size="14" fill="#334155">
+    <rect x="1380" y="52" width="26" height="17" rx="4" fill="#f1f5f9" stroke="#64748b" stroke-width="1.6"/>
+    <text x="1416" y="66">deterministic code, no model</text>
+    <rect x="1380" y="84" width="26" height="17" rx="4" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.4"/>
+    <text x="1416" y="98">Gemini 3.5 Flash agent, ADK</text>
+    <rect x="1680" y="52" width="26" height="17" rx="4" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.6"/>
+    <text x="1716" y="66">managed Google Cloud service</text>
+    <rect x="1680" y="84" width="26" height="17" rx="4" fill="#fffbeb" stroke="#b45309" stroke-width="1.6" stroke-dasharray="5 3"/>
+    <text x="1716" y="98">dead-letter path, 5 attempts</text>
   </g>
+  <line x1="64" y1="130" x2="1936" y2="130" stroke="#e2e8f0" stroke-width="1.4"/>
 
-  <!-- ── column headers ────────────────────────────────────────────────── -->
-  <g font-size="11.5" font-weight="700" fill="#94a3b8" letter-spacing="1.2">
-    <text x="40" y="134">TRIGGER, MESSAGING, TARGET</text>
-    <text x="330" y="134">PIPELINE</text>
-    <text x="840" y="134">STATE, CREDENTIALS, DELIVERY</text>
+  <text x="64" y="190" font-size="16" fill="#475569">Follow the numbers: one sweep of one site, from the scheduled tick to the ticket that lands in an inbox.</text>
+  <text x="64" y="214" font-size="16" fill="#64748b">The unnumbered boxes are what that path touches: the watched pages, the credentials, the shared state, and what leaves.</text>
+
+  <!-- ═══ row 1 : the tick and the crawl ═══════════════════════════════ -->
+
+  <!-- 1 Cloud Scheduler -->
+  <rect x="64" y="260" width="282" height="140" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.8"/>
+  <text x="328" y="286" font-size="12.5" fill="#7dd3fc" text-anchor="end">Google Cloud</text>
+  <text x="86" y="310" font-size="20" font-weight="700" fill="#0c4a6e">Cloud Scheduler</text>
+  <text x="86" y="338" font-size="14.5" fill="#0369a1">0 * * * *, one tick an hour into</text>
+  <text x="86" y="359" font-size="14.5" fill="#0369a1">Pub/Sub topic sweep-tick, pushed</text>
+  <text x="86" y="380" font-size="14.5" fill="#0369a1">to the agent with an OIDC token</text>
+
+  <!-- 2 fan out -->
+  <rect x="396" y="260" width="340" height="140" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.8"/>
+  <text x="718" y="286" font-size="12.5" fill="#94a3b8" text-anchor="end">patrol-agent · Cloud Run service</text>
+  <text x="418" y="310" font-size="20" font-weight="700" fill="#0f172a">POST /trigger/tick</text>
+  <text x="418" y="338" font-size="14.5" fill="#475569">reads the site register and publishes</text>
+  <text x="418" y="359" font-size="14.5" fill="#475569">one message per enabled site, so one</text>
+  <text x="418" y="380" font-size="14.5" fill="#475569">bad site cannot stall the fleet</text>
+
+  <!-- 3 site-sweep -->
+  <rect x="786" y="260" width="250" height="140" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.8"/>
+  <text x="1018" y="286" font-size="12.5" fill="#7dd3fc" text-anchor="end">Pub/Sub topic</text>
+  <text x="808" y="310" font-size="20" font-weight="700" fill="#0c4a6e">site-sweep</text>
+  <text x="808" y="338" font-size="14.5" fill="#0369a1">one message per site,</text>
+  <text x="808" y="359" font-size="14.5" fill="#0369a1">push subscription with</text>
+  <text x="808" y="380" font-size="14.5" fill="#0369a1">an OIDC token</text>
+
+  <rect x="786" y="428" width="250" height="58" rx="9" fill="#fffbeb" stroke="#b45309" stroke-width="1.6" stroke-dasharray="5 3"/>
+  <text x="808" y="450" font-size="14" font-weight="700" fill="#92400e">site-sweep-dlq</text>
+  <text x="808" y="470" font-size="12.5" fill="#b45309">after 5 attempts, held 7 days</text>
+
+  <!-- 4 start the job -->
+  <rect x="1086" y="260" width="340" height="140" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.8"/>
+  <text x="1408" y="286" font-size="12.5" fill="#94a3b8" text-anchor="end">patrol-agent · Cloud Run service</text>
+  <text x="1108" y="310" font-size="20" font-weight="700" fill="#0f172a">POST /trigger/site-sweep</text>
+  <text x="1108" y="338" font-size="14.5" fill="#475569">starts one patrol-crawler execution</text>
+  <text x="1108" y="359" font-size="14.5" fill="#475569">and lets go, because a crawl outlives</text>
+  <text x="1108" y="380" font-size="14.5" fill="#475569">the push that asked for it</text>
+
+  <!-- 5 the crawler -->
+  <rect x="1476" y="260" width="460" height="140" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.8"/>
+  <text x="1918" y="286" font-size="12.5" fill="#94a3b8" text-anchor="end">patrol-crawler · Cloud Run Job</text>
+  <text x="1498" y="310" font-size="20" font-weight="700" fill="#0f172a">Playwright crawl and fingerprint</text>
+  <text x="1498" y="338" font-size="14.5" fill="#475569">loads the page, clicks through the consent banner, and</text>
+  <text x="1498" y="359" font-size="14.5" fill="#475569">records every third-party registrable domain and cookie</text>
+  <text x="1498" y="380" font-size="14.5" fill="#475569">it sees, then writes that fingerprint to Firestore</text>
+
+  <!-- the watched pages -->
+  <rect x="1636" y="146" width="300" height="80" rx="9" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.8"/>
+  <text x="1658" y="174" font-size="17" font-weight="700" fill="#0c4a6e">demo-sites</text>
+  <text x="1658" y="195" font-size="13.5" fill="#0369a1">five watched pages loading real</text>
+  <text x="1658" y="214" font-size="13.5" fill="#0369a1">third-party tags. Cloud Run, public.</text>
+
+  <!-- row 1 arrows -->
+  <g stroke="#334155" stroke-width="2.2" fill="none" stroke-linejoin="round">
+    <path d="M 346 330 L 392 330" marker-end="url(#a)"/>
+    <path d="M 736 330 L 782 330" marker-end="url(#a)"/>
+    <path d="M 1036 330 L 1082 330" marker-end="url(#a)"/>
+    <path d="M 1426 330 L 1472 330" marker-end="url(#a)"/>
+    <path d="M 1786 260 L 1786 230" marker-end="url(#a)"/>
   </g>
-  <line x1="40" y1="142" x2="1160" y2="142" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="1770" y="250" font-size="13" fill="#64748b" text-anchor="end">no auth, like any visitor</text>
+  <path d="M 911 400 L 911 424" stroke="#b45309" stroke-width="1.8" fill="none" marker-end="url(#a-amber)"/>
 
-  <!-- ══ row 1: the tick ═══════════════════════════════════════════════ -->
+  <!-- ═══ the wrap : the crawl reports back ════════════════════════════ -->
+  <path d="M 1706 400 L 1706 512 L 185 512 L 185 664" stroke="#334155" stroke-width="2.2" fill="none" stroke-linejoin="round" marker-end="url(#a)"/>
+  <text x="640" y="540" font-size="15" fill="#475569" text-anchor="middle">the crawl finishes and publishes its result to Pub/Sub sweep-done</text>
+
+  <!-- ═══ row 2 : the diff, the judgement, the ticket ══════════════════ -->
+
+  <!-- 6 sweep-done -->
+  <rect x="64" y="668" width="250" height="126" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.8"/>
+  <text x="296" y="694" font-size="12.5" fill="#7dd3fc" text-anchor="end">Pub/Sub topic</text>
+  <text x="86" y="718" font-size="20" font-weight="700" fill="#0c4a6e">sweep-done</text>
+  <text x="86" y="746" font-size="14.5" fill="#0369a1">300 second ack, so the</text>
+  <text x="86" y="767" font-size="14.5" fill="#0369a1">analysis runs behind the</text>
+  <text x="86" y="788" font-size="14.5" fill="#0369a1">delivery</text>
+
+  <rect x="64" y="820" width="250" height="58" rx="9" fill="#fffbeb" stroke="#b45309" stroke-width="1.6" stroke-dasharray="5 3"/>
+  <text x="86" y="842" font-size="14" font-weight="700" fill="#92400e">sweep-done-dlq</text>
+  <text x="86" y="862" font-size="12.5" fill="#b45309">after 5 attempts, held 7 days</text>
+
+  <!-- 7 diff and stability window -->
+  <rect x="364" y="646" width="400" height="170" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.8"/>
+  <text x="746" y="672" font-size="12.5" fill="#94a3b8" text-anchor="end">patrol-agent · Cloud Run service</text>
+  <text x="386" y="696" font-size="20" font-weight="700" fill="#0f172a">POST /trigger/sweep-done</text>
+  <text x="386" y="726" font-size="14.5" fill="#475569">set difference against the approved baseline, then</text>
+  <text x="386" y="747" font-size="14.5" fill="#475569">every entry judged against the site's own last five</text>
+  <text x="386" y="768" font-size="14.5" fill="#475569">sweeps. New, returning and gone alert. Flapping,</text>
+  <text x="386" y="789" font-size="14.5" fill="#475569">missing once and pending do not.</text>
+
+  <!-- 8 drift analyst -->
+  <rect x="814" y="570" width="400" height="142" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.6"/>
+  <text x="1196" y="596" font-size="12.5" fill="#a78bfa" text-anchor="end">ADK LlmAgent · gemini-3.5-flash</text>
+  <text x="836" y="620" font-size="20" font-weight="700" fill="#2e1065">drift analyst</text>
+  <text x="836" y="648" font-size="14.5" fill="#4c1d95">reads a diff it cannot redraw, looks each new</text>
+  <text x="836" y="669" font-size="14.5" fill="#4c1d95">domain up in the vendor tables, and records one</text>
+  <text x="836" y="690" font-size="14.5" fill="#4c1d95">verdict: noop, drift or baseline-created</text>
+
+  <!-- 9 compliance scribe -->
+  <rect x="814" y="752" width="400" height="140" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.6"/>
+  <text x="1196" y="778" font-size="12.5" fill="#a78bfa" text-anchor="end">ADK LlmAgent · gemini-3.5-flash</text>
+  <text x="836" y="802" font-size="20" font-weight="700" fill="#2e1065">compliance scribe</text>
+  <text x="836" y="830" font-size="14.5" fill="#4c1d95">writes the Czech cookie-policy redline naming each</text>
+  <text x="836" y="851" font-size="14.5" fill="#4c1d95">vendor's cookies and their durations, plus the RoPA</text>
+  <text x="836" y="872" font-size="14.5" fill="#4c1d95">row the change obliges the owner to file</text>
+
+  <!-- 10 notifier -->
+  <rect x="1264" y="661" width="330" height="140" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.8"/>
+  <text x="1576" y="687" font-size="12.5" fill="#94a3b8" text-anchor="end">patrol-agent · Cloud Run service</text>
+  <text x="1286" y="711" font-size="20" font-weight="700" fill="#0f172a">notifier</text>
+  <text x="1286" y="739" font-size="14.5" fill="#475569">deterministic, idempotent per sweep id.</text>
+  <text x="1286" y="760" font-size="14.5" fill="#475569">It reads what already went out, so a</text>
+  <text x="1286" y="781" font-size="14.5" fill="#475569">redelivery sends only what did not.</text>
+
+  <!-- secret manager -->
+  <rect x="1264" y="543" width="330" height="76" rx="9" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.8"/>
+  <text x="1286" y="570" font-size="17" font-weight="700" fill="#0c4a6e">Secret Manager</text>
+  <text x="1286" y="591" font-size="13.5" fill="#0369a1">GitHub token and Resend key, read</text>
+  <text x="1286" y="610" font-size="13.5" fill="#0369a1">at instance start</text>
+
+  <!-- what leaves the system -->
+  <rect x="1644" y="636" width="292" height="90" rx="9" fill="#ffffff" stroke="#334155" stroke-width="1.8"/>
+  <text x="1666" y="664" font-size="17" font-weight="700" fill="#0f172a">GitHub issue</text>
+  <text x="1666" y="686" font-size="13.5" fill="#475569">thatmike1/pixel-patrol-tickets,</text>
+  <text x="1666" y="705" font-size="13.5" fill="#475569">with the redline in the body</text>
+
+  <rect x="1644" y="736" width="292" height="90" rx="9" fill="#ffffff" stroke="#334155" stroke-width="1.8"/>
+  <text x="1666" y="764" font-size="17" font-weight="700" fill="#0f172a">Email to the site owner</text>
+  <text x="1666" y="786" font-size="13.5" fill="#475569">Resend, from a verified sending</text>
+  <text x="1666" y="805" font-size="13.5" fill="#475569">domain. One mail per finding.</text>
+
+  <!-- row 2 arrows -->
+  <g stroke="#334155" stroke-width="2.2" fill="none" stroke-linejoin="round">
+    <path d="M 314 731 L 360 731" marker-end="url(#a)"/>
+    <path d="M 764 731 L 789 731 L 789 641 L 810 641" marker-end="url(#a)"/>
+    <path d="M 1014 712 L 1014 748" marker-end="url(#a)"/>
+    <path d="M 1214 822 L 1239 822 L 1239 731 L 1260 731" marker-end="url(#a)"/>
+    <path d="M 1594 731 L 1619 731"/>
+    <path d="M 1619 731 L 1619 681 L 1640 681" marker-end="url(#a)"/>
+    <path d="M 1619 731 L 1619 781 L 1640 781" marker-end="url(#a)"/>
+    <path d="M 1429 619 L 1429 657" marker-end="url(#a)"/>
+  </g>
+  <text x="1030" y="740" font-size="13.5" fill="#64748b">only on drift</text>
+  <path d="M 189 794 L 189 816" stroke="#b45309" stroke-width="1.8" fill="none" marker-end="url(#a-amber)"/>
+
+  <!-- ═══ the state everything shares ══════════════════════════════════ -->
+  <rect x="64" y="930" width="1872" height="190" rx="10" fill="#ecfdf5" stroke="#059669" stroke-width="1.8"/>
+  <text x="1918" y="958" font-size="12.5" fill="#6ee7b7" text-anchor="end">Firestore, native mode</text>
+  <text x="86" y="962" font-size="20" font-weight="700" fill="#064e3b">Firestore holds the whole state of the system</text>
+  <text x="86" y="988" font-size="14.5" fill="#047857">Every stage reads and writes here, and nothing is held in memory between deliveries. The sweep id is the idempotency key throughout, so a redelivery re-runs the analysis, stops at the notification that already exists, and one finding leaves the system exactly once.</text>
+
   <g>
-    <rect x="40" y="152" width="210" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.4"/>
-    <text x="56" y="172" font-size="14" font-weight="700" fill="#0c4a6e">Cloud Scheduler</text>
-    <text x="56" y="189" font-size="11.5" fill="#0369a1">sweep-tick · 0 * * * *</text>
+    <rect x="86" y="1004" width="352" height="98" rx="8" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.6"/>
+    <text x="106" y="1030" font-size="14.5" font-weight="700" fill="#065f46">sites/{siteId}</text>
+    <text x="106" y="1054" font-size="13" fill="#047857">url, owner email, enabled, the approved</text>
+    <text x="106" y="1073" font-size="13" fill="#047857">baseline, pending domains and cookies</text>
 
-    <rect x="40" y="210" width="210" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.4"/>
-    <text x="56" y="230" font-size="14" font-weight="700" fill="#0c4a6e">Pub/Sub · sweep-tick</text>
-    <text x="56" y="247" font-size="11.5" fill="#0369a1">push, OIDC token per endpoint</text>
+    <rect x="453" y="1004" width="352" height="98" rx="8" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.6"/>
+    <text x="473" y="1030" font-size="14.5" font-weight="700" fill="#065f46">…/fingerprints/{sweepId}</text>
+    <text x="473" y="1054" font-size="13" fill="#047857">what the crawler saw on one sweep,</text>
+    <text x="473" y="1073" font-size="13" fill="#047857">hashed</text>
 
-    <path d="M 145 198 L 145 208" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
-    <path d="M 250 233 L 324 205" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
+    <rect x="820" y="1004" width="352" height="98" rx="8" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.6"/>
+    <text x="840" y="1030" font-size="14.5" font-weight="700" fill="#065f46">…/decisions/{sweepId}</text>
+    <text x="840" y="1054" font-size="13" fill="#047857">the analyst's verdict and its</text>
+    <text x="840" y="1073" font-size="13" fill="#047857">classifications</text>
 
-    <rect x="330" y="162" width="430" height="80" rx="10" fill="#eef2f7" stroke="#64748b" stroke-width="1.6"/>
-    <text x="748" y="180" font-size="10.5" fill="#94a3b8" text-anchor="end">patrol-agent · Cloud Run service</text>
-    <text x="350" y="200" font-size="15" font-weight="700" fill="#0f172a">POST /trigger/tick</text>
-    <text x="350" y="219" font-size="12" fill="#475569">reads the site register, publishes one message per enabled site</text>
-    <text x="350" y="235" font-size="12" fill="#475569">a site whose crawl fails cannot stall the rest of the fleet</text>
+    <rect x="1187" y="1004" width="352" height="98" rx="8" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.6"/>
+    <text x="1207" y="1030" font-size="14.5" font-weight="700" fill="#065f46">…/redlines/{sweepId}</text>
+    <text x="1207" y="1054" font-size="13" fill="#047857">the scribe's Czech redline and the</text>
+    <text x="1207" y="1073" font-size="13" fill="#047857">RoPA row</text>
+
+    <rect x="1554" y="1004" width="352" height="98" rx="8" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.6"/>
+    <text x="1574" y="1030" font-size="14.5" font-weight="700" fill="#065f46">…/notifications/{sweepId}</text>
+    <text x="1574" y="1054" font-size="13" fill="#047857">what left the system, and what</text>
+    <text x="1574" y="1073" font-size="13" fill="#047857">failed to</text>
   </g>
 
-  <!-- ══ row 2: one message per site ═══════════════════════════════════ -->
-  <g>
-    <rect x="40" y="272" width="210" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.4"/>
-    <text x="56" y="292" font-size="14" font-weight="700" fill="#0c4a6e">Pub/Sub · site-sweep</text>
-    <text x="56" y="309" font-size="11.5" fill="#0369a1">one message per site</text>
-
-    <rect x="40" y="326" width="210" height="34" rx="8" fill="#fef3c7" stroke="#b45309" stroke-width="1.3" stroke-dasharray="5 3"/>
-    <text x="56" y="342" font-size="12" font-weight="700" fill="#92400e">DLQ · site-sweep-dlq</text>
-    <text x="56" y="355" font-size="10.5" fill="#b45309">after 5 attempts, 7d retention</text>
-
-    <path d="M 145 318 L 145 324" stroke="#b45309" stroke-width="1.3" fill="none" marker-end="url(#arrow-amber)"/>
-    <path d="M 400 242 L 400 264 L 145 264 L 145 270" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
-    <path d="M 250 295 L 324 315" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
-
-    <rect x="330" y="282" width="430" height="66" rx="10" fill="#eef2f7" stroke="#64748b" stroke-width="1.6"/>
-    <text x="748" y="300" font-size="10.5" fill="#94a3b8" text-anchor="end">patrol-agent · Cloud Run service</text>
-    <text x="350" y="320" font-size="15" font-weight="700" fill="#0f172a">POST /trigger/site-sweep</text>
-    <text x="350" y="339" font-size="12" fill="#475569">starts one Cloud Run Job execution and lets go: a crawl outlives a push</text>
+  <!-- ═══ step badges ══════════════════════════════════════════════════ -->
+  <g font-size="15" font-weight="700" text-anchor="middle">
+    <circle cx="84" cy="260" r="17" fill="#0f172a" stroke="#ffffff" stroke-width="3"/><text x="84" y="266" fill="#ffffff">1</text>
+    <circle cx="416" cy="260" r="17" fill="#0f172a" stroke="#ffffff" stroke-width="3"/><text x="416" y="266" fill="#ffffff">2</text>
+    <circle cx="806" cy="260" r="17" fill="#0f172a" stroke="#ffffff" stroke-width="3"/><text x="806" y="266" fill="#ffffff">3</text>
+    <circle cx="1106" cy="260" r="17" fill="#0f172a" stroke="#ffffff" stroke-width="3"/><text x="1106" y="266" fill="#ffffff">4</text>
+    <circle cx="1496" cy="260" r="17" fill="#0f172a" stroke="#ffffff" stroke-width="3"/><text x="1496" y="266" fill="#ffffff">5</text>
+    <circle cx="84" cy="668" r="17" fill="#0f172a" stroke="#ffffff" stroke-width="3"/><text x="84" y="674" fill="#ffffff">6</text>
+    <circle cx="384" cy="646" r="17" fill="#0f172a" stroke="#ffffff" stroke-width="3"/><text x="384" y="652" fill="#ffffff">7</text>
+    <circle cx="834" cy="570" r="17" fill="#7c3aed" stroke="#ffffff" stroke-width="3"/><text x="834" y="576" fill="#ffffff">8</text>
+    <circle cx="834" cy="752" r="17" fill="#7c3aed" stroke="#ffffff" stroke-width="3"/><text x="834" y="758" fill="#ffffff">9</text>
+    <circle cx="1284" cy="661" r="17" fill="#0f172a" stroke="#ffffff" stroke-width="3"/><text x="1284" y="667" fill="#ffffff">10</text>
   </g>
 
-  <!-- ══ row 3: the crawl ══════════════════════════════════════════════ -->
-  <g>
-    <rect x="40" y="398" width="210" height="76" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.4"/>
-    <text x="56" y="418" font-size="14" font-weight="700" fill="#0c4a6e">demo-sites</text>
-    <text x="56" y="435" font-size="11.5" fill="#0369a1">Cloud Run service, public</text>
-    <text x="56" y="451" font-size="11.5" fill="#0369a1">five watched pages loading</text>
-    <text x="56" y="466" font-size="11.5" fill="#0369a1">real third-party tag scripts</text>
-
-    <path d="M 250 430 L 324 430" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
-    <text x="256" y="422" font-size="10.5" fill="#64748b">plain HTTP</text>
-    <path d="M 400 348 L 400 380" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
-
-    <rect x="330" y="388" width="430" height="92" rx="10" fill="#eef2f7" stroke="#64748b" stroke-width="1.6"/>
-    <text x="748" y="406" font-size="10.5" fill="#94a3b8" text-anchor="end">Cloud Run Job</text>
-    <text x="350" y="426" font-size="15" font-weight="700" fill="#0f172a">patrol-crawler · Playwright</text>
-    <text x="350" y="445" font-size="12" fill="#475569">crawls five pages, clicks through the consent banner, records</text>
-    <text x="350" y="461" font-size="12" fill="#475569">third-party hosts by registrable domain and cookies pre and post</text>
-    <text x="350" y="477" font-size="12" fill="#475569">consent, then publishes sweep-done</text>
-  </g>
-
-  <!-- ══ row 4: the deterministic diff ═════════════════════════════════ -->
-  <g>
-    <rect x="40" y="520" width="210" height="46" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.4"/>
-    <text x="56" y="540" font-size="14" font-weight="700" fill="#0c4a6e">Pub/Sub · sweep-done</text>
-    <text x="56" y="557" font-size="11.5" fill="#0369a1">300s ack, the analyst runs behind it</text>
-
-    <rect x="40" y="574" width="210" height="34" rx="8" fill="#fef3c7" stroke="#b45309" stroke-width="1.3" stroke-dasharray="5 3"/>
-    <text x="56" y="590" font-size="12" font-weight="700" fill="#92400e">DLQ · sweep-done-dlq</text>
-    <text x="56" y="603" font-size="10.5" fill="#b45309">after 5 attempts, 7d retention</text>
-
-    <path d="M 145 566 L 145 572" stroke="#b45309" stroke-width="1.3" fill="none" marker-end="url(#arrow-amber)"/>
-    <path d="M 400 480 L 400 500 L 145 500 L 145 518" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
-    <path d="M 250 543 L 324 560" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
-
-    <rect x="330" y="520" width="430" height="88" rx="10" fill="#eef2f7" stroke="#64748b" stroke-width="1.6"/>
-    <text x="748" y="538" font-size="10.5" fill="#94a3b8" text-anchor="end">patrol-agent · Cloud Run service</text>
-    <text x="350" y="558" font-size="15" font-weight="700" fill="#0f172a">POST /trigger/sweep-done · diff + stability window</text>
-    <text x="350" y="577" font-size="12" fill="#475569">set difference against the approved baseline, then every entry classified</text>
-    <text x="350" y="593" font-size="12" fill="#475569">against the site's own last N=5 sweeps: new, returning and gone alert;</text>
-    <text x="350" y="605" font-size="12" fill="#475569">flapping, missing-once and pending do not</text>
-  </g>
-
-  <!-- ══ row 5: the analyst ════════════════════════════════════════════ -->
-  <g>
-    <path d="M 545 608 L 545 636" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
-
-    <rect x="330" y="644" width="430" height="94" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.4"/>
-    <text x="748" y="662" font-size="10.5" fill="#8b5cf6" text-anchor="end">ADK LlmAgent · gemini-3.5-flash</text>
-    <text x="350" y="682" font-size="15" font-weight="700" fill="#2e1065">drift analyst</text>
-    <text x="350" y="701" font-size="12" fill="#4c1d95">five FunctionTools. Reads the split it may not redraw, looks up what the</text>
-    <text x="350" y="717" font-size="12" fill="#4c1d95">vendor tables know about each domain that appeared, and records one</text>
-    <text x="350" y="733" font-size="12" fill="#4c1d95">verdict: noop, drift, or baseline-created. Names no vendor it cannot ground.</text>
-  </g>
-
-  <!-- ══ row 6: the scribe ═════════════════════════════════════════════ -->
-  <g>
-    <path d="M 545 738 L 545 764" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
-    <text x="556" y="756" font-size="11" fill="#64748b">only on drift</text>
-
-    <rect x="330" y="772" width="430" height="80" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.4"/>
-    <text x="748" y="790" font-size="10.5" fill="#8b5cf6" text-anchor="end">ADK LlmAgent · gemini-3.5-flash</text>
-    <text x="350" y="810" font-size="15" font-weight="700" fill="#2e1065">compliance scribe</text>
-    <text x="350" y="829" font-size="12" fill="#4c1d95">writes the Czech cookie-policy redline naming each vendor's cookies and</text>
-    <text x="350" y="845" font-size="12" fill="#4c1d95">their durations, plus the RoPA row the change obliges the owner to file</text>
-  </g>
-
-  <!-- ══ row 7: the notifier ═══════════════════════════════════════════ -->
-  <g>
-    <path d="M 545 852 L 545 878" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
-
-    <rect x="330" y="886" width="430" height="76" rx="10" fill="#eef2f7" stroke="#64748b" stroke-width="1.6"/>
-    <text x="748" y="904" font-size="10.5" fill="#94a3b8" text-anchor="end">patrol-agent · Cloud Run service</text>
-    <text x="350" y="924" font-size="15" font-weight="700" fill="#0f172a">notifier · deterministic, idempotent per sweepId</text>
-    <text x="350" y="943" font-size="12" fill="#475569">the outcome is read before anything is sent, and each half is recorded</text>
-    <text x="350" y="959" font-size="12" fill="#475569">separately, so a redelivery sends only what did not go out</text>
-  </g>
-
-  <!-- ══ right column: Firestore ═══════════════════════════════════════ -->
-  <g>
-    <rect x="840" y="388" width="320" height="464" rx="10" fill="#ecfdf5" stroke="#059669" stroke-width="1.6"/>
-    <text x="1140" y="410" font-size="10.5" fill="#34d399" text-anchor="end">Firestore, native mode</text>
-    <text x="862" y="430" font-size="15" font-weight="700" fill="#064e3b">the whole state of the system</text>
-    <text x="862" y="452" font-size="12" fill="#047857">Every step reads and writes here, and nothing else</text>
-    <text x="862" y="468" font-size="12" fill="#047857">is held in memory between deliveries.</text>
-
-    <g font-size="12.5" fill="#065f46">
-      <text x="862" y="504" font-weight="700">sites/{siteId}</text>
-      <text x="878" y="522" fill="#047857">url, owner email, enabled, approved baseline,</text>
-      <text x="878" y="538" fill="#047857">pending domains and cookies</text>
-      <text x="862" y="568" font-weight="700">…/fingerprints/{sweepId}</text>
-      <text x="878" y="586" fill="#047857">what the crawler saw, hashed</text>
-      <text x="862" y="616" font-weight="700">…/decisions/{sweepId}</text>
-      <text x="878" y="634" fill="#047857">the analyst's verdict and its classifications</text>
-      <text x="862" y="664" font-weight="700">…/redlines/{sweepId}</text>
-      <text x="878" y="682" fill="#047857">the scribe's Czech redline and RoPA row</text>
-      <text x="862" y="712" font-weight="700">…/notifications/{sweepId}</text>
-      <text x="878" y="730" fill="#047857">what left the system, and what failed to</text>
-    </g>
-
-    <text x="862" y="776" font-size="12" fill="#047857">The sweep id is the idempotency key throughout.</text>
-    <text x="862" y="794" font-size="12" fill="#047857">A Pub/Sub redelivery re-runs the analysis and</text>
-    <text x="862" y="812" font-size="12" fill="#047857">stops at the notification that already exists,</text>
-    <text x="862" y="830" font-size="12" fill="#047857">so one finding is filed exactly once.</text>
-
-    <path d="M 762 434 L 834 434" stroke="#0f766e" stroke-width="1.4" stroke-dasharray="5 3" fill="none" marker-end="url(#arrow-dash)"/>
-    <text x="798" y="426" font-size="10" fill="#0f766e" text-anchor="middle">fingerprint</text>
-    <path d="M 762 564 L 834 564" stroke="#0f766e" stroke-width="1.4" stroke-dasharray="5 3" fill="none" marker-end="url(#arrow-dash)"/>
-    <text x="798" y="556" font-size="10" fill="#0f766e" text-anchor="middle">history</text>
-    <path d="M 762 688 L 834 688" stroke="#0f766e" stroke-width="1.4" stroke-dasharray="5 3" fill="none" marker-end="url(#arrow-dash)"/>
-    <text x="798" y="680" font-size="10" fill="#0f766e" text-anchor="middle">decision</text>
-    <path d="M 762 812 L 834 812" stroke="#0f766e" stroke-width="1.4" stroke-dasharray="5 3" fill="none" marker-end="url(#arrow-dash)"/>
-    <text x="798" y="804" font-size="10" fill="#0f766e" text-anchor="middle">redline</text>
-  </g>
-
-  <!-- ══ right column: secrets and delivery ════════════════════════════ -->
-  <g>
-    <rect x="840" y="872" width="320" height="40" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.4"/>
-    <text x="856" y="890" font-size="13.5" font-weight="700" fill="#0c4a6e">Secret Manager</text>
-    <text x="856" y="905" font-size="11" fill="#0369a1">GitHub token and Resend key, mounted at instance start</text>
-    <path d="M 838 892 L 766 900" stroke="#475569" stroke-width="1.4" fill="none" marker-end="url(#arrow)"/>
-
-    <rect x="840" y="926" width="155" height="66" rx="8" fill="#f8fafc" stroke="#475569" stroke-width="1.4"/>
-    <text x="854" y="946" font-size="13" font-weight="700" fill="#0f172a">GitHub issue</text>
-    <text x="854" y="963" font-size="11" fill="#475569">pixel-patrol-tickets,</text>
-    <text x="854" y="978" font-size="11" fill="#475569">redline in the body</text>
-
-    <rect x="1005" y="926" width="155" height="66" rx="8" fill="#f8fafc" stroke="#475569" stroke-width="1.4"/>
-    <text x="1019" y="946" font-size="13" font-weight="700" fill="#0f172a">Email to the owner</text>
-    <text x="1019" y="963" font-size="11" fill="#475569">Resend, from a verified</text>
-    <text x="1019" y="978" font-size="11" fill="#475569">sending domain</text>
-
-    <path d="M 762 940 L 834 950" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
-    <path d="M 762 952 L 999 962" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#arrow)"/>
-  </g>
-
-  <!-- ══ footer ════════════════════════════════════════════════════════ -->
-  <text x="40" y="1012" font-size="12" fill="#64748b">Judgement lives in the two purple boxes. Everything that has to be exactly right, reading fingerprints, computing the difference, deciding what is noise, filing the ticket, is code the model cannot reach around.</text>
+  <!-- ═══ footer ═══════════════════════════════════════════════════════ -->
+  <text x="64" y="1162" font-size="15" fill="#64748b">Judgement lives in the two purple boxes. Everything that has to be exactly right, reading fingerprints, computing the difference, deciding what is noise, filing the ticket, is code the model cannot reach around.</text>
 </svg>
