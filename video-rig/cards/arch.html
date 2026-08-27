@@ -1,11 +1,15 @@
 <!doctype html><meta charset="utf-8"><title>Architecture</title>
-<style>html,body{margin:0;height:100%;background:#0b1020;color:#e8eef6;font:400 20px/1.5 "DejaVu Sans",sans-serif;
- display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
- img{max-width:94%;max-height:74%;object-fit:contain;background:#fff;border-radius:8px;padding:10px}
- p{margin:0;color:#8fa3bf;text-align:center;max-width:80%}</style>
-<img src="file:///home/thatmike1/git/pixel-patrol/docs/architecture.png" alt="Pixel Patrol architecture">
-<p>Cloud Scheduler fans out one Pub/Sub message per site, and a Cloud Run Job crawls that site with Playwright.
-The diff itself is plain code the model cannot reach around, because an LLM asked to eyeball two host lists
-will eventually miss one, and a missed marketing pixel is the failure this whole thing exists to prevent.
-Two Gemini agents on Vertex do the judgement: is this real drift, and what does the policy now have to say.
-Then the notifier opens the ticket and sends the mail.</p>
+<style>
+ html,body{margin:0;height:100%;background:#0b1020;color:#e8eef6;
+  font:400 17px/1.45 "DejaVu Sans",system-ui,sans-serif;}
+ /* the diagram is landscape and the pane is portrait, so width is the binding limit.
+    fill it, and let the caption take only what is left. */
+ body{display:flex;flex-direction:column;justify-content:center;gap:22px;padding:18px;box-sizing:border-box}
+ figure{margin:0;display:flex;justify-content:center}
+ img{width:100%;height:auto;max-height:78vh;object-fit:contain;background:#fff;border-radius:10px;padding:8px;box-sizing:border-box}
+ p{margin:0 auto;color:#93a6c2;text-align:center;max-width:62ch}
+</style>
+<figure><img src="file:///home/thatmike1/git/pixel-patrol/docs/architecture.png" alt="Pixel Patrol architecture"></figure>
+<p>Cloud Scheduler fans out one Pub/Sub message per site, and a Cloud Run Job crawls that site
+with Playwright. The diff itself is plain code the model cannot reach around. Two Gemini agents
+on Vertex do the judgement: is this real drift, and what does the policy now have to say.</p>

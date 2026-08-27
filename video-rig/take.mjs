@@ -9,7 +9,9 @@ import { launchBrowser } from './browser.mjs';
 
 const RIG = '/home/thatmike1/git/pixel-patrol/video-rig';
 const DISPLAY = process.env.RIG_DISPLAY ?? ':99';
-const W = 2560, H = 1440, TERM_W = 1240;
+// browser on the left and wider: the architecture diagram is landscape, so pane width
+// is what limits how big it can render.
+const W = 2560, H = 1440, BROWSER_W = 1500;
 const MARKS = `${RIG}/marks.txt`;
 const env = { ...process.env, DISPLAY, WAYLAND_DISPLAY: '' };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -41,17 +43,17 @@ rmSync(MARKS, { force: true });
 rmSync(`${RIG}/issue-url.txt`, { force: true });
 
 // Stage both windows BEFORE recording, so the take opens on a composed frame.
-const ctx = await launchBrowser({ profileDir: `${RIG}/profile`, x: TERM_W, y: 0, width: W - TERM_W, height: H });
+const ctx = await launchBrowser({ profileDir: `${RIG}/profile`, x: 0, y: 0, width: BROWSER_W, height: H });
 const page = ctx.pages()[0] ?? await ctx.newPage();
 await page.goto(`file://${RIG}/cards/title.html`);
 
 const term = spawn('xterm', ['-fa', 'DejaVu Sans Mono', '-fs', '15', '-bg', '#0d1117', '-fg', '#c9d1d9',
   '-b', '16', '-bc', '-e', `${RIG}/${script}`], { env: { ...env, LC_ALL: 'C.UTF-8' }, detached: true, stdio: 'ignore' });
 await sleep(3000);
-xdo('windowmove', winId(['--class', 'XTerm']), '0', '0');
-xdo('windowsize', winId(['--class', 'XTerm']), String(TERM_W), String(H));
+const xw = winId(['--class', 'XTerm']);
+xdo('windowmove', xw, String(BROWSER_W), '0'); xdo('windowsize', xw, String(W - BROWSER_W), String(H));
 const cw = winId(['--class', 'chrom']);
-xdo('windowmove', cw, String(TERM_W), '0'); xdo('windowsize', cw, String(W - TERM_W), String(H));
+xdo('windowmove', cw, '0', '0'); xdo('windowsize', cw, String(BROWSER_W), String(H));
 await sleep(1500);
 
 // Everything past this line is one unbroken recording.
