@@ -128,7 +128,7 @@
   <rect x="814" y="570" width="400" height="142" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.6"/>
   <text x="1196" y="596" font-size="12.5" fill="#a78bfa" text-anchor="end">ADK LlmAgent · gemini-3.5-flash</text>
   <text x="836" y="620" font-size="20" font-weight="700" fill="#2e1065">drift analyst</text>
-  <text x="836" y="648" font-size="14.5" fill="#4c1d95">reads a split it may not redraw, looks each new</text>
+  <text x="836" y="648" font-size="14.5" fill="#4c1d95">reads a diff it cannot redraw, looks each new</text>
   <text x="836" y="669" font-size="14.5" fill="#4c1d95">domain up in the vendor tables, and records one</text>
   <text x="836" y="690" font-size="14.5" fill="#4c1d95">verdict: noop, drift or baseline-created</text>
 
