@@ -44,6 +44,22 @@ Other tracks (pick exactly one on the form): The Collaborative Partner, The Fort
 - [ ] In English, or with English subtitles.
 - [ ] Covers problem, value proposition, and the live run.
 
+Two readings worth writing down, both re-checked against the rules page on 2026-08-27:
+
+**Spoken narration is not required.** No rule asks for a voice track. The language line is
+conditional on the video containing language at all: "It must be in English or include English
+subtitles." What is mandatory is that the video *covers* problem, value proposition and the demo,
+and on-screen text carries those as well as speech does. Narrating afterwards over a
+single-take screen recording also satisfies the execution criterion below, since what that
+criterion constrains is the run, not the audio.
+
+**"Unedited" is written about the execution, not the whole video.** The judging question is
+"Does the video show an unedited, live execution of the agent performing its task (via terminal
+logs, database updates, or UI changes)?" That does not literally forbid a title card before the
+run starts. It is still safer to keep the take unbroken from the induced edit to the arriving
+email, because 30% of the score is "undeniable proof of execution" and a cut near the run invites
+doubt for no gain.
+
 ## Stack compliance
 
 - [x] Gemini 3.5 or newer, via Gemini API or Vertex AI. `gemini-3.5-flash` on Vertex, `global` location.
