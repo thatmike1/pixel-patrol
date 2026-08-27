@@ -58,7 +58,38 @@ becomes the page title. Search `--class chromium` instead.
 **Set `LC_ALL=C` on the terminal.** Otherwise `date` prints Czech month names into
 an English-language video.
 
-## Two things still to fix before the real take
+## Browser choice, which is not obvious
+
+The rig launches `/usr/bin/google-chrome` (Chrome 148) through Playwright's
+`executablePath`, not Playwright's own bundled Chromium. Playwright 1.48 ships Chromium
+130, which has no vertical tabs at all, so the flag appears to fail silently. Chrome for
+Testing 151 also works but adds its own "only for automated testing" infobar, which needs
+`--disable-infobars` on top.
+
+Vertical tabs are a `chrome://flags` entry, not a feature switch. `--enable-features=VerticalTabs`
+does nothing. The profile has to be seeded before launch with
+`Local State` holding `browser.enabled_labs_experiments: ["vertical-tabs@1"]` and
+`Default/Preferences` holding the `vertical_tabs` block. The same Preferences file is the
+only thing that suppresses the Google Translate bubble on the Czech demo pages;
+`--disable-features=Translate,TranslateUI` does not.
+
+Two smaller traps in the same area: Chrome keeps only the last `--disable-features` it is
+given, so every value has to be merged into one switch; and `ignoreDefaultArgs` matches by
+exact string, so `'--disable-features'` will not filter Playwright's own
+`--disable-features=...`.
+
+## Old defects, both fixed
+
+`stream_logs` used to run zero iterations. `local seconds="$1" t_end=$(( SECONDS + seconds ))`
+looks right and is not: bash expands every assignment word before `local` executes, so
+`seconds` was still empty and `t_end` equalled the current time. The take raced past the
+sweep and printed the previous decision. Keep those on separate lines.
+
+`gcloud logging read` ignores `--freshness` when `--order=asc` is set, which is why the log
+pane once showed entries from six days earlier. The query now pins an explicit
+`timestamp>=` window computed at script start.
+
+## Still open
 
 1. **The `--no-sandbox` banner.** Chromium shows a yellow "You are using an
    unsupported command-line flag" bar across the top of the page. It is there because
