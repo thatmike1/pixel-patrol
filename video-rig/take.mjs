@@ -34,7 +34,7 @@ const ctx = await launchBrowser({ profileDir: `${RIG}/profile`, x: TERM_W, y: 0,
 const page = ctx.pages()[0] ?? await ctx.newPage();
 await page.goto(`file://${RIG}/cards/title.html`);
 
-const term = spawn('xterm', ['-fa', 'DejaVu Sans Mono', '-fs', '13', '-bg', '#0d1117', '-fg', '#c9d1d9',
+const term = spawn('xterm', ['-fa', 'DejaVu Sans Mono', '-fs', '15', '-bg', '#0d1117', '-fg', '#c9d1d9',
   '-b', '16', '-bc', '-e', `${RIG}/${script}`], { env: { ...env, LC_ALL: 'C' }, detached: true, stdio: 'ignore' });
 await sleep(3000);
 xdo('windowmove', winId(['--class', 'XTerm']), '0', '0');
