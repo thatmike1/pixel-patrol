@@ -4,5 +4,8 @@
  img{max-width:94%;max-height:74%;object-fit:contain;background:#fff;border-radius:8px;padding:10px}
  p{margin:0;color:#8fa3bf;text-align:center;max-width:80%}</style>
 <img src="file:///home/thatmike1/git/pixel-patrol/docs/architecture.png" alt="Pixel Patrol architecture">
-<p>Scheduler fans out one Pub/Sub message per site. A Cloud Run Job crawls with Playwright.
-Two Gemini agents on Vertex classify the change and draft the policy redline. The notifier files the ticket.</p>
+<p>Cloud Scheduler fans out one Pub/Sub message per site, and a Cloud Run Job crawls that site with Playwright.
+The diff itself is plain code the model cannot reach around, because an LLM asked to eyeball two host lists
+will eventually miss one, and a missed marketing pixel is the failure this whole thing exists to prevent.
+Two Gemini agents on Vertex do the judgement: is this real drift, and what does the policy now have to say.
+Then the notifier opens the ticket and sends the mail.</p>

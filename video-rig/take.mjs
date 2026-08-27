@@ -1,85 +1,78 @@
-// One continuous take: title cards -> tiled terminal+browser -> live sweep -> ticket.
-// Everything runs on Xvfb :99 and is captured by one ffmpeg x11grab process.
-import { chromium } from '/home/thatmike1/git/pixel-patrol/node_modules/playwright/index.mjs';
+// One continuous take, recorded off a virtual display with nobody at the keyboard.
+// Left pane: a real terminal running narrative.sh against the live project.
+// Right pane: title cards -> the watched page -> the architecture -> the filed ticket.
+// The two halves stay in sync through marks.txt, not through timers, because the
+// crawler's cold start varies between 42 and 76 seconds.
 import { spawn, execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { launchBrowser } from './browser.mjs';
 
 const RIG = '/home/thatmike1/git/pixel-patrol/video-rig';
-const DISPLAY = ':99';
+const DISPLAY = process.env.RIG_DISPLAY ?? ':99';
+const W = 2560, H = 1440, TERM_W = 1240;
 const MARKS = `${RIG}/marks.txt`;
 const env = { ...process.env, DISPLAY, WAYLAND_DISPLAY: '' };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const xdo = (...a) => { try { execFileSync('xdotool', a, { env }); } catch (e) { console.error('xdotool', a.join(' '), e.message); } };
 const winId = sel => execFileSync('xdotool', ['search', ...sel], { env }).toString().trim().split('\n').pop();
+const hasMark = n => existsSync(MARKS) && readFileSync(MARKS, 'utf8').split('\n').some(l => l.trim() === n);
 
-const marksSeen = new Set();
-async function waitMark(name, timeoutMs = 240000) {
+async function waitMark(name, timeoutMs = 300000) {
   const t0 = Date.now();
-  while (Date.now() - t0 < timeoutMs) {
-    if (existsSync(MARKS) && readFileSync(MARKS, 'utf8').split('\n').some(l => l.trim() === name)) return true;
-    await sleep(400);
-  }
-  console.error('TIMEOUT waiting for mark', name);
+  while (Date.now() - t0 < timeoutMs) { if (hasMark(name)) return true; await sleep(400); }
+  console.error('TIMEOUT waiting for', name);
   return false;
 }
 
+const script = process.argv[2] === 'rehearsal' ? 'narrative-rehearsal.sh' : 'narrative.sh';
+const site = process.argv[2] === 'rehearsal' ? 'atelier' : 'boutique';
 rmSync(MARKS, { force: true });
+rmSync(`${RIG}/issue-url.txt`, { force: true });
 
-// 1. browser, fullscreen, on the title card
-const ctx = await chromium.launchPersistentContext(`${RIG}/profile`, {
-  headless: false,
-  ignoreDefaultArgs: ['--enable-automation'],   // kills the "controlled by automated test software" banner
-  args: ['--no-sandbox', '--ozone-platform=x11', '--window-position=0,0', '--window-size=1920,1080',
-         '--disable-features=Translate,TranslateUI,GCM,MediaRouter', '--no-first-run',
-         '--no-default-browser-check', '--hide-crash-restore-bubble'],
-  viewport: null,
-});
+// Stage both windows BEFORE recording, so the take opens on a composed frame.
+const ctx = await launchBrowser({ profileDir: `${RIG}/profile`, x: TERM_W, y: 0, width: W - TERM_W, height: H });
 const page = ctx.pages()[0] ?? await ctx.newPage();
 await page.goto(`file://${RIG}/cards/title.html`);
+
+const term = spawn('xterm', ['-fa', 'DejaVu Sans Mono', '-fs', '13', '-bg', '#0d1117', '-fg', '#c9d1d9',
+  '-b', '16', '-bc', '-e', `${RIG}/${script}`], { env: { ...env, LC_ALL: 'C' }, detached: true, stdio: 'ignore' });
+await sleep(3000);
+xdo('windowmove', winId(['--class', 'XTerm']), '0', '0');
+xdo('windowsize', winId(['--class', 'XTerm']), String(TERM_W), String(H));
+const cw = winId(['--class', 'chromium']);
+xdo('windowmove', cw, String(TERM_W), '0'); xdo('windowsize', cw, String(W - TERM_W), String(H));
 await sleep(1500);
 
-// 2. ffmpeg starts here. Everything after this point is one unbroken recording.
-const out = `${RIG}/take-${process.argv[2] ?? 'x'}.mp4`;
+// Everything past this line is one unbroken recording.
+const out = `${RIG}/take-${process.argv[2] ?? 'main'}.mp4`;
 const ff = spawn('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-f', 'x11grab', '-framerate', '30',
-  '-video_size', '1920x1080', '-i', `${DISPLAY}+0,0`, '-c:v', 'libx264', '-preset', 'veryfast',
+  '-video_size', `${W}x${H}`, '-i', `${DISPLAY}+0,0`, '-c:v', 'libx264', '-preset', 'veryfast',
   '-crf', '20', '-pix_fmt', 'yuv420p', '-y', out], { env });
-console.log('RECORDING ->', out);
 const t0 = Date.now();
 const at = () => ((Date.now() - t0) / 1000).toFixed(1) + 's';
+console.log('RECORDING ->', out);
 
-// 3. title cards
-for (let i = 0; i < 3; i++) { await sleep(8000); await page.evaluate(() => window.__next()); }
-await sleep(7000);
+// Cards advance in the right pane while the terminal is already working.
+for (let i = 0; i < 3 && !hasMark('DRIFT_LIVE'); i++) {
+  await sleep(7000);
+  await page.evaluate(() => window.__next()).catch(() => {});
+}
 console.log(at(), 'cards done');
 
-// 4. terminal enters, browser shrinks to the right pane
-const term = spawn('xterm', ['-fa', 'DejaVu Sans Mono', '-fs', '11', '-bg', '#0d1117', '-fg', '#c9d1d9',
-  '-b', '14', '-bc', '-e', `${RIG}/narrative-rehearsal.sh`], { env: { ...env, LC_ALL: 'C' }, detached: true, stdio: 'ignore' });
-await sleep(2500);
-const xw = winId(['--class', 'XTerm']);
-const cw = winId(['--class', 'chromium']);
-xdo('windowmove', xw, '0', '0'); xdo('windowsize', xw, '950', '1080');
-xdo('windowmove', cw, '950', '0'); xdo('windowsize', cw, '970', '1080');
-await page.goto('https://demo-sites-b2xhora5ka-ew.a.run.app/boutique/');
-console.log(at(), 'tiled');
-
-// 5. follow the narrative script's markers
 await waitMark('DRIFT_LIVE');
-await page.reload();                                  // the edited page, live
-console.log(at(), 'page reloaded after edit');
+await page.goto(`https://demo-sites-b2xhora5ka-ew.a.run.app/${site}/`);
+console.log(at(), 'showing the edited page');
 
 await waitMark('SWEEP_SENT');
-await sleep(4000);
-await page.goto(`file://${RIG}/cards/arch.html`);     // fill the wait with the architecture
-console.log(at(), 'showing architecture');
+await sleep(8000);
+await page.goto(`file://${RIG}/cards/arch.html`);
+console.log(at(), 'showing the architecture');
 
-const gotIssue = await waitMark('ISSUE_READY', 300000);
-if (gotIssue) {
+if (await waitMark('ISSUE_READY')) {
   const url = readFileSync(`${RIG}/issue-url.txt`, 'utf8').trim();
-  await page.goto(url);
-  console.log(at(), 'issue ->', url);
+  if (url && url.startsWith('http')) { await page.goto(url); console.log(at(), 'ticket ->', url); }
 }
-await sleep(12000);
+await sleep(14000);
 console.log(at(), 'take complete');
 
 ff.kill('SIGINT');
