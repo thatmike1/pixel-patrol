@@ -9,6 +9,10 @@ api(){ local m="$1" p="$2"; shift 2; curl -sS -X "$m" "${AGENT_URL}${p}" -H "Aut
 LAST=""
 # gcloud ignores --freshness when --order=asc is set, so pin the window explicitly.
 START_TS="$(date -u -d '-2 minutes' +%Y-%m-%dT%H:%M:%SZ)"
+# Call this immediately before streaming so the window starts at the sweep being watched.
+# Without it the window still holds the reset's own "analysis complete" lines and the
+# early exit fires on one of those instead of on this sweep's verdict.
+log_window_reset(){ START_TS="$(date -u -d '-5 seconds' +%Y-%m-%dT%H:%M:%SZ)"; LAST=""; }
 # Print only Cloud Logging lines newer than the last one already printed, and stop as soon
 # as the pipeline says it is finished. Without the early exit the pane keeps polling an idle
 # service for the rest of the window, which cost about 65 seconds of the four-minute budget.

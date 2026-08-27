@@ -21,6 +21,7 @@ date -u '+%H:%M:%SZ  POST /sites/demo-boutique/sweep'
 api POST /sites/demo-boutique/sweep -d '{}' | jq -c .
 mark SWEEP_SENT
 
+log_window_reset
 say "live from Cloud Logging while the pipeline runs:"
 stream_logs 210 "analysis complete	demo-boutique"
 
