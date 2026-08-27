@@ -14,7 +14,18 @@ const MARKS = `${RIG}/marks.txt`;
 const env = { ...process.env, DISPLAY, WAYLAND_DISPLAY: '' };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const xdo = (...a) => { try { execFileSync('xdotool', a, { env }); } catch (e) { console.error('xdotool', a.join(' '), e.message); } };
-const winId = sel => execFileSync('xdotool', ['search', ...sel], { env }).toString().trim().split('\n').pop();
+// matches Chromium-browser and Google-chrome alike; retries because the window is mapped
+// asynchronously after launch and there is no window manager to wait on.
+function winId(sel, tries = 20) {
+  for (let i = 0; i < tries; i++) {
+    try {
+      const id = execFileSync('xdotool', ['search', ...sel], { env }).toString().trim().split('\n').pop();
+      if (id) return id;
+    } catch { /* not mapped yet */ }
+    execFileSync('sleep', ['0.5']);
+  }
+  throw new Error(`no window for ${sel.join(' ')}`);
+}
 const hasMark = n => existsSync(MARKS) && readFileSync(MARKS, 'utf8').split('\n').some(l => l.trim() === n);
 
 async function waitMark(name, timeoutMs = 300000) {
@@ -39,7 +50,7 @@ const term = spawn('xterm', ['-fa', 'DejaVu Sans Mono', '-fs', '15', '-bg', '#0d
 await sleep(3000);
 xdo('windowmove', winId(['--class', 'XTerm']), '0', '0');
 xdo('windowsize', winId(['--class', 'XTerm']), String(TERM_W), String(H));
-const cw = winId(['--class', 'chromium']);
+const cw = winId(['--class', 'chrom']);
 xdo('windowmove', cw, String(TERM_W), '0'); xdo('windowsize', cw, String(W - TERM_W), String(H));
 await sleep(1500);
 
@@ -72,7 +83,7 @@ if (await waitMark('ISSUE_READY')) {
   const url = readFileSync(`${RIG}/issue-url.txt`, 'utf8').trim();
   if (url && url.startsWith('http')) { await page.goto(url); console.log(at(), 'ticket ->', url); }
 }
-await sleep(14000);
+await sleep(11000);
 console.log(at(), 'take complete');
 
 ff.kill('SIGINT');

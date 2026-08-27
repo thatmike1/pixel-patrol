@@ -22,7 +22,7 @@ api POST /sites/demo-boutique/sweep -d '{}' | jq -c .
 mark SWEEP_SENT
 
 say "live from Cloud Logging while the pipeline runs:"
-stream_logs 150
+stream_logs 210 "analysis complete	demo-boutique"
 
 say "verdict"
 api GET "/sites/demo-boutique/decisions?limit=1" | jq '.decisions[0] | {action, hostsAdded, classifications: [.classifications[]? | {domain, vendor, category, confidence}]}'

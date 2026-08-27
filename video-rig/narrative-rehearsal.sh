@@ -17,7 +17,7 @@ api POST /sites/demo-atelier/sweep -d '{}' | jq -c .
 mark SWEEP_SENT
 
 say "live from Cloud Logging while the pipeline runs:"
-stream_logs 130
+stream_logs 210 "analysis complete	demo-atelier"
 
 say "verdict"
 api GET "/sites/demo-atelier/decisions?limit=1" | jq '.decisions[0] | {action, noiseCount, summary}'

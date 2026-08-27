@@ -9,11 +9,15 @@ api(){ local m="$1" p="$2"; shift 2; curl -sS -X "$m" "${AGENT_URL}${p}" -H "Aut
 LAST=""
 # gcloud ignores --freshness when --order=asc is set, so pin the window explicitly.
 START_TS="$(date -u -d '-2 minutes' +%Y-%m-%dT%H:%M:%SZ)"
-# print only Cloud Logging lines newer than the last one already printed
+# Print only Cloud Logging lines newer than the last one already printed, and stop as soon
+# as the pipeline says it is finished. Without the early exit the pane keeps polling an idle
+# service for the rest of the window, which cost about 65 seconds of the four-minute budget.
+# $1 seconds to wait at most, $2 optional substring that ends the wait when it appears.
 stream_logs(){
   # NOTE: bash expands every assignment word before `local` runs, so a second
   # assignment cannot read the first one. Keep these on separate lines.
   local seconds="$1"
+  local stop_on="${2:-}"
   local out ts line t_end
   t_end=$(( SECONDS + seconds ))
   while (( SECONDS < t_end )); do
@@ -24,7 +28,10 @@ stream_logs(){
     while IFS= read -r line; do
       [[ -z "$line" ]] && continue
       ts="${line%%$'\t'*}"
-      if [[ -z "$LAST" || "$ts" > "$LAST" ]]; then printf '%s\n' "$line"; LAST="$ts"; fi
+      if [[ -z "$LAST" || "$ts" > "$LAST" ]]; then
+        printf '%s\n' "$line"; LAST="$ts"
+        if [[ -n "$stop_on" && "$line" == *"$stop_on"* ]]; then sleep 2; return 0; fi
+      fi
     done <<< "$out"
     sleep 5
   done
