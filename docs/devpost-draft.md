@@ -54,7 +54,7 @@ every domain and cookie is classified against the site's own recent history befo
 anything is reported. Over 69 real decisions on a Czech news site, the system saw 643
 differences, reported 12, and reported no domain twice.
 
-## How we built it
+## How I built it
 
 **Gemini 3.5 Flash on Vertex AI** is the judgement in the system, reached through the
 **Google ADK** as two separate `LlmAgent`s with their own tools and their own job.
@@ -122,7 +122,7 @@ real `gtag/js`, the real `clarity.ms/tag` and the real `fbevents.js`, so the fin
 are genuine. Because I own the pages, "a marketer added a tracking pixel and the watchdog
 opened a ticket" is literally what happened, not a planted history.
 
-## Challenges we ran into
+## Challenges I ran into
 
 **A confident wrong answer, caught two days before submission.** The page pointed at
 `toplist.cz`, a real and obscure Czech hit counter, is there to prove the system will say
@@ -159,7 +159,7 @@ a push-only architecture, and `roles/run.developer` granted for a single API cal
 needs two permissions. The provisioning script now creates the narrow versions from the
 first run, and the whole matrix is written down with the reasoning per grant.
 
-## Accomplishments that we are proud of
+## Accomplishments I am proud of
 
 The system runs unattended and has been doing so for days, not minutes. Five demo sites
 plus two real ones, hourly, filing tickets and sending mail with nobody watching.
@@ -175,7 +175,7 @@ row. Someone can paste it.
 **It says "I do not know" when it does not know**, and there is a test pinning the case
 that proves it.
 
-## What we learned
+## What I learned
 
 Deciding what an agent is not allowed to do turned out to be more of the design than
 deciding what it does. Each capability I moved out of the model and into plain code made
