@@ -2,6 +2,7 @@
 # REHEARSAL: sweeps demo-atelier, the control site. It never drifts and never files a
 # ticket, so a rehearsal costs nothing and leaves no state behind.
 RIG="$(cd "$(dirname "$0")" && pwd)"
+SITE_ID=demo-atelier
 source "$RIG/lib.sh"
 
 say "site demo-atelier  ::  the control. four real trackers, and it must stay silent."

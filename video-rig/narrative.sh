@@ -2,6 +2,7 @@
 # The terminal half of the real take: the boutique drift shape, end to end.
 # Run ./prepare.sh first - this script assumes all five sites sit at an approved baseline.
 RIG="$(cd "$(dirname "$0")" && pwd)"
+SITE_ID=demo-boutique
 source "$RIG/lib.sh"
 
 say "site demo-boutique  ::  https://demo-sites-b2xhora5ka-ew.a.run.app/boutique/"

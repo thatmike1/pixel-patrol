@@ -15,6 +15,17 @@ api(){ local m="$1" p="$2"; shift 2; curl -sS -X "$m" "${AGENT_URL}${p}" -H "Aut
 # trips the early exit. Three takes ran the full 210s timeout and came out at 4:57.
 SEEN_FILE="$(mktemp -t patrol-logseen.XXXXXX)"
 trap 'rm -f "$SEEN_FILE"' EXIT
+# The stage strip on the architecture card ticks off these, and nothing else. Each one is a
+# line the pipeline itself logged, matched against the site under test so a concurrent sweep
+# of a sibling site cannot tick a stage early.
+SITE_ID="${SITE_ID:-demo-boutique}"
+stage_marks(){
+  case "$1" in
+    *"sweep starting"*"$SITE_ID"*) mark CRAWL_BOOTED ;;
+    *"sweep complete"*"$SITE_ID"*) mark CRAWL_DONE ;;
+    *"ticket filed"*"$SITE_ID"*)   mark TICKET_FILED ;;
+  esac
+}
 # gcloud ignores --freshness when --order=asc is set, so pin the window explicitly.
 START_TS="$(date -u -d '-2 minutes' +%Y-%m-%dT%H:%M:%SZ)"
 # Call this immediately before streaming so the window starts at the sweep being watched.
@@ -50,6 +61,7 @@ stream_logs(){
         printf '%s\n' "$line" >> "$SEEN_FILE"
         (( waiting )) && { printf '\r\033[2K'; waiting=0; }
         printf '%s\n' "$line"
+        stage_marks "$line"
         if [[ -n "$stop_on" && "$line" == *"$stop_on"* ]]; then sleep 2; return 0; fi
       fi
     done <<< "$out"

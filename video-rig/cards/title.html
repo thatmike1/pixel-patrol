@@ -6,23 +6,51 @@
  .card.on{opacity:1}
  h1{font-size:76px;margin:0 0 24px;letter-spacing:-1px}
  .sub{color:#8fa3bf;font-size:32px}
- .k{color:#5cd0c8}
- ul{margin:32px 0 0;padding-left:28px} li{margin:14px 0}
+ /* The last card has to cover a redeploy of unknown length, so it carries a pointer to the
+    pane that IS moving and a line that rotates on wall-clock. Presentation only: the exit is
+    still gated on the DRIFT_LIVE marker, never on a timer. */
+ #point{position:fixed;right:56px;bottom:64px;
+   display:none;align-items:center;gap:16px;color:#5cd0c8;font-size:24px;
+   animation:drift 2.6s ease-in-out infinite}
+ #point.on{display:flex}
+ #point .arrow{font-size:46px;line-height:1}
+ @keyframes drift{0%,100%{transform:translateX(0)}50%{transform:translateX(14px)}}
+ #rot{margin-top:34px;color:#5cd0c8;font-size:26px;min-height:1.5em;opacity:0;transition:opacity .5s}
+ #rot.on{opacity:1}
 </style>
-<div class="card" id="c">
-  <h1>Pixel&nbsp;Patrol</h1>
-  <div class="sub">A GDPR watchdog that runs itself, on the websites your name is legally on.</div>
-</div>
+<div class="card" id="c"></div>
+<div id="point"><span>the build is running in the terminal on the right</span><span class="arrow">&#10230;</span></div>
 <script>
- const c=document.getElementById('c');
+ const c=document.getElementById('c'), point=document.getElementById('point');
  const slides=[
   ['Pixel Patrol','A GDPR watchdog that runs itself, on the websites your name is legally on.'],
   ['One pasted tag','A marketer adds a Meta Pixel on a Tuesday afternoon. Your cookie policy is wrong from that moment, and nobody finds out for months.'],
   ['It files the paperwork','It sweeps hourly and stays quiet through ad-vendor rotation. When a real tracker appears, the GitHub issue arrives with the Czech policy redline and the RoPA row already written.'],
   ['Nothing is staged','The five demo pages are ours, so no history is planted. We force the sweep the way the scheduler does hourly. Everything after that is the agent.'],
  ];
- let i=0;
+ // rotated inside the last card while the redeploy runs, so the pane is never a dead frame
+ const holds=[
+  'Building the container that serves the edited page, on Cloud Build.',
+  'The page is deployed to Cloud Run the same way it would be in production.',
+  'No sweep has been forced yet. The watchdog still believes the old baseline.',
+  'Nothing below this point is scripted against a clock. Every step waits on the one before it.',
+ ];
+ let i=0, holdTimer=null, hi=0;
  function show(){const [h,s]=slides[i];c.classList.remove('on');
-  setTimeout(()=>{c.innerHTML='<h1>'+h+'</h1><div class="sub">'+s+'</div>';c.classList.add('on');},600);}
+  setTimeout(()=>{
+    c.innerHTML='<h1>'+h+'</h1><div class="sub">'+s+'</div>'+
+      (i===slides.length-1?'<div id="rot"></div>':'');
+    c.classList.add('on');
+    if(i===slides.length-1) startHold();
+  },600);}
+ function startHold(){
+  point.classList.add('on');
+  const rot=document.getElementById('rot');
+  const tick=()=>{ if(!rot) return;
+    rot.classList.remove('on');
+    setTimeout(()=>{rot.textContent=holds[hi%holds.length];rot.classList.add('on');hi++;},500);
+  };
+  tick(); clearInterval(holdTimer); holdTimer=setInterval(tick,9000);
+ }
  show(); window.__next=()=>{i=Math.min(i+1,slides.length-1);show();};
 </script>

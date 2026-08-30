@@ -91,9 +91,11 @@ const t0 = Date.now();
 const at = () => ((Date.now() - t0) / 1000).toFixed(1) + 's';
 console.log('RECORDING ->', out);
 
-// Cards advance in the right pane while the terminal is already working.
+// Cards advance while the terminal is already working. 10s a card: a cold viewer reads a
+// paragraph card in about that, and anything under 8s reads as rushed. The last card then
+// holds itself (rotating copy, pointer at the terminal) until DRIFT_LIVE, however long that is.
 for (let i = 0; i < 3 && !hasMark('DRIFT_LIVE'); i++) {
-  await sleep(5000);
+  await sleep(10000);
   await page.evaluate(() => window.__next()).catch(() => {});
 }
 console.log(at(), 'cards done');
@@ -106,6 +108,31 @@ await waitMark('SWEEP_SENT');
 await sleep(8000);
 await page.goto(`${CARDS}/arch.html`);
 console.log(at(), 'showing the architecture');
+
+// Stage strip. Every tick is a mark written when the pipeline logged the matching line, so
+// the strip cannot run ahead of the run. Bar durations are the last measured ones (take11:
+// 70.6s cold start, 11.8s crawl, 48.2s agent) and are labelled as typical, not promised.
+const drive = (fn, ...a) => page.evaluate(([f, args]) => window[f]?.(...args), [fn, a]).catch(() => {});
+await drive('__stage', 'crawl', 'run');
+await drive('__bar', 'crawler container cold start \u00b7 typically ~70s', 70);
+(async () => {
+  if (await waitMark('CRAWL_BOOTED', 240000)) {
+    await drive('__stage', 'crawl', 'done');
+    await drive('__stage', 'fingerprint', 'run');
+    await drive('__bar', 'crawl, fingerprint, diff \u00b7 typically ~12s', 12);
+  }
+  if (await waitMark('CRAWL_DONE', 240000)) {
+    await drive('__stage', 'fingerprint', 'done');
+    await drive('__stage', 'agent', 'run');
+    await drive('__bar', 'two Gemini agents on Vertex \u00b7 typically ~48s', 48);
+  }
+  if (await waitMark('TICKET_FILED', 240000)) {
+    await drive('__stage', 'agent', 'done');
+    await drive('__stage', 'ticket', 'done');
+    await drive('__barDone');
+    await drive('__bar', 'ticket filed', 1);
+  }
+})();
 
 if (await waitMark('ISSUE_READY')) {
   const url = readFileSync(`${RIG}/issue-url.txt`, 'utf8').trim();
