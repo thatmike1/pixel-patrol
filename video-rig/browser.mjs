@@ -26,6 +26,7 @@ export async function launchBrowser({ profileDir, x = 0, y = 0, width = 1320, he
   const ctx = await chromium.launchPersistentContext(profileDir, {
     headless: false,
     executablePath: usingCfT ? CFT : SYSTEM_CHROME,
+    env: { ...process.env, DISPLAY: process.env.DISPLAY ?? ':99', WAYLAND_DISPLAY: '' },
     chromiumSandbox: true,                       // else Playwright injects --no-sandbox and Chrome warns about it
     ignoreDefaultArgs: ['--enable-automation'],  // exact-string match, so it cannot filter --disable-features=...
     args: [
@@ -42,7 +43,7 @@ export async function launchBrowser({ profileDir, x = 0, y = 0, width = 1320, he
   // Chrome starts with the omnibox focused and its text selected, which records as an
   // orange block over the URL. A CDP click cannot move browser-widget focus; a real
   // pointer click can. Do it while the tab is still blank so nothing is clickable.
-  const env = { ...process.env, WAYLAND_DISPLAY: '' };
+  const env = { ...process.env, DISPLAY: process.env.DISPLAY ?? ':99', WAYLAND_DISPLAY: '' };
   try {
     execFileSync('xdotool', ['mousemove', String(x + Math.floor(width / 2)), String(y + Math.floor(height / 2)),
       'click', '1'], { env });

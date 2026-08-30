@@ -9,10 +9,16 @@ import { launchBrowser } from './browser.mjs';
 
 const RIG = '/home/thatmike1/git/pixel-patrol/video-rig';
 const DISPLAY = process.env.RIG_DISPLAY ?? ':99';
+process.env.DISPLAY = DISPLAY;
+process.env.WAYLAND_DISPLAY = '';
 // browser on the left and wider: the architecture diagram is landscape, so pane width
 // is what limits how big it can render.
 const W = 2560, H = 1440, BROWSER_W = 1500;
 const MARKS = `${RIG}/marks.txt`;
+// Cards used to load straight off disk, which put a local home path in the address bar for
+// most of the take. A throwaway static server keeps the bar clean.
+const CARD_PORT = 8123;
+const CARDS = `http://localhost:${CARD_PORT}/cards`;
 const env = { ...process.env, DISPLAY, WAYLAND_DISPLAY: '' };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const xdo = (...a) => { try { execFileSync('xdotool', a, { env }); } catch (e) { console.error('xdotool', a.join(' '), e.message); } };
@@ -42,10 +48,30 @@ const site = process.argv[2] === 'rehearsal' ? 'atelier' : 'boutique';
 rmSync(MARKS, { force: true });
 rmSync(`${RIG}/issue-url.txt`, { force: true });
 
+// Ensure Xvfb is running on DISPLAY before staging windows
+try {
+  execFileSync('xdpyinfo', [], { env });
+} catch {
+  console.log(`starting Xvfb on ${DISPLAY}...`);
+  spawn('Xvfb', [DISPLAY, '-screen', '0', `${W}x${H}x24`, '-nolisten', 'tcp'], { stdio: 'ignore', detached: true });
+  for (let i = 0; i < 40; i++) {
+    try {
+      execFileSync('xdpyinfo', [], { env });
+      break;
+    } catch {
+      await sleep(250);
+    }
+  }
+}
+
+const cardServer = spawn('python3', ['-m', 'http.server', String(CARD_PORT), '--bind', '127.0.0.1',
+  '--directory', RIG], { stdio: 'ignore', detached: true });
+await sleep(800);
+
 // Stage both windows BEFORE recording, so the take opens on a composed frame.
 const ctx = await launchBrowser({ profileDir: `${RIG}/profile`, x: 0, y: 0, width: BROWSER_W, height: H });
 const page = ctx.pages()[0] ?? await ctx.newPage();
-await page.goto(`file://${RIG}/cards/title.html`);
+await page.goto(`${CARDS}/title.html`);
 
 const term = spawn('xterm', ['-fa', 'DejaVu Sans Mono', '-fs', '15', '-bg', '#0d1117', '-fg', '#c9d1d9',
   '-b', '16', '-bc', '-e', `${RIG}/${script}`], { env: { ...env, LC_ALL: 'C.UTF-8' }, detached: true, stdio: 'ignore' });
@@ -67,7 +93,7 @@ console.log('RECORDING ->', out);
 
 // Cards advance in the right pane while the terminal is already working.
 for (let i = 0; i < 3 && !hasMark('DRIFT_LIVE'); i++) {
-  await sleep(7000);
+  await sleep(5000);
   await page.evaluate(() => window.__next()).catch(() => {});
 }
 console.log(at(), 'cards done');
@@ -78,17 +104,37 @@ console.log(at(), 'showing the edited page');
 
 await waitMark('SWEEP_SENT');
 await sleep(8000);
-await page.goto(`file://${RIG}/cards/arch.html`);
+await page.goto(`${CARDS}/arch.html`);
 console.log(at(), 'showing the architecture');
 
 if (await waitMark('ISSUE_READY')) {
   const url = readFileSync(`${RIG}/issue-url.txt`, 'utf8').trim();
-  if (url && url.startsWith('http')) { await page.goto(url); console.log(at(), 'ticket ->', url); }
+  if (url && url.startsWith('http')) {
+    await page.goto(url);
+    console.log(at(), 'ticket ->', url);
+    const elapsed = Date.now() - t0;
+    // No floor: the 4:00 cap is the one binary rule, so a slow pipeline eats the payoff
+    // rather than the other way round.
+    const dwell = Math.max(0, Math.min(40000, 236000 - elapsed));
+    console.log(at(), `payoff dwell ${(dwell / 1000).toFixed(1)}s (elapsed ${(elapsed / 1000).toFixed(1)}s)`);
+
+    // smooth step scroll so redline and RoPA row each get readable screen time
+    const tEnd = Date.now() + dwell;
+    await sleep(Math.min(4000, dwell * 0.2));
+    await page.evaluate(() => window.scrollBy({ top: 400, behavior: 'smooth' })).catch(() => {});
+    await sleep(Math.min(10000, dwell * 0.35));
+    await page.evaluate(() => window.scrollBy({ top: 400, behavior: 'smooth' })).catch(() => {});
+    const remaining = Math.max(0, tEnd - Date.now());
+    if (remaining > 0) await sleep(remaining);
+  }
+} else {
+  await sleep(11000);
 }
-await sleep(11000);
 console.log(at(), 'take complete');
 
 ff.kill('SIGINT');
 await sleep(3000);
 try { process.kill(-term.pid); } catch {}
+try { process.kill(-cardServer.pid); } catch {}
 await ctx.close();
+process.exit(0);

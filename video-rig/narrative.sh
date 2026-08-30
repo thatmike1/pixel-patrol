@@ -8,13 +8,19 @@ say "site demo-boutique  ::  https://demo-sites-b2xhora5ka-ew.a.run.app/boutique
 sleep 1
 say "its last decision: the baseline this page was approved at"
 api GET "/sites/demo-boutique/decisions?limit=1" | jq -c '.decisions[0] | {action, sweepId, noiseCount, summary}'
-sleep 5
+sleep 3
 
 say "a marketer adds a Meta Pixel to the page"
 npm --prefix "$RIG/../demo-sites" run drift -- induce boutique-pixel
-PROJECT_ID=pixel-patrol-mp "$RIG/../infra/deploy-demo-sites.sh" 2>&1 | tail -4
+# The deploy is the longest single wait in the take. Piping it through `tail` held every
+# line until the process exited, which left both panes frozen for 50 seconds (measured with
+# freezedetect on take5). Stream it instead, unbuffered, with the docker layer-hash noise
+# filtered out so the pane stays readable while it scrolls.
+DEPLOY_NOISE='^( ---> |[0-9a-f]{12}: |Removing intermediate container|Digest: |Status: |Successfully built |-----|ID  |[0-9a-f]{8}-[0-9a-f]{4}-|Check the gcloud log|default gcloudignore|more\)\.|Some files were not|npm notice|npm warn|Uploading tarball|added [0-9]+ packages|found [0-9]+ vulnerabilit|$)'
+PROJECT_ID=pixel-patrol-mp PYTHONUNBUFFERED=1 stdbuf -oL -eL "$RIG/../infra/deploy-demo-sites.sh" 2>&1 \
+  | grep --line-buffered -vE "$DEPLOY_NOISE"
 mark DRIFT_LIVE
-sleep 3
+sleep 2
 
 say "nobody tells the watchdog. a sweep is forced the way the scheduler forces one."
 date -u '+%H:%M:%SZ  POST /sites/demo-boutique/sweep'
