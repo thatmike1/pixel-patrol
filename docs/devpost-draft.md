@@ -25,9 +25,8 @@ usually months, and it closes only when a regulator or a customer opens it.
 
 Everyone in this position knows the fix: check periodically, and update the policy when
 something changes. Nobody does it, because the checking is tedious and the updating is
-worse. That is not a chatbot problem. It is a problem where the work has to happen while
-nobody is watching, and arrive as a finished document in the place where work gets
-tracked.
+worse. A chatbot does not fix that. The work has to happen while nobody is watching, and
+it has to show up as a finished document in the place where work already gets tracked.
 
 ## What it does
 
@@ -71,12 +70,11 @@ The **compliance scribe** runs only when the analyst recorded drift. It writes t
 cookie-policy redline, naming each vendor's individual cookies and their retention
 periods, and the RoPA row.
 
-Everything else is deterministic code the model cannot reach around: reading
-fingerprints, computing the set difference, deciding what counts as noise, deduplicating
-a finding, filing the ticket, sending the mail. The model may read the alert-versus-noise
-split but never redraw it. That line is where the whole design sits. An LLM asked to
-eyeball two host lists will occasionally miss one, and a missed marketing pixel is the
-exact failure this product exists to prevent.
+Everything else is deterministic code the model cannot reach around: reading fingerprints,
+computing the set difference, deciding what counts as noise, deduplicating a finding,
+filing the ticket, sending the mail. The model may read the alert-versus-noise split but
+never redraw it. An LLM asked to eyeball two host lists will occasionally miss one, and a
+missed marketing pixel is the one failure this product exists to prevent.
 
 The infrastructure, all on **Google Cloud** in `europe-west1`:
 
@@ -109,36 +107,35 @@ a real browser visiting a real page, and the history each decision is made again
 site's own previous sweeps. The one external body of knowledge is a pair of vendor tables
 carried in the repo, 500 tracker domains and 1699 cookies, each entry naming the vendor,
 the category (analytics, marketing or functional), a Czech description and a typical
-retention period. They come from the author's earlier cookie-scanner project and are
-disclosed as pre-existing code below. They are what grounds the analyst: a domain the
-tables do not cover, and that the hostname heuristics cannot place either, is reported as
-`unclassified` with a null vendor rather than guessed at. The scribe uses the same tables
-for the retention periods it quotes in the redline, so the policy text and the
-classification cannot disagree with each other.
+retention period. They come from my earlier cookie-scanner project and are disclosed as
+pre-existing code below. They are what grounds the analyst: a domain the tables do not
+cover, and that the hostname heuristics cannot place either, is reported as `unclassified`
+with a null vendor rather than guessed at. The scribe uses the same tables for the
+retention periods it quotes in the redline, so the policy text and the classification
+cannot disagree with each other.
 
 The demo estate is five pages this project owns and serves, one per class of drift: a
 tracker-free page that gains a Meta Pixel, a page whose approved tracker is removed, one
 that gains a host the vendor tables have never heard of, one that gains a cookie without
 gaining a domain, and one that loads four real trackers and never changes. They load the
 real `gtag/js`, the real `clarity.ms/tag` and the real `fbevents.js`, so the fingerprints
-are genuine. Owning the pages is what lets the demo claim "a marketer added a tracking
-pixel and the watchdog opened a ticket" as the literal sequence of events, with no
-planted history.
+are genuine. Because I own the pages, "a marketer added a tracking pixel and the watchdog
+opened a ticket" is literally what happened, not a planted history.
 
 ## Challenges we ran into
 
 **A confident wrong answer, caught two days before submission.** The page pointed at
 `toplist.cz`, a real and obscure Czech hit counter, is there to prove the system will say
-"I do not know who this is" rather than guess. The first run came back naming Mailchimp
-as the operator, medium confidence, with a basis explaining that the related table entry
+"I do not know who this is" rather than guess. The first run came back naming Mailchimp as
+the operator, medium confidence, with a basis explaining that the related table entry
 `list-manage.com` shares a brand token. The model had followed its instructions exactly.
 The evidence it was handed was wrong: the near-match function accepted any four-character
 substring in one direction, so `"toplist"` contained `"list"` and Mailchimp was a
 neighbour. One loose `includes` in a lookup, and the output was an invented vendor in a
-document meant to be filed with a regulator, which is the worst thing this system can
-produce. The fix matches words rather than substrings, the exact case is pinned by a
-test, and the honest answer is now `vendor: null`, `unclassified`, low confidence, with a
-redline telling the owner to establish who runs the domain before publishing.
+document meant for a regulator. The fix matches words rather than substrings, the exact
+case is pinned by a test, and the honest answer is now `vendor: null`, `unclassified`, low
+confidence, with a redline telling the owner to establish who runs the domain before
+publishing.
 
 **A dead-letter queue that was silently a sink.** The dead-letter policy was configured
 and the IAM was correct, and a poison message really was published to the dead-letter
@@ -151,10 +148,8 @@ dead letter can arrive, and the whole path is verified end to end in the repo.
 **Tuning the silence honestly.** The stability window's numbers were a guess until they
 were checked against real overnight data. Doing that surfaced a real over-report: a site
 alerts loudly on its first sweeps after a baseline is approved, because there is no
-history to appeal to yet. Raising the window would make it worse. It is documented rather
-than papered over, because the fix is a different rule and not a different number, and
-inventing a number to make a chart look better is how a watchdog ends up trusted for the
-wrong reasons.
+history to appeal to yet. Raising the window would make it worse. I documented it instead
+of tuning it away, because the fix is a new rule, not a new number.
 
 **Least privilege after the fact.** The project accumulated the grants that make things
 work quickly. An audit near the end found the static demo page server running as the
@@ -169,14 +164,13 @@ first run, and the whole matrix is written down with the reasoning per grant.
 The system runs unattended and has been doing so for days, not minutes. Five demo sites
 plus two real ones, hourly, filing tickets and sending mail with nobody watching.
 
-**643 differences seen, 12 reported, no domain reported twice.** The watchdog that stays
-quiet across a page loading Google Analytics, Google Tag Manager, Microsoft Clarity and a
-CDN is the harder half of the claim, and it is the half most demos skip.
+**643 differences seen, 12 reported, no domain reported twice.** Staying quiet while a
+page loads Google Analytics, Google Tag Manager, Microsoft Clarity and a CDN is the harder
+half of the claim, and the half most demos skip.
 
 **The output is finished work, not a notification.** The ticket carries a Czech cookie
 policy redline naming each vendor's cookies with their retention periods, plus the RoPA
-row. Someone can paste it. That is the difference between removing friction and
-relocating it.
+row. Someone can paste it.
 
 **It says "I do not know" when it does not know**, and there is a test pinning the case
 that proves it.
@@ -184,9 +178,9 @@ that proves it.
 ## What we learned
 
 Deciding what an agent is not allowed to do turned out to be more of the design than
-deciding what it does. Every capability we moved out of the model and into a tool made
-the system both more correct and easier to explain, and the two agents that remain are
-each doing something a deterministic implementation would genuinely do worse.
+deciding what it does. Each capability I moved out of the model and into plain code made
+the system more correct and easier to explain. The two agents left are doing things
+deterministic code would do worse.
 
 The second lesson is that a demo that arranges its own evidence teaches you nothing. The
 early version planted history in a real third party's site so the next crawl would find
@@ -200,11 +194,11 @@ every subsequent claim checkable.
   waiting to be found.
 - The cold-window rule: suppress non-baseline additions until a site's history window is
   full, which removes the one honest over-report the tuning data found.
-- More than one jurisdiction. The redline is Czech because that is the law the author
-  lives under, but nothing in the pipeline is language-bound except the scribe's prompt
-  and the policy templates.
+- More than one jurisdiction. The redline is Czech because that is the law I live under,
+  but nothing in the pipeline is language-bound except the scribe's prompt and the policy
+  templates.
 - A pull request against the site's own policy file, for owners who keep it in a repo.
-  The ticket is where the work is tracked; the repo is where the fix belongs.
+  The ticket tracks the work; the fix belongs in the repo.
 
 ## Pre-existing code disclosure
 
