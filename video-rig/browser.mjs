@@ -1,6 +1,6 @@
 // Chromium for the recording stage: no banners, no horizontal tab strip, no selected
 // omnibox text over the .run.app URL a judge has to read.
-import { chromium } from '/home/thatmike1/git/pixel-patrol/node_modules/playwright/index.mjs';
+import { chromium } from '../crawler/node_modules/playwright/index.mjs';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, rmSync, writeFileSync, existsSync } from 'node:fs';
 

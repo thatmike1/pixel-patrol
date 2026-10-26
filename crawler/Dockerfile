@@ -12,42 +12,43 @@
 # folder. `infra/deploy-crawler.sh` submits the root with `--config` for the
 # same reason.
 FROM mcr.microsoft.com/playwright:v1.48.0-noble AS deps
+COPY --from=ghcr.io/pnpm/pnpm:12.15.0 /opt/pnpm /opt/pnpm
+RUN ln -s /opt/pnpm/pnpm /usr/local/bin/pnpm
 
 WORKDIR /app
 
 # production dependencies only, resolved from the root lockfile. built in its
-# own stage rather than pruned afterwards: `npm prune` reconciles every
-# workspace, which would drag the agent's dependencies back in.
-COPY package.json package-lock.json ./
+# own stage with a filtered install, so unrelated workspace dependencies stay out.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY shared/package.json ./shared/
 COPY crawler/package.json ./crawler/
-RUN npm ci --omit=dev \
-      --workspace pixel-patrol-crawler \
-      --workspace @pixel-patrol/shared \
-      --include-workspace-root
+COPY agent/package.json ./agent/
+COPY demo-sites/package.json ./demo-sites/
+RUN pnpm --filter pixel-patrol-crawler... install --frozen-lockfile --prod
 
 
 # ---------------------------------------------------------------------------
 # Build stage — the same install with dev dependencies, plus the compilers
 # ---------------------------------------------------------------------------
 FROM mcr.microsoft.com/playwright:v1.48.0-noble AS builder
+COPY --from=ghcr.io/pnpm/pnpm:12.15.0 /opt/pnpm /opt/pnpm
+RUN ln -s /opt/pnpm/pnpm /usr/local/bin/pnpm
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY shared/package.json ./shared/
 COPY crawler/package.json ./crawler/
-RUN npm ci \
-      --workspace pixel-patrol-crawler \
-      --workspace @pixel-patrol/shared \
-      --include-workspace-root
+COPY agent/package.json ./agent/
+COPY demo-sites/package.json ./demo-sites/
+RUN pnpm --filter pixel-patrol-crawler... install --frozen-lockfile
 
 COPY shared ./shared
 COPY crawler ./crawler
 
 # shared first: the crawler compiles against its declaration files
-RUN npm run build --workspace @pixel-patrol/shared \
- && npm run build --workspace pixel-patrol-crawler
+RUN pnpm --filter @pixel-patrol/shared run build \
+ && pnpm --filter pixel-patrol-crawler run build
 
 
 # ---------------------------------------------------------------------------
@@ -63,8 +64,9 @@ RUN groupadd -r crawler && useradd -r -g crawler -m -d /home/crawler crawler
 
 # copy only what's needed to run
 COPY --from=deps --chown=crawler:crawler /app/node_modules ./node_modules
+COPY --from=deps --chown=crawler:crawler /app/crawler/node_modules ./crawler/node_modules
 COPY --from=builder --chown=crawler:crawler /app/package.json ./package.json
-# node_modules/@pixel-patrol/shared is a symlink to ../../shared, so the package
+# crawler/node_modules/@pixel-patrol/shared links to ../../../shared, so the package
 # has to be here at the same relative path for the import to resolve
 COPY --from=builder --chown=crawler:crawler /app/shared/package.json ./shared/package.json
 COPY --from=builder --chown=crawler:crawler /app/shared/dist ./shared/dist

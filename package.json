@@ -2,7 +2,7 @@
   "name": "pixel-patrol",
   "version": "0.1.0",
   "private": true,
-  "description": "Pixel Patrol — GDPR drift watchdog. npm workspaces: one lockfile, one copy of the fingerprint types.",
+  "description": "Pixel Patrol — GDPR drift watchdog. pnpm workspaces: one lockfile, one copy of the fingerprint types.",
   "engines": {
     "node": ">=22.0.0"
   },
@@ -13,8 +13,9 @@
     "demo-sites"
   ],
   "scripts": {
-    "build": "npm run build --workspace @pixel-patrol/shared && npm run build --workspace pixel-patrol-crawler && npm run build --workspace pixel-patrol-agent && npm run build --workspace pixel-patrol-demo-sites",
-    "typecheck": "npm run typecheck --workspace @pixel-patrol/shared && npm run typecheck --workspace pixel-patrol-crawler && npm run typecheck --workspace pixel-patrol-agent && npm run typecheck --workspace pixel-patrol-demo-sites",
-    "test": "npm run test --workspace @pixel-patrol/shared && npm run test --workspace pixel-patrol-crawler && npm run test --workspace pixel-patrol-agent && npm run test --workspace pixel-patrol-demo-sites"
-  }
+    "build": "pnpm --filter @pixel-patrol/shared run build && pnpm --filter pixel-patrol-crawler run build && pnpm --filter pixel-patrol-agent run build && pnpm --filter pixel-patrol-demo-sites run build",
+    "typecheck": "pnpm --filter @pixel-patrol/shared run typecheck && pnpm --filter pixel-patrol-crawler run typecheck && pnpm --filter pixel-patrol-agent run typecheck && pnpm --filter pixel-patrol-demo-sites run typecheck",
+    "test": "pnpm --filter @pixel-patrol/shared run test && pnpm --filter pixel-patrol-crawler run test && pnpm --filter pixel-patrol-agent run test && pnpm --filter pixel-patrol-demo-sites run test"
+  },
+  "packageManager": "pnpm@12.15.0"
 }

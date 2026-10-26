@@ -54,12 +54,12 @@ numbers and how they were arrived at are in [docs/stability-tuning.md](docs/stab
 ## Spin up from zero
 
 Prerequisites: `gcloud` authenticated as an account that owns a billing account, Node 22
-or newer, `jq`, and Docker only if you want to build locally (the deploys build with Cloud
+or newer, pnpm 12.15.0, `jq`, and Docker only if you want to build locally (the deploys build with Cloud
 Build).
 
 ```bash
 git clone https://github.com/<owner>/pixel-patrol && cd pixel-patrol
-npm install
+pnpm install --frozen-lockfile
 
 # 1. project, identities, permissions, Firestore, topics, secrets, Artifact Registry.
 #    idempotent, and it ends with a live gemini-3.5-flash call, so a clean exit means
@@ -138,10 +138,10 @@ verdict for each shape. In short, each demo page carries its drift inline betwee
 comments and is toggled by commenting the payload in or out:
 
 ```bash
-npm --prefix demo-sites run drift -- status
-npm --prefix demo-sites run drift -- induce boutique-pixel   # a Meta Pixel appears
+pnpm --dir demo-sites run drift status
+pnpm --dir demo-sites run drift induce boutique-pixel   # a Meta Pixel appears
 PROJECT_ID=<your-project> ./infra/deploy-demo-sites.sh       # nothing is live until this
-npm --prefix demo-sites run drift -- reset                   # all pages back to baseline
+pnpm --dir demo-sites run drift reset                   # all pages back to baseline
 ```
 
 The edit is a real edit to a real page this project serves, so the claim "a marketer added
@@ -153,8 +153,8 @@ no planted history.
 135 tests, no framework, `node --test` with `tsx` as the loader.
 
 ```bash
-npm test        # all four workspaces
-npm run typecheck
+pnpm test        # all four workspaces
+pnpm run typecheck
 ```
 
 They cover the parts where being wrong is expensive: the diff kernel and the stability
@@ -190,5 +190,5 @@ static server.
 Gemini 3.5 Flash on Vertex AI (`global`), Google ADK (`LlmAgent` with `FunctionTool`s),
 Cloud Run services and a Cloud Run Job, Pub/Sub with dead-letter topics and pull
 subscriptions on both, Firestore in native mode, Cloud Scheduler, Secret Manager, Cloud
-Monitoring, Cloud Build and Artifact Registry. TypeScript on Node 22 throughout, in npm workspaces so the
+Monitoring, Cloud Build and Artifact Registry. TypeScript on Node 22 throughout, in pnpm workspaces so the
 fingerprint types exist exactly once.

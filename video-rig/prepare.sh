@@ -8,10 +8,10 @@ AGENT_URL=https://patrol-agent-b2xhora5ka-ew.a.run.app
 ADMIN_KEY="$(gcloud run services describe patrol-agent --region europe-west1 --project pixel-patrol-mp --format json | jq -r '.spec.template.spec.containers[0].env[]? | select(.name=="ADMIN_KEY") | .value')"
 api(){ local m="$1" p="$2"; shift 2; curl -sS -X "$m" "${AGENT_URL}${p}" -H "Authorization: Bearer $(gcloud auth print-identity-token)" -H "x-admin-key: ${ADMIN_KEY}" -H 'content-type: application/json' "$@"; }
 echo "1/4 pages back to unedited state"
-npm --prefix "$REPO/demo-sites" run drift -- reset
+pnpm --dir "$REPO/demo-sites" run drift reset
 PROJECT_ID=pixel-patrol-mp "$REPO/infra/deploy-demo-sites.sh"
 echo "2/4 wiping sweep history"
-GOOGLE_CLOUD_PROJECT=pixel-patrol-mp npm --prefix "$REPO/agent" run reset-demo-site -- \
+GOOGLE_CLOUD_PROJECT=pixel-patrol-mp pnpm --dir "$REPO/agent" run reset-demo-site \
   demo-boutique demo-magazine demo-clinic demo-bistro demo-atelier
 echo "3/4 one sweep each"
 for s in boutique magazine clinic bistro atelier; do api POST "/sites/demo-$s/sweep" -d '{}'; echo; done

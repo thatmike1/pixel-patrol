@@ -96,7 +96,7 @@ pane once showed entries from six days earlier. The query now pins an explicit
    Ubuntu's AppArmor blocks unprivileged user namespaces
    (`kernel.apparmor_restrict_unprivileged_userns = 1`), so the sandbox cannot start.
    Either ask Mike for `sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0`
-   and then drop `--no-sandbox`, or run `npx playwright install firefox` in the repo
+   and then drop `--no-sandbox`, or run `pnpm --dir crawler exec playwright install firefox` in the repo
    (the cache holds firefox-1538 but this Playwright wants firefox-1465) and switch
    the rig to Firefox, which has no such banner.
 

@@ -265,7 +265,7 @@ Repeating a demo needs the site's sweep history deleted, not just a fresh
 baseline:
 
 ```bash
-npm --prefix agent run reset-demo-site -- demo-boutique
+pnpm --dir agent run reset-demo-site demo-boutique
 ```
 
 Approving a new baseline clears the pending set but leaves the drifted sweep in
@@ -286,8 +286,8 @@ above. Removing it from the baseline alone works once, on a site whose first
 sweep is its baseline, and then quietly stops.
 
 ```bash
-npm --prefix agent run seed-drift -- <siteId>                              # list the baseline
-npm --prefix agent run seed-drift -- <siteId> doubleclick.net facebook.net # plant
+pnpm --dir agent run seed-drift <siteId>                              # list the baseline
+pnpm --dir agent run seed-drift <siteId> doubleclick.net facebook.net # plant
 ```
 
 The signal is real either way: the differ, the stability classification, the
@@ -359,18 +359,18 @@ is set. `infra/deploy-agent.sh` sets it in a second pass immediately after deplo
 
 ## Local
 
-This is an npm workspace. Install from the repo root, not from here:
+This is a pnpm workspace. Install from the repo root, not from here:
 
 ```bash
-cd .. && npm install                    # one lockfile, shared symlinked into node_modules
+cd .. && pnpm install --frozen-lockfile                    # one lockfile, shared symlinked into node_modules
 gcloud auth application-default login   # ADC for Firestore, Pub/Sub and Vertex
 cd agent && cp .env.example .env        # then export the variables you need
-npm run typecheck && npm test
-npm run dev
+pnpm run typecheck && pnpm test
+pnpm run dev
 ```
 
 `@pixel-patrol/shared` ships compiled JS, so every script here builds it first through
-a `pre` hook. `npm test` covers the store-backed drift pipeline, the classification and redline
+a `pre` hook. `pnpm test` covers the store-backed drift pipeline, the classification and redline
 machinery around the two agents, and the push-envelope decoder, and needs no credentials
 or emulator; the pure classification is tested in
 `shared`. The rest is verified against the real project.
@@ -396,7 +396,7 @@ PROJECT_ID=pixel-patrol-mp ./infra/wire-pubsub.sh    # topics, push subscription
 The image is built with the **repo root** as the Docker context
 (`infra/cloudbuild-agent.yaml`), because this service imports `@pixel-patrol/shared`
 from outside this directory and `gcloud builds submit agent` would upload only
-`agent/`. The npm install inside the Dockerfile is filtered to this workspace and
+`agent/`. The pnpm install inside the Dockerfile is filtered to this workspace and
 `shared`, so the crawler's Playwright never lands in this image.
 
 Both are idempotent. `deploy-agent.sh` prints a generated `ADMIN_KEY` once on the first

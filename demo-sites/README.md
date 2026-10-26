@@ -59,9 +59,9 @@ commenting the payload in or out:
 ```
 
 ```bash
-npm --prefix demo-sites run drift -- status
-npm --prefix demo-sites run drift -- induce boutique-pixel
-npm --prefix demo-sites run drift -- reset
+pnpm --dir demo-sites run drift status
+pnpm --dir demo-sites run drift induce boutique-pixel
+pnpm --dir demo-sites run drift reset
 ```
 
 `reset` restores every page byte for byte, so `git status` after a demo run says
@@ -75,8 +75,8 @@ force and where the ticket and the email land.
 ## Local
 
 ```bash
-npm --prefix demo-sites run dev     # http://localhost:8080/boutique/
-npm --prefix demo-sites test
+pnpm --dir demo-sites run dev     # http://localhost:8080/boutique/
+pnpm --dir demo-sites test
 ```
 
 ## Deploy

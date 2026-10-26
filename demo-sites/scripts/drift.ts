@@ -1,9 +1,9 @@
 /**
  * the demo operator's switchboard.
  *
- *   npm --prefix demo-sites run drift -- status
- *   npm --prefix demo-sites run drift -- reset
- *   npm --prefix demo-sites run drift -- induce boutique-pixel
+ *   pnpm --dir demo-sites run drift status
+ *   pnpm --dir demo-sites run drift reset
+ *   pnpm --dir demo-sites run drift induce boutique-pixel
  *
  * it only edits files. nothing here reaches the watchdog, and nothing here
  * deploys: a change is not live until `infra/deploy-demo-sites.sh` has run, and

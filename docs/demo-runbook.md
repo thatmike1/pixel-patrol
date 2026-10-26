@@ -65,11 +65,11 @@ pixel will classify as `flapping` and silently do nothing.
 cd ~/git/pixel-patrol
 
 # 1. pages back to their unedited state
-npm --prefix demo-sites run drift -- reset
+pnpm --dir demo-sites run drift reset
 PROJECT_ID=pixel-patrol-mp ./infra/deploy-demo-sites.sh
 
 # 2. wipe each demo site's sweep history
-GOOGLE_CLOUD_PROJECT=pixel-patrol-mp npm --prefix agent run reset-demo-site -- \
+GOOGLE_CLOUD_PROJECT=pixel-patrol-mp pnpm --dir agent run reset-demo-site \
   demo-boutique demo-magazine demo-clinic demo-bistro demo-atelier
 
 # 3. one sweep each — the analyst records baseline-created and approves it
@@ -110,7 +110,7 @@ scribe and the notifier.
 ### 1. A tracker-free page gains a Meta Pixel — `demo-boutique`
 
 ```bash
-npm --prefix demo-sites run drift -- induce boutique-pixel
+pnpm --dir demo-sites run drift induce boutique-pixel
 PROJECT_ID=pixel-patrol-mp ./infra/deploy-demo-sites.sh
 api POST /sites/demo-boutique/sweep -d '{}'; echo
 sleep 120
@@ -128,7 +128,7 @@ marketing domains.
 ### 2. An approved tracker is removed — `demo-magazine`
 
 ```bash
-npm --prefix demo-sites run drift -- induce magazine-clarity
+pnpm --dir demo-sites run drift induce magazine-clarity
 PROJECT_ID=pixel-patrol-mp ./infra/deploy-demo-sites.sh
 api POST /sites/demo-magazine/sweep -d '{}'; echo
 sleep 120
@@ -156,7 +156,7 @@ comes up.
 ### 3. A host nothing in the tables knows — `demo-clinic`
 
 ```bash
-npm --prefix demo-sites run drift -- induce clinic-beacon
+pnpm --dir demo-sites run drift induce clinic-beacon
 PROJECT_ID=pixel-patrol-mp ./infra/deploy-demo-sites.sh
 api POST /sites/demo-clinic/sweep -d '{}'; echo
 sleep 120
@@ -178,7 +178,7 @@ pins it is in `shared/src/knowledge.test.ts`.)
 ### 4. A cookie appears, with no new domain — `demo-bistro`
 
 ```bash
-npm --prefix demo-sites run drift -- induce bistro-cookie
+pnpm --dir demo-sites run drift induce bistro-cookie
 PROJECT_ID=pixel-patrol-mp ./infra/deploy-demo-sites.sh
 api POST /sites/demo-bistro/sweep -d '{}'; echo
 sleep 120
