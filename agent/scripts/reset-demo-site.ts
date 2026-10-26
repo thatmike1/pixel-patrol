@@ -27,8 +27,8 @@
  * person runs at midnight before a deadline. Demo targets are pages we own and
  * throw away; nothing else is.
  *
- *   npm --prefix agent run reset-demo-site -- demo-boutique
- *   npm --prefix agent run reset-demo-site -- demo-boutique demo-clinic
+ *   pnpm --dir agent run reset-demo-site demo-boutique
+ *   pnpm --dir agent run reset-demo-site demo-boutique demo-clinic
  *
  * After this, force a sweep: with no history at all the analyst records
  * `baseline-created` and approves it, which is the state every demo starts from.

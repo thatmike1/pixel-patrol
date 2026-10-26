@@ -18,4 +18,4 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 GOOGLE_CLOUD_PROJECT="${GOOGLE_CLOUD_PROJECT:-${PROJECT_ID:-pixel-patrol-mp}}" \
 GONE_AFTER="${GONE_AFTER:-3}" \
-  npm --prefix "${ROOT}/agent" run --silent report -- "$SITE_ID" "$WINDOW"
+  pnpm --dir "${ROOT}/agent" --silent run report "$SITE_ID" "$WINDOW"

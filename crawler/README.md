@@ -77,25 +77,25 @@ files.
 
 ## Running locally
 
-This is an npm workspace; install from the repo root, not from here.
+This is a pnpm workspace; install from the repo root, not from here.
 
 ```bash
-cd .. && npm install                # one lockfile, shared symlinked into node_modules
+cd .. && pnpm install --frozen-lockfile                # one lockfile, shared symlinked into node_modules
 cd crawler
-npx playwright install chromium     # only if you have no Playwright browsers yet
+pnpm exec playwright install chromium     # only if you have no Playwright browsers yet
 gcloud auth application-default login
 
 GOOGLE_CLOUD_PROJECT=pixel-patrol-mp \
 SITE_ID=test \
 SITE_URL=https://example.com \
 SWEEP_ID=local-1 \
-npm run dev
+pnpm run dev
 ```
 
 This writes to real Firestore and publishes to the real topic. Use a throwaway
 `SITE_ID` so you do not overwrite a tracked site's history.
 
-Other scripts: `npm run typecheck`, `npm test`, `npm run build`, `npm start`.
+Other scripts: `pnpm run typecheck`, `pnpm test`, `pnpm run build`, `pnpm start`.
 
 ## Building the image
 
@@ -105,7 +105,7 @@ docker build -f crawler/Dockerfile -t pixel-patrol-crawler ..
 
 The context is the **repo root**, not this directory, because the job imports
 `@pixel-patrol/shared` from outside it. `infra/deploy-crawler.sh` submits the root
-with `infra/cloudbuild-crawler.yaml` for the same reason. The npm install inside the
+with `infra/cloudbuild-crawler.yaml` for the same reason. The pnpm install inside the
 Dockerfile is filtered to this workspace and `shared`, so the agent's dependencies
 never land in this image.
 

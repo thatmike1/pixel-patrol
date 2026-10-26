@@ -30,8 +30,8 @@
  * ever contained the domain, its presence ratio is 0, and it classifies as
  * `new`.
  *
- *   npm --prefix agent run seed-drift -- demo-shop                       # list
- *   npm --prefix agent run seed-drift -- demo-shop doubleclick.net       # plant
+ *   pnpm --dir agent run seed-drift demo-shop                       # list
+ *   pnpm --dir agent run seed-drift demo-shop doubleclick.net       # plant
  *
  * with no domains it prints the baseline's, so the next call can name ones the
  * site actually loads.

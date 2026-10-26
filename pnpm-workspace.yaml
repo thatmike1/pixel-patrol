@@ -1,0 +1,10 @@
+packages:
+  - shared
+  - crawler
+  - agent
+  - demo-sites
+
+allowBuilds:
+  esbuild: true
+  protobufjs: true
+  "@google/genai": false

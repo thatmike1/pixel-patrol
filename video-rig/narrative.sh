@@ -12,7 +12,7 @@ api GET "/sites/demo-boutique/decisions?limit=1" | jq -c '.decisions[0] | {actio
 sleep 3
 
 say "a marketer adds a Meta Pixel to the page"
-npm --prefix "$RIG/../demo-sites" run drift -- induce boutique-pixel
+pnpm --dir "$RIG/../demo-sites" run drift induce boutique-pixel
 # The deploy is the longest single wait in the take. Piping it through `tail` held every
 # line until the process exited, which left both panes frozen for 50 seconds (measured with
 # freezedetect on take5). Stream it instead, unbuffered, with the docker layer-hash noise

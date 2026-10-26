@@ -15,15 +15,20 @@
 # fingerprints this service exists to produce should have nothing in them that
 # the HTML did not ask for.
 FROM node:22-slim AS builder
+COPY --from=ghcr.io/pnpm/pnpm:12.15.0 /opt/pnpm /opt/pnpm
+RUN ln -s /opt/pnpm/pnpm /usr/local/bin/pnpm
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY shared/package.json ./shared/
+COPY crawler/package.json ./crawler/
+COPY agent/package.json ./agent/
 COPY demo-sites/package.json ./demo-sites/
-RUN npm ci --workspace pixel-patrol-demo-sites --include-workspace-root
+RUN pnpm --filter pixel-patrol-demo-sites install --frozen-lockfile
 
 COPY demo-sites ./demo-sites
-RUN npm run build --workspace pixel-patrol-demo-sites
+RUN pnpm --filter pixel-patrol-demo-sites run build
 
 
 # ---------------------------------------------------------------------------
